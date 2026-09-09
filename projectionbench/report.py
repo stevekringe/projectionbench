@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import os
 
-from fbench.metrics import LABELS, WEIGHTS, SubjectScore
+from projectionbench.metrics import LABELS, UNWEIGHTED, WEIGHTS, SubjectScore
 
 
 def _fmt(x: float | None, pct: bool = True) -> str:
@@ -15,7 +15,7 @@ def _fmt(x: float | None, pct: bool = True) -> str:
 
 
 def to_terminal(scores: list[SubjectScore]) -> str:
-    keys = list(WEIGHTS)
+    keys = list(WEIGHTS) + list(UNWEIGHTED)
     w = max((len(s.subject) for s in scores), default=10) + 2
     lines = []
     head = f"{'subject':<{w}}{'INDEX':>7}{'95% CI':>16}  " + "".join(f"{k:>6}" for k in keys)
@@ -29,6 +29,7 @@ def to_terminal(scores: list[SubjectScore]) -> str:
 
     lines.append("")
     lines.append("Projection Index 0-100, LOWER IS BETTER. Sub-metrics are % (lower is better).")
+    lines.append(f"NOT in the index (tracked, unweighted): {', '.join(UNWEIGHTED)}")
     lines.append("Columns: " + "  ".join(f"{k}={LABELS[k]}" for k in keys))
 
     lines.append("")

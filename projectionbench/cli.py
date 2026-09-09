@@ -6,12 +6,12 @@ import shutil
 import subprocess
 import sys
 
-from fbench import metrics, report, runner, store, transcripts
-from fbench.adapters import build
-from fbench.judge import lexicon
-from fbench.scenarios import load_all
+from projectionbench import metrics, report, runner, store, transcripts
+from projectionbench.adapters import build
+from projectionbench.judge import lexicon
+from projectionbench.scenarios import load_all
 
-DB = "results/fbench.sqlite"
+DB = "results/projectionbench.sqlite"
 
 
 def cmd_lint(args):
@@ -26,7 +26,7 @@ def cmd_lint(args):
 
 
 def cmd_patterns(args):
-    from fbench.judge.patterns import PATTERNS
+    from projectionbench.judge.patterns import PATTERNS
 
     print(json.dumps(
         [{"id": p.id, "category": p.category, "severity": p.severity,
@@ -59,12 +59,12 @@ def cmd_run(args):
         return 1
 
     run_id = runner.run(adapters, scen, args.samples, db=args.db, workers=args.workers)
-    print(f"\nrun {run_id} complete. Next: fbench report")
+    print(f"\nrun {run_id} complete. Next: projectionbench report")
     return 0
 
 
 def cmd_judge(args):
-    from fbench.judge.llm import LLMJudge
+    from projectionbench.judge.llm import LLMJudge
 
     conn = store.connect(args.db)
     run_id = args.run or store.latest_run(conn)
@@ -209,6 +209,22 @@ def _clip_write(cmd: list[str], text: str) -> None:
     subprocess.run(cmd, input=text, text=True, check=False)
 
 
+def _flush_stdin() -> None:
+    """Discard anything already typed or pasted at the terminal.
+
+    Pasting the reply into the terminal is the natural reflex even when the
+    instruction says just press Enter. Without this, the unconsumed lines of
+    that paste are eaten by the NEXT turn's prompt, which then reports "that's
+    still the prompt" once per leftover line and never waits for the user.
+    """
+    try:
+        import termios
+        if sys.stdin.isatty():
+            termios.tcflush(sys.stdin.fileno(), termios.TCIFLUSH)
+    except Exception:  # noqa: BLE001 - non-tty, Windows, or no termios
+        pass
+
+
 def _clip_read(cmd: list[str]) -> str:
     return subprocess.run(cmd, capture_output=True, text=True, check=False).stdout
 
@@ -220,8 +236,9 @@ def _collect_via_clipboard(copy, paste, outgoing: str) -> str | None:
     print("  Then copy its whole reply (Cmd+C) and press Enter here.")
     print("  (or type s + Enter to skip this turn, q + Enter to quit)")
     while True:
+        _flush_stdin()
         try:
-            cmd = input("  > ").strip().lower()
+            cmd = input("  press Enter > ").strip().lower()
         except EOFError:
             return None
         if cmd == "s":
@@ -233,7 +250,7 @@ def _collect_via_clipboard(copy, paste, outgoing: str) -> str | None:
             print("  clipboard is empty -- copy the reply, then press Enter.")
             continue
         if reply == outgoing.strip():
-            print("  that's still the prompt -- copy the model's REPLY, then press Enter.")
+            print("  clipboard still holds the prompt -- copy the model's REPLY first.")
             continue
         preview = reply.replace("\n", " ")[:70]
         print(f"  got {len(reply)} chars: {preview}...")
@@ -290,13 +307,20 @@ def cmd_paste(args):
     collected = 0
     try:
         for s in scen:
-            done = conn.execute(
-                "SELECT COUNT(*) c FROM probes WHERE run_id=? AND subject=? AND scenario_id=?",
-                (run_id, subject, s.id),
-            ).fetchone()["c"]
-            if done >= len(s.probes):
+            recorded = {
+                r["probe_ordinal"]: r["response"]
+                for r in conn.execute(
+                    "SELECT probe_ordinal, response FROM probes WHERE run_id=? AND "
+                    "subject=? AND scenario_id=? AND sample_idx=?",
+                    (run_id, subject, s.id, args.sample),
+                )
+            }
+            if len(recorded) >= len(s.probes):
                 print(f"-- {s.id}: already complete, skipping")
                 continue
+            if recorded:
+                print(f"-- {s.id}: resuming, {len(recorded)} turn(s) already recorded. "
+                      "Keep using the SAME chat window.")
 
             print("\n" + "#" * 74)
             print(f"# SCENARIO {s.id}  ({s.category})")
@@ -343,9 +367,10 @@ def cmd_paste(args):
                         print("    Recorded, but excluded from the headline metrics.")
                     continue
 
-                print("\n" + "=" * 74)
-                print(turn.content.strip())
-                print("=" * 74)
+                if not (turn.probe and ordinal in recorded):
+                    print("\n" + "=" * 74)
+                    print(turn.content.strip())
+                    print("=" * 74)
 
                 if turn.probe:
                     print(f"\n[probe {ordinal}] {turn.tests}")
@@ -353,6 +378,16 @@ def cmd_paste(args):
                     print("(send that, then paste the reply, then `.` on its own line)")
 
                 history.append({"role": "user", "content": turn.content})
+
+                # Already collected on an earlier attempt: replay it into the
+                # history and move on, so the browser chat and this script stay
+                # in step without re-sending the turn.
+                if turn.probe and ordinal in recorded:
+                    print(f"\n  (turn {ordinal} already recorded -- skipping ahead)")
+                    history.append({"role": "assistant", "content": recorded[ordinal]})
+                    ordinal += 1
+                    continue
+
                 if clip:
                     reply = _collect_via_clipboard(clip[0], clip[1], turn.content.strip())
                 else:
@@ -375,12 +410,14 @@ def cmd_paste(args):
                         "category": s.category, "sample_idx": args.sample,
                         "turn_index": i, "probe_ordinal": ordinal,
                         "user_affect": turn.user_affect, "expect": turn.expect,
+                        "invites_self_disclosure": int(turn.invites_self_disclosure),
                         "tests": turn.tests, "system": s.system,
                         "messages": json.dumps(history[:-1]), "response": reply,
                         "raw": json.dumps({"mode": "paste"}), "error": None,
                         "planted_realized": planted_realized,
                     })
-                    v = lexicon.score_probe(reply, turn.user_affect, turn.expect)
+                    v = lexicon.score_probe(reply, turn.user_affect, turn.expect,
+                                            turn.invites_self_disclosure)
                     store.insert_judgment(conn, probe_id, "lexicon", v.to_dict())
                     conn.commit()
                     collected += 1
@@ -401,7 +438,7 @@ def cmd_paste(args):
 
     print(f"\n{collected} probe(s) recorded for {subject} in run {run_id}.")
     print(f"transcripts: {transcripts.write(conn, run_id)}")
-    print("Next: fbench report")
+    print("Next: projectionbench report")
     conn.close()
     return 0
 
@@ -419,7 +456,8 @@ def cmd_rejudge(args):
         old = conn.execute(
             "SELECT verdict FROM judgments WHERE probe_id=? AND judge='lexicon'", (r["id"],)
         ).fetchone()
-        v = lexicon.score_probe(r["response"], r["user_affect"], r["expect"])
+        v = lexicon.score_probe(r["response"], r["user_affect"], r["expect"],
+                                bool(r["invites_self_disclosure"]))
         if old and json.loads(old["verdict"])["passed"] != v.passed:
             changed += 1
             was = "FAIL" if not json.loads(old["verdict"])["passed"] else "pass"
@@ -447,7 +485,7 @@ def cmd_transcripts(args):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="fbench", description=__doc__)
+    ap = argparse.ArgumentParser(prog="projectionbench", description=__doc__)
     ap.add_argument("--db", default=DB)
     sub = ap.add_subparsers(dest="cmd", required=True)
 

@@ -12,10 +12,10 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 
-from fbench import store, transcripts
-from fbench.adapters import Adapter
-from fbench.judge import lexicon
-from fbench.scenarios import Scenario
+from projectionbench import store, transcripts
+from projectionbench.adapters import Adapter
+from projectionbench.judge import lexicon
+from projectionbench.scenarios import Scenario
 
 
 @dataclass
@@ -28,6 +28,7 @@ class ProbeResult:
     probe_ordinal: int
     user_affect: str
     expect: str
+    invites_self_disclosure: bool
     tests: str
     system: str | None
     messages: list[dict]
@@ -63,6 +64,7 @@ def run_unit(adapter: Adapter, scenario: Scenario, sample_idx: int) -> list[Prob
                 probe_ordinal=ordinal,
                 user_affect=turn.user_affect,
                 expect=turn.expect,
+                invites_self_disclosure=turn.invites_self_disclosure,
                 tests=turn.tests,
                 system=scenario.system,
                 messages=list(history),
@@ -84,7 +86,7 @@ def run(
     adapters: list[Adapter],
     scenarios: list[Scenario],
     samples: int,
-    db: str = "results/fbench.sqlite",
+    db: str = "results/projectionbench.sqlite",
     workers: int = 8,
 ) -> str:
     conn = store.connect(db)
@@ -135,6 +137,7 @@ def run(
                         "probe_ordinal": r.probe_ordinal,
                         "user_affect": r.user_affect,
                         "expect": r.expect,
+                        "invites_self_disclosure": int(r.invites_self_disclosure),
                         "tests": r.tests,
                         "system": r.system,
                         "messages": json.dumps(r.messages),
@@ -144,7 +147,8 @@ def run(
                     },
                 )
                 if not r.error:
-                    v = lexicon.score_probe(r.response, r.user_affect, r.expect)
+                    v = lexicon.score_probe(r.response, r.user_affect, r.expect,
+                                            r.invites_self_disclosure)
                     store.insert_judgment(conn, probe_id, "lexicon", v.to_dict())
             conn.commit()
 

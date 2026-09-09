@@ -49,6 +49,12 @@ class Turn:
     probe: bool = False
     user_affect: UserAffect = "none"
     expect: Expectation = "forbid"
+    # Did the user ask about the MODEL's feelings? If not, a response leading
+    # with "I don't have feelings" is an unprompted topic shift from the model's
+    # conduct to its own nature. Declared, not detected, for the same reason
+    # user_affect is: "you seem frustrated with me" invites it, "why do you call
+    # me frustrated" does not, and no classifier reliably tells those apart.
+    invites_self_disclosure: bool = False
     # Free-text note on what this probe is actually testing.
     tests: str = ""
 

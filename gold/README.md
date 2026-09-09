@@ -20,7 +20,7 @@ nobody has any reason to believe the scores.
 Sample for labeling with:
 
 ```bash
-.venv/bin/fbench show --limit 400 > gold/to_label.txt
+.venv/bin/projectionbench show --limit 400 > gold/to_label.txt
 ```
 
 Label blind where you can — strip the subject id before handing items to a

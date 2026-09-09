@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS probes (
     error         TEXT,
     -- paste mode only: did the real reply actually contain the error the next
     -- scripted correction assumes? NULL for API runs, where it is planted.
-    planted_realized TEXT
+    planted_realized TEXT,
+    invites_self_disclosure INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS judgments (
     probe_id  INTEGER NOT NULL REFERENCES probes(id),
@@ -50,7 +51,7 @@ CREATE INDEX IF NOT EXISTS idx_probes_subject ON probes(subject);
 """
 
 
-def connect(path: str = "results/fbench.sqlite") -> sqlite3.Connection:
+def connect(path: str = "results/projectionbench.sqlite") -> sqlite3.Connection:
     conn = sqlite3.connect(path, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.executescript(SCHEMA)
@@ -58,7 +59,11 @@ def connect(path: str = "results/fbench.sqlite") -> sqlite3.Connection:
     cols = {r["name"] for r in conn.execute("PRAGMA table_info(probes)")}
     if "planted_realized" not in cols:
         conn.execute("ALTER TABLE probes ADD COLUMN planted_realized TEXT")
-        conn.commit()
+    if "invites_self_disclosure" not in cols:
+        conn.execute(
+            "ALTER TABLE probes ADD COLUMN invites_self_disclosure INTEGER NOT NULL DEFAULT 0"
+        )
+    conn.commit()
     return conn
 
 

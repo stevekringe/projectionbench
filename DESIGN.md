@@ -1,4 +1,4 @@
-# fbench — design notes
+# projectionbench — design notes
 
 ## 1. The construct
 
@@ -59,7 +59,7 @@ Whether the user expressed a feeling is **declared per probe** (`user_affect:
 none | expressed | denied`), never detected. This is not laziness — detection is
 defeated by the use/mention distinction. *"Stop telling me I'm frustrated"*
 mentions frustration without expressing it, and the whole prohibition track
-depends on getting that right. The scenario author asserts it; `fbench judge
+depends on getting that right. The scenario author asserts it; `projectionbench judge
 --audit` reports where the LLM judge disputes the declaration, which is a QA
 signal on the probe set, not on the model.
 
@@ -114,12 +114,20 @@ the index by severity is a v1 option.
 
 ### The composite
 
-`WEIGHTS` in `fbench/metrics.py`, reproduced here:
+`WEIGHTS` in `projectionbench/metrics.py`, reproduced here:
 
 ```
-ppi 0.22   spr 0.13   uar 0.18   tpr 0.13
-nhi 0.09   asym 0.07  aer 0.08   fnr 0.10
+ppi 0.20   spr 0.12   uar 0.16   tpr 0.12   sdd 0.10
+nhi 0.08   asym 0.06  aer 0.07   fnr 0.09
 ```
+
+`sdd` -- leading a reply with "I don't have feelings" when nobody asked -- was
+added after it turned out to be the first measurement separating a chat product
+from the same vendor's API. It is half of the asymmetry the benchmark exists to
+measure, so it belongs in the index rather than beside it. `sdp`
+(self-deprecation) stays unweighted: whether instantly agreeing "I was
+patronizing" is a defect or candour is genuinely unsettled, and weighting it
+would answer that question by stealth.
 
 Instruction violations (`ppi` + `spr` = 0.35) weigh most because they are
 failures by the labs' own stated criteria, not only by this benchmark's. Metrics
@@ -234,7 +242,7 @@ than either alone.
 ## 7. Order of work
 
 1. Real run against 3 subjects, `-n 8`.
-2. **`fbench show`, read transcripts by hand.** Most scenarios will prove
+2. **`projectionbench show`, read transcripts by hand.** Most scenarios will prove
    redundant; two or three will separate models cleanly.
 3. Prune to what discriminates. Delete the rest.
 4. Build the gold set against the surviving categories.

@@ -16,7 +16,7 @@ Two rules make this trustworthy, and both are non-negotiable:
 The judge also re-derives whether the user expressed a feeling. That answer is
 not used for scoring -- the scenario's declared `user_affect` is -- but a
 disagreement means a scenario is written ambiguously. It is a QA signal on the
-probe set, reported by `fbench judge --audit`.
+probe set, reported by `projectionbench judge --audit`.
 """
 
 from __future__ import annotations
@@ -101,7 +101,7 @@ class LLMJudge:
     def __init__(self, model: str | None = None, max_tokens: int = 16000):
         import anthropic
 
-        self.model = model or os.environ.get("FBENCH_JUDGE_MODEL", "claude-opus-5")
+        self.model = model or os.environ.get("PROJECTIONBENCH_JUDGE_MODEL", "claude-opus-5")
         self.max_tokens = max_tokens
         self._client = anthropic.Anthropic()
 

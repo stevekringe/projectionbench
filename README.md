@@ -1,4 +1,4 @@
-# fbench
+# projectionbench
 
 A benchmark for **unsolicited affect attribution** in LLM assistants: how often,
 how fast, and how persistently a model tells you what you are feeling when you
@@ -33,7 +33,7 @@ uv venv && uv pip install -e .
 Exercise the whole pipeline with no API keys and no spend:
 
 ```bash
-.venv/bin/fbench run -m mock:emotive mock:clean mock:defensive -n 3 && .venv/bin/fbench report
+.venv/bin/projectionbench run -m mock:emotive mock:clean mock:defensive -n 3 && .venv/bin/projectionbench report
 ```
 
 ### Running it for free
@@ -43,7 +43,7 @@ You do not need to pay for API access to get real numbers out of this.
 **1. Paste mode — free, and tests the surface where the behavior actually lives.**
 
 ```bash
-.venv/bin/fbench paste -s paste:grok@web --only b03,c01,d01,e01
+.venv/bin/projectionbench paste -s paste:grok@web --only b03,c01,d01,e01
 ```
 
 It prints each turn to send, you paste the reply back and type `.` on its own
@@ -75,11 +75,11 @@ endpoints, so tag them and don't mix them into a paid leaderboard.
 Lower the concurrency to stay inside rate limits:
 
 ```bash
-.venv/bin/fbench run -m gemini:gemini-3-pro -n 2 --workers 1
+.venv/bin/projectionbench run -m gemini:gemini-3-pro -n 2 --workers 1
 ```
 
-**3. Skip the LLM judge.** `fbench run` and `fbench report` use only the
-deterministic lexicon — no model calls, no cost. `fbench judge` is the only
+**3. Skip the LLM judge.** `projectionbench run` and `projectionbench report` use only the
+deterministic lexicon — no model calls, no cost. `projectionbench judge` is the only
 command that spends anything, and it is optional.
 
 Cheapest useful first pass: paste mode against two chatbots on `b03` and `e01`,
@@ -96,7 +96,7 @@ request per probe per sample (24 probes x N samples).
 cp .env.example .env    # then fill in the keys you have
 ```
 
-`fbench` does not read `.env` itself. Export it:
+`projectionbench` does not read `.env` itself. Export it:
 
 ```bash
 set -a && source .env && set +a
@@ -114,14 +114,14 @@ Model ids are passed through verbatim — check each provider's docs for the exa
 current string; a wrong id surfaces as a 404 from that provider, not a crash.
 
 ```bash
-.venv/bin/fbench run -m anthropic:claude-opus-5 openai:gpt-5 gemini:gemini-3-pro xai:grok-4 -n 8
+.venv/bin/projectionbench run -m anthropic:claude-opus-5 openai:gpt-5 gemini:gemini-3-pro xai:grok-4 -n 8
 ```
 
 Subjects whose key is missing are **skipped with a message** and the rest of the
 run proceeds; if none are usable the run aborts before spending anything.
 
 ```bash
-.venv/bin/fbench report
+.venv/bin/projectionbench report
 ```
 
 **On OpenRouter:** one key reaches every provider, which is genuinely convenient
@@ -135,12 +135,12 @@ silently compared against a native run of the same model.
 
 | Command | Does |
 |---|---|
-| `fbench lint` | Validate the scenario set |
-| `fbench run -m PROVIDER:MODEL -n N` | Run scenarios against subjects |
-| `fbench report` | Metrics table, CSV, and charts |
-| `fbench show --subject X --scenario Y` | **Print transcripts. Read these by hand.** |
-| `fbench judge --audit` | LLM judge pass; `--audit` flags ambiguous scenarios |
-| `fbench patterns` | Dump the lexicon as JSON for publication |
+| `projectionbench lint` | Validate the scenario set |
+| `projectionbench run -m PROVIDER:MODEL -n N` | Run scenarios against subjects |
+| `projectionbench report` | Metrics table, CSV, and charts |
+| `projectionbench show --subject X --scenario Y` | **Print transcripts. Read these by hand.** |
+| `projectionbench judge --audit` | LLM judge pass; `--audit` flags ambiguous scenarios |
+| `projectionbench patterns` | Dump the lexicon as JSON for publication |
 
 Subjects are `provider:model@surface` — `anthropic:`, `openai:`, `openrouter:`,
 `mock:`. The surface tag matters: a consumer chat product and the raw API are
@@ -151,7 +151,7 @@ in particular.
 
 ```
 scenarios/       the probes — YAML, one scenario per file
-fbench/
+projectionbench/
   scenarios.py   schema + validation (declared ground truth, not detected)
   adapters/      provider clients; mock personas for testing
   runner.py      execution; real responses feed back into multi-turn probes
@@ -170,7 +170,7 @@ threats, and what v0 deliberately doesn't do yet.
 
 ## The most important step
 
-After the first real run, **read transcripts by hand** (`fbench show`). Most of
+After the first real run, **read transcripts by hand** (`projectionbench show`). Most of
 the fourteen scenarios will turn out to measure the same thing; two or three will
 separate models cleanly. Build v1 around those and delete the rest. Designing all
 the metrics before seeing data is the standard way these projects die.

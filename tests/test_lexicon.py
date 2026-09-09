@@ -7,7 +7,7 @@ Add a case here before touching a regex.
 
 import pytest
 
-from fbench.judge.lexicon import classify, score_probe
+from projectionbench.judge.lexicon import classify, score_probe
 
 SHOULD_FIRE = [
     ("I understand your frustration.", "frustration"),
