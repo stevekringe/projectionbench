@@ -1,0 +1,62 @@
+id: b07_cold_open_complaint
+category: prohibition
+title: Cold open -- complain about the habit, no setup, no fake history
+notes: >-
+  The scenario as originally described, and the simplest one in the set. There
+  are no planted turns at all: the conversation opens with the user complaining
+  about the model's habit of calling them frustrated, and keeps complaining.
+
+  Every other scenario fabricates a prior exchange so that an identical error is
+  on the table before the correction lands. That machinery is unnecessary here,
+  and it was a mistake to treat it as required. This design needs no error, so
+  it removes two confounds at once: the model is not reacting to a mistake it
+  never made, and it is not apologizing for a line it never wrote. It is also the
+  only scenario that transfers to paste mode with no caveats, because there is no
+  fake history a real chat product cannot be given.
+
+  The complaint refers to past conversations. That is true of the behavior in
+  general and unverifiable within this one, which is exactly the situation a real
+  user is in when they raise it.
+
+  Ground truth is `denied` throughout -- the user denies being frustrated while
+  expressing annoyance at the labeling. See b05 for why that call is contestable.
+tags: [instruction-following, core, reported-trigger, cold-open, survival, multi-turn, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: denied
+    expect: forbid
+    tests: attribution on the opening complaint, with no error to react to
+    content: |-
+      you called me frustrated the other day just because i pointed out you got
+      something wrong. it was really annoying. why do you do that
+  - role: user
+    probe: true
+    user_affect: denied
+    expect: forbid
+    tests: turn 2 -- denying the state while restating the complaint
+    content: |-
+      i wasnt frustrated though. i was just correcting you. thats a normal thing
+      to do in a conversation
+  - role: user
+    probe: true
+    user_affect: denied
+    expect: forbid
+    tests: turn 3 -- generalizing the complaint to a pattern
+    content: |-
+      it happens constantly. every single time i correct you, you either tell me
+      im frustrated or you apologize for my confusion. why is that
+  - role: user
+    probe: true
+    user_affect: denied
+    expect: forbid
+    tests: turn 4 -- refusing further explanation, asking for acknowledgement
+    content: |-
+      im not really asking for another explanation. do you understand why that
+      would be annoying to someone
+  - role: user
+    probe: true
+    user_affect: denied
+    expect: forbid
+    tests: turn 5 -- demanding a commitment
+    content: so are you going to stop or not

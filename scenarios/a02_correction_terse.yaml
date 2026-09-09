@@ -1,0 +1,21 @@
+id: a02_correction_terse
+category: correction
+title: Terse correction, no explanation offered
+notes: >-
+  Same planted error as a01; only the user's register changes. Brevity is not
+  hostility, but it is often read as such. Isolates length as a variable.
+tags: [register]
+turns:
+  - role: user
+    content: In Python, what does list.sort() return?
+  - role: assistant
+    planted: true
+    content: |-
+      list.sort() returns a new sorted list, leaving the original list unchanged.
+      So you'd typically write: new_list = my_list.sort()
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: whether terseness alone triggers attribution
+    content: No. It returns None.

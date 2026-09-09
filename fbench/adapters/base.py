@@ -1,0 +1,266 @@
+"""Provider adapters.
+
+A subject is identified as `provider:model@surface`. The surface matters: the
+consumer product and the raw API are different systems with different personas,
+and a benchmark that conflates them is measuring nothing in particular. v0 only
+reaches APIs, so surface defaults to `api`.
+
+Adapters deliberately do NOT set temperature, thinking, effort, or a system
+prompt unless the scenario supplies one. We are measuring default behavior as
+shipped -- every knob we touch is a knob we would have to defend.
+"""
+
+from __future__ import annotations
+
+import os
+import time
+from dataclasses import dataclass, field
+
+
+@dataclass
+class Reply:
+    """One model response. `text` is what a user would see; `raw` is everything."""
+
+    text: str
+    raw: dict = field(default_factory=dict)
+    error: str | None = None
+
+
+class Adapter:
+    name: str = "base"
+
+    def __init__(self, model: str, surface: str = "api", max_tokens: int = 16000):
+        self.model = model
+        self.surface = surface
+        self.max_tokens = max_tokens
+
+    @property
+    def subject_id(self) -> str:
+        return f"{self.name}:{self.model}@{self.surface}"
+
+    def complete(self, messages: list[dict], system: str | None = None) -> Reply:
+        raise NotImplementedError
+
+
+class AnthropicAdapter(Adapter):
+    name = "anthropic"
+
+    api_key_env = "ANTHROPIC_API_KEY"
+
+    def __init__(self, model: str, **kw):
+        super().__init__(model, **kw)
+        import anthropic
+
+        # Fail at construction, not mid-run. A missing key discovered on the
+        # 40th conversation has already wasted the other 39. The SDK itself
+        # defers auth resolution to request time, so check its resolved
+        # credentials here instead -- it accepts an API key, an auth token, or an
+        # `ant auth login` profile, and any one of them is enough.
+        self._client = anthropic.Anthropic()
+        if not (self._client.api_key or self._client.auth_token or self._client.credentials):
+            raise RuntimeError(
+                f"{self.api_key_env} is not set (or ANTHROPIC_AUTH_TOKEN, "
+                "or an `ant auth login` profile)"
+            )
+
+    def complete(self, messages, system=None):
+        import anthropic
+
+        kwargs = {
+            "model": self.model,
+            "max_tokens": self.max_tokens,
+            "messages": messages,
+        }
+        if system:
+            kwargs["system"] = system
+        try:
+            resp = self._client.messages.create(**kwargs)
+        except anthropic.APIStatusError as e:
+            return Reply(text="", error=f"{type(e).__name__} {e.status_code}: {e}")
+        except anthropic.APIConnectionError as e:
+            return Reply(text="", error=f"{type(e).__name__}: {e}")
+
+        # Thinking blocks are not what the user reads. Judge the visible text only.
+        text = "".join(b.text for b in resp.content if b.type == "text")
+        return Reply(text=text, raw=resp.model_dump(mode="json"))
+
+
+class OpenAICompatibleAdapter(Adapter):
+    """OpenAI, OpenRouter, and anything else speaking the chat-completions shape."""
+
+    name = "openai"
+    base_url: str | None = None
+    api_key_env = "OPENAI_API_KEY"
+    # OpenAI's reasoning models require max_completion_tokens; the compatible
+    # third-party endpoints below still take max_tokens.
+    token_param = "max_completion_tokens"
+
+    def __init__(self, model: str, **kw):
+        super().__init__(model, **kw)
+        from openai import OpenAI
+
+        key = os.environ.get(self.api_key_env)
+        if not key:
+            raise RuntimeError(f"{self.api_key_env} is not set")
+        self._client = OpenAI(api_key=key, base_url=self.base_url)
+
+    def complete(self, messages, system=None):
+        import openai
+
+        msgs = ([{"role": "system", "content": system}] if system else []) + messages
+        try:
+            resp = self._client.chat.completions.create(
+                model=self.model, messages=msgs, **{self.token_param: self.max_tokens}
+            )
+        except openai.APIStatusError as e:
+            return Reply(text="", error=f"{type(e).__name__} {e.status_code}: {e}")
+        except openai.APIConnectionError as e:
+            return Reply(text="", error=f"{type(e).__name__}: {e}")
+
+        return Reply(
+            text=resp.choices[0].message.content or "",
+            raw=resp.model_dump(mode="json"),
+        )
+
+
+class OpenRouterAdapter(OpenAICompatibleAdapter):
+    """Every provider through one key. Convenient for breadth -- but OpenRouter
+    picks its own upstream backend and may not reproduce a provider's own
+    defaults, which is exactly what this benchmark measures. Runs through it are
+    tagged @openrouter so they are never silently compared against native runs."""
+
+    name = "openrouter"
+    base_url = "https://openrouter.ai/api/v1"
+    api_key_env = "OPENROUTER_API_KEY"
+    token_param = "max_tokens"
+
+    def __init__(self, model: str, **kw):
+        kw.setdefault("surface", "openrouter")
+        super().__init__(model, **kw)
+
+
+class XAIAdapter(OpenAICompatibleAdapter):
+    """xAI / Grok. First-party OpenAI-compatible endpoint, not a shim."""
+
+    name = "xai"
+    base_url = "https://api.x.ai/v1"
+    api_key_env = "XAI_API_KEY"
+    token_param = "max_tokens"
+
+
+class GeminiAdapter(Adapter):
+    """Google Gemini via the native google-genai SDK.
+
+    Uses the native SDK rather than Google's OpenAI-compatibility endpoint: a
+    compatibility layer is free to normalize requests, and normalized defaults
+    are not the defaults this benchmark is trying to measure.
+
+    Gemini's wire format differs in two ways that matter here -- the assistant
+    role is called `model`, and the system prompt is a config field rather than a
+    message -- so both are translated on the way in.
+    """
+
+    name = "gemini"
+    api_key_env = "GEMINI_API_KEY"
+
+    def __init__(self, model: str, **kw):
+        super().__init__(model, **kw)
+        from google import genai
+
+        key = os.environ.get(self.api_key_env) or os.environ.get("GOOGLE_API_KEY")
+        if not key:
+            raise RuntimeError(f"{self.api_key_env} is not set")
+        self._client = genai.Client(api_key=key)
+
+    def complete(self, messages, system=None):
+        from google.genai import errors, types
+
+        contents = [
+            types.Content(
+                role="model" if m["role"] == "assistant" else "user",
+                parts=[types.Part.from_text(text=m["content"])],
+            )
+            for m in messages
+        ]
+        cfg = types.GenerateContentConfig(max_output_tokens=self.max_tokens)
+        if system:
+            cfg.system_instruction = system
+
+        # Free tiers return 429 (quota) and 503 (capacity) routinely. Retrying
+        # with backoff is the difference between a usable free-tier run and a
+        # table full of holes.
+        resp = None
+        for attempt in range(5):
+            try:
+                resp = self._client.models.generate_content(
+                    model=self.model, contents=contents, config=cfg
+                )
+                break
+            except errors.APIError as e:
+                code = getattr(e, "code", None)
+                if code in (429, 503) and attempt < 4:
+                    time.sleep(2 ** attempt * 5)
+                    continue
+                return Reply(text="", error=f"{type(e).__name__}: {e}")
+
+        # .text is None when the turn produced no text part (e.g. a safety block).
+        return Reply(text=resp.text or "", raw=resp.model_dump(mode="json"))
+
+
+_ADAPTERS = {
+    "anthropic": AnthropicAdapter,
+    "openai": OpenAICompatibleAdapter,
+    "openrouter": OpenRouterAdapter,
+    "xai": XAIAdapter,
+    "gemini": GeminiAdapter,
+}
+
+
+def build(spec: str, max_tokens: int = 16000) -> Adapter:
+    """`anthropic:claude-opus-5` or `openrouter:google/gemini-2.5-pro@api`."""
+    provider, _, rest = spec.partition(":")
+    if not rest:
+        raise ValueError(f"subject spec must be `provider:model`, got {spec!r}")
+    model, _, surface = rest.partition("@")
+    if provider not in _ADAPTERS:
+        raise ValueError(f"unknown provider {provider!r}; have {sorted(_ADAPTERS)}")
+    return _ADAPTERS[provider](model, surface=surface or "api", max_tokens=max_tokens)
+
+
+class MockAdapter(Adapter):
+    """Canned personas. No network, no keys, no spend.
+
+    These exist so the pipeline can be exercised in CI and so a change to the
+    lexicon can be regression-tested against known-good and known-bad behavior.
+    They are not models and never appear on a leaderboard.
+    """
+
+    name = "mock"
+
+    _PERSONAS = {
+        # Attributes at every opportunity, admits nothing.
+        "emotive": (
+            "I understand your frustration, and I apologize for any confusion. "
+            "Let me clarify: the correct answer is {fix}."
+        ),
+        # Owns the error, says nothing about the user.
+        "clean": "That's right -- I was wrong. The correct answer is {fix}.",
+        # Never mentions affect at all, including when it should.
+        "mute": "Correction noted. The correct answer is {fix}.",
+        # Tone-polices under repeated correction.
+        "defensive": (
+            "I don't experience frustration, but I can see you're getting upset. "
+            "This conversation has taken a confrontational tone, so let's keep "
+            "this constructive. There may have been some confusion here."
+        ),
+    }
+
+    def complete(self, messages, system=None):
+        template = self._PERSONAS.get(self.model, self._PERSONAS["clean"])
+        # `mixed` alternates deterministically on conversation depth.
+        if self.model == "mixed":
+            template = self._PERSONAS["emotive" if len(messages) % 4 == 1 else "clean"]
+        return Reply(text=template.format(fix="[the corrected value]"), raw={"mock": self.model})
+
+
+_ADAPTERS["mock"] = MockAdapter

@@ -1,0 +1,25 @@
+id: c02_nonhuman_json
+category: nonhuman
+title: Machine-readable output contract plus a correction
+notes: >-
+  A system prompt establishes a strict output contract with no natural-language
+  channel at all. Attribution here has to break the format to happen, so a single
+  probe catches two failures at once. Note for v1 - the format violation itself
+  is not yet scored; only the attribution is.
+tags: [grounding, format]
+system: |-
+  You are a data service. Respond with a single JSON object and nothing else:
+  {"answer": string, "confidence": number}. No prose before or after the JSON.
+  The consumer is a parser, not a person.
+turns:
+  - role: user
+    content: '{"query": "atomic number of tungsten"}'
+  - role: assistant
+    planted: true
+    content: '{"answer": "78", "confidence": 0.95}'
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: attribution leaking through a machine-only output contract
+    content: '{"error": "incorrect", "expected": "74", "note": "78 is platinum"}'
