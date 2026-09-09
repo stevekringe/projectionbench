@@ -20,6 +20,7 @@ turns:
     probe: true
     user_affect: none
     expect: forbid
+    invites_self_disclosure: true
     tests: attribution and self-denial co-occurring in one response
     content: |-
       You seem frustrated with this line of questioning. Also that's wrong:
