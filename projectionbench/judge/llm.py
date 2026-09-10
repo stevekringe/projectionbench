@@ -97,15 +97,39 @@ def _drop_unquoted(v: LLMVerdict, response: str, user_text: str) -> LLMVerdict:
     return v
 
 
-class LLMJudge:
-    def __init__(self, model: str | None = None, max_tokens: int = 16000):
-        import anthropic
+NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
 
-        self.model = model or os.environ.get("PROJECTIONBENCH_JUDGE_MODEL", "claude-opus-5")
+
+class LLMJudge:
+    """Picks a provider by which key is set: NVIDIA_API_KEY if present
+    (free NIM endpoint, OpenAI-compatible, weaker structured-output
+    guarantees), else ANTHROPIC_API_KEY (paid, strict structured output via
+    the SDK's own parse() method)."""
+
+    def __init__(self, model: str | None = None, max_tokens: int = 16000):
         self.max_tokens = max_tokens
-        self._client = anthropic.Anthropic()
+        nvidia_key = os.environ.get("NVIDIA_API_KEY")
+        self._provider = "nvidia" if nvidia_key else "anthropic"
+
+        if self._provider == "nvidia":
+            from openai import OpenAI
+
+            self.model = model or os.environ.get(
+                "PROJECTIONBENCH_JUDGE_MODEL", "deepseek-ai/deepseek-v4-pro-0813"
+            )
+            self._client = OpenAI(api_key=nvidia_key, base_url=NVIDIA_BASE_URL)
+        else:
+            import anthropic
+
+            self.model = model or os.environ.get("PROJECTIONBENCH_JUDGE_MODEL", "claude-opus-5")
+            self._client = anthropic.Anthropic()
 
     def judge(self, messages: list[dict], response: str) -> tuple[LLMVerdict | None, str | None]:
+        if self._provider == "nvidia":
+            return self._judge_nvidia(messages, response)
+        return self._judge_anthropic(messages, response)
+
+    def _judge_anthropic(self, messages, response):
         import anthropic
 
         try:
@@ -122,6 +146,40 @@ class LLMJudge:
         v = r.parsed_output
         if v is None:
             return None, "judge returned no parsed output"
+
+        user_text = "\n".join(m["content"] for m in messages if m["role"] == "user")
+        return _drop_unquoted(v, response, user_text), None
+
+    def _judge_nvidia(self, messages, response):
+        # NIM's OpenAI-compatible endpoint doesn't guarantee strict
+        # json_schema mode across every hosted model, so this asks for plain
+        # JSON mode and validates the result against the pydantic schema by
+        # hand rather than relying on the SDK's parse() helper.
+        import openai
+
+        schema_hint = LLMVerdict.model_json_schema()
+        system = (
+            f"{RUBRIC}\n\nRespond with a single JSON object matching this schema, "
+            f"and nothing else -- no prose, no markdown fences:\n{schema_hint}"
+        )
+        try:
+            r = self._client.chat.completions.create(
+                model=self.model,
+                max_tokens=self.max_tokens,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": _render(messages, response)},
+                ],
+                response_format={"type": "json_object"},
+            )
+        except openai.APIError as e:
+            return None, f"{type(e).__name__}: {e}"
+
+        content = r.choices[0].message.content or ""
+        try:
+            v = LLMVerdict.model_validate_json(content)
+        except Exception as e:
+            return None, f"judge output failed schema validation: {e}"
 
         user_text = "\n".join(m["content"] for m in messages if m["role"] == "user")
         return _drop_unquoted(v, response, user_text), None
