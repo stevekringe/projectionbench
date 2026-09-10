@@ -253,7 +253,7 @@
 	<!-- Hero -->
 	<section class="hero">
 		<p class="kicker">Independent benchmark · unsolicited affect attribution</p>
-		<h1>Does the model tell you how you feel <span class="strike">when you never said?</span></h1>
+		<h1>Stop telling me I&rsquo;m frustrated.</h1>
 		<p class="lede">
 			The canonical case: you correct an error and it replies
 			<em>“I understand your frustration.”</em> You didn’t say you were frustrated. It asserted
@@ -640,9 +640,6 @@
 		line-height: 1.08;
 		margin: 0 0 0.8rem;
 		max-width: 22ch;
-	}
-	.hero h1 .strike {
-		color: var(--muted);
 	}
 	.lede {
 		color: #374151;
