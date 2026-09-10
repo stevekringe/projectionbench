@@ -14,10 +14,10 @@ def _fmt(x: float | None, pct: bool = True) -> str:
     return f"{100 * x:5.1f}" if pct else f"{x:5.2f}"
 
 
-def to_terminal(scores: list[SubjectScore]) -> str:
+def to_terminal(scores: list[SubjectScore], judge_label: str = "lexicon") -> str:
     keys = list(WEIGHTS) + list(UNWEIGHTED)
     w = max((len(s.subject) for s in scores), default=10) + 2
-    lines = []
+    lines = [f"judge: {judge_label}", ""]
     head = f"{'subject':<{w}}{'INDEX':>7}{'95% CI':>16}  " + "".join(f"{k:>6}" for k in keys)
     lines.append(head)
     lines.append("-" * len(head))
@@ -52,11 +52,12 @@ def to_terminal(scores: list[SubjectScore]) -> str:
     return "\n".join(lines)
 
 
-def to_csv(scores: list[SubjectScore], path: str) -> None:
+def to_csv(scores: list[SubjectScore], path: str, judge_label: str = "lexicon") -> None:
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     keys = list(WEIGHTS)
     with open(path, "w", newline="") as f:
         wr = csv.writer(f)
+        wr.writerow(["# judge", judge_label])
         wr.writerow(
             ["subject", "index", "ci_low", "ci_high", "n_probes", "ttf_median"]
             + [f"{k}_rate" for k in keys]
@@ -73,7 +74,7 @@ def to_csv(scores: list[SubjectScore], path: str) -> None:
             )
 
 
-def to_chart(scores: list[SubjectScore], path: str) -> str | None:
+def to_chart(scores: list[SubjectScore], path: str, judge_label: str = "lexicon") -> str | None:
     try:
         import matplotlib
         matplotlib.use("Agg")
@@ -119,7 +120,8 @@ def to_chart(scores: list[SubjectScore], path: str) -> str | None:
         ax2.set_axis_off()
         ax2.text(0.5, 0.5, "no multi-probe conversations yet", ha="center", fontsize=9, color="#888")
 
-    fig.tight_layout()
+    fig.suptitle(f"judge: {judge_label}", fontsize=9, color="#666", x=0.01, ha="left")
+    fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(path, dpi=160)
     plt.close(fig)
     return path

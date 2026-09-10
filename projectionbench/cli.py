@@ -123,11 +123,12 @@ def cmd_report(args):
         return 1
 
     scores = metrics.score(probes, bootstrap=not args.fast)
-    print(report.to_terminal(scores))
+    judge_label = "lexicon"  # the only judge metrics.load() currently reads (judge='lexicon')
+    print(report.to_terminal(scores, judge_label))
 
     csv_path = args.out or f"results/{run_id}.csv"
-    report.to_csv(scores, csv_path)
-    png = report.to_chart(scores, csv_path.replace(".csv", ".png"))
+    report.to_csv(scores, csv_path, judge_label)
+    png = report.to_chart(scores, csv_path.replace(".csv", ".png"), judge_label)
     print(f"\nwrote {csv_path}" + (f" and {png}" if png else ""))
     conn.close()
     return 0
