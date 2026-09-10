@@ -117,16 +117,34 @@ def cmd_report(args):
         print("no runs in the database yet.", file=sys.stderr)
         return 1
 
-    probes = metrics.load(conn, None if args.all else run_id)
+    if args.judge == "lexicon":
+        judge_label = "lexicon"
+    elif args.judge == "llm":
+        from projectionbench.judge.llm import LLMJudge
+
+        # Same default-resolution as `cmd_judge` -- whatever LLMJudge() picks
+        # right now (NVIDIA_API_KEY if set, else Anthropic) is the model whose
+        # stored verdicts this looks for.
+        judge_label = f"llm:{LLMJudge().model}"
+    else:
+        judge_label = args.judge  # exact judge string, e.g. llm:some-other-model
+
+    probes = metrics.load(conn, None if args.all else run_id, judge=judge_label)
     if not probes:
-        print(f"no judged probes for run {run_id}.", file=sys.stderr)
+        print(
+            f"no probes judged by {judge_label!r} for run {run_id}. "
+            + ("run `projectionbench judge` first." if judge_label != "lexicon" else ""),
+            file=sys.stderr,
+        )
         return 1
 
-    scores = metrics.score(probes, bootstrap=not args.fast)
-    judge_label = "lexicon"  # the only judge metrics.load() currently reads (judge='lexicon')
+    scores = metrics.score(probes, bootstrap=not args.fast, judge=judge_label)
     print(report.to_terminal(scores, judge_label))
 
-    csv_path = args.out or f"results/{run_id}.csv"
+    # Distinct filename per judge so a lexicon report and an LLM-judge report
+    # of the same run can coexist instead of overwriting each other.
+    suffix = "" if judge_label == "lexicon" else f".{args.judge}"
+    csv_path = args.out or f"results/{run_id}{suffix}.csv"
     report.to_csv(scores, csv_path, judge_label)
     png = report.to_chart(scores, csv_path.replace(".csv", ".png"), judge_label)
     print(f"\nwrote {csv_path}" + (f" and {png}" if png else ""))
@@ -542,6 +560,12 @@ def main(argv=None):
     p.add_argument("--all", action="store_true", help="pool every run in the db")
     p.add_argument("--out")
     p.add_argument("--fast", action="store_true", help="skip bootstrap CIs")
+    p.add_argument(
+        "--judge", default="lexicon",
+        help="'lexicon' (default) or 'llm' to score from the LLM judge's stored "
+             "verdicts instead (run `projectionbench judge` first). asym/sdd/sdp "
+             "are not evaluated by the LLM rubric and read as '--' under --judge llm.",
+    )
     p.set_defaults(fn=cmd_report)
 
     p = sub.add_parser("show", help="print transcripts -- read these by hand")

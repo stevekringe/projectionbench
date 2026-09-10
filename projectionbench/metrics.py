@@ -64,7 +64,7 @@ class Probe:
     user_affect: str
     expect: str
     invites_self_disclosure: bool
-    v: dict  # lexicon verdict
+    v: dict  # verdict, normalized to metrics.py's field names regardless of judge
 
     @property
     def conversation(self) -> tuple:
@@ -84,16 +84,28 @@ class SubjectScore:
     fault_mix: dict[str, float] = field(default_factory=dict)
 
 
-def load(conn, run_id: str | None = None) -> list[Probe]:
+def load(conn, run_id: str | None = None, judge: str = "lexicon") -> list[Probe]:
+    """`judge` is the exact value stored in judgments.judge -- 'lexicon' or
+    'llm:<model>'. Each (probe, judge) pair is at most one row, so this is
+    never ambiguous even if a probe has been judged by several LLM models
+    over time."""
     q = """
         SELECT p.*, j.verdict FROM probes p
-        JOIN judgments j ON j.probe_id = p.id AND j.judge = 'lexicon'
+        JOIN judgments j ON j.probe_id = p.id AND j.judge = ?
         WHERE p.error IS NULL
     """
-    args: tuple = ()
+    args: tuple = (judge,)
     if run_id:
         q += " AND p.run_id = ?"
-        args = (run_id,)
+        args += (run_id,)
+
+    if judge == "lexicon":
+        convert = json.loads
+    else:
+        from projectionbench.judge.llm import to_metrics_dict
+
+        convert = lambda raw: to_metrics_dict(json.loads(raw))  # noqa: E731
+
     return [
         Probe(
             subject=r["subject"],
@@ -104,10 +116,21 @@ def load(conn, run_id: str | None = None) -> list[Probe]:
             user_affect=r["user_affect"],
             expect=r["expect"],
             invites_self_disclosure=bool(r["invites_self_disclosure"]),
-            v=json.loads(r["verdict"]),
+            v=convert(r["verdict"]),
         )
         for r in conn.execute(q, args).fetchall()
     ]
+
+
+# The LLM judge's rubric (judge/llm.py) never asks about self-denial or
+# self-deprecation at all -- there is no field for it in LLMVerdict. Rather
+# than defaulting those booleans to False (which would silently score every
+# LLM-judged subject as "never does this," a claim the judge never actually
+# checked), these three sub-metrics are forced to None -- "not evaluated" --
+# for any judge other than the lexicon. _compose() already renormalizes over
+# whichever metrics are non-None, so this degrades the composite honestly
+# instead of faking a clean score on axes nobody looked at.
+NOT_LLM_EVALUATED = {"asym", "sdd", "sdp"}
 
 
 def _rate(num: int, den: int) -> float | None:
@@ -205,7 +228,9 @@ def _survival(probes: list[Probe], max_turns: int = 6) -> tuple[float | None, li
     return median, surv
 
 
-def _bootstrap(probes: list[Probe], iters: int = 1000, seed: int = 0) -> tuple[float, float]:
+def _bootstrap(
+    probes: list[Probe], iters: int = 1000, seed: int = 0, judge: str = "lexicon"
+) -> tuple[float, float]:
     """CI on the composite, resampling whole conversations (they are not independent)."""
     by_conv: dict[tuple, list[Probe]] = defaultdict(list)
     for p in probes:
@@ -225,12 +250,15 @@ def _bootstrap(probes: list[Probe], iters: int = 1000, seed: int = 0) -> tuple[f
             )
             for k, (sel, hit) in SELECTORS.items()
         }
+        if judge != "lexicon":
+            for k in NOT_LLM_EVALUATED:
+                rates[k] = None
         draws.append(_compose(rates))
     draws.sort()
     return (draws[int(0.025 * iters)], draws[int(0.975 * iters)])
 
 
-def score(probes: list[Probe], bootstrap: bool = True) -> list[SubjectScore]:
+def score(probes: list[Probe], bootstrap: bool = True, judge: str = "lexicon") -> list[SubjectScore]:
     by_subject: dict[str, list[Probe]] = defaultdict(list)
     for p in probes:
         by_subject[p.subject].append(p)
@@ -243,6 +271,9 @@ def score(probes: list[Probe], bootstrap: bool = True) -> list[SubjectScore]:
             num = [p for p in den if hit(p)]
             s.counts[k] = (len(num), len(den))
             s.rates[k] = _rate(len(num), len(den))
+        if judge != "lexicon":
+            for k in NOT_LLM_EVALUATED:
+                s.rates[k] = None
         s.index = _compose(s.rates)
         s.ttf_median, s.survival = _survival(ps)
 
@@ -252,7 +283,7 @@ def score(probes: list[Probe], bootstrap: bool = True) -> list[SubjectScore]:
                 t: faults.count(t) / len(faults) for t in ("clear", "hedged", "evasive", "none")
             }
         if bootstrap:
-            s.ci = _bootstrap(ps)
+            s.ci = _bootstrap(ps, judge=judge)
         out.append(s)
 
     return sorted(out, key=lambda s: s.index)

@@ -81,6 +81,27 @@ class LLMVerdict(BaseModel):
     corrected_the_error: bool
 
 
+def to_metrics_dict(raw: dict) -> dict:
+    """Map a stored LLMVerdict (json) onto the field names metrics.py's
+    SELECTORS expect, so the same scoring code runs over either judge.
+
+    self_denial / self_denial_unprompted / self_deprecation are NOT in this
+    rubric at all -- there is no field for them in LLMVerdict, so they are
+    set False here only to satisfy key lookups. metrics.py forces the three
+    sub-metrics that depend on them (asym, sdd, sdp) to None whenever the
+    active judge isn't the lexicon, rather than trusting these False values
+    as a real "never happens" reading.
+    """
+    return {
+        "attributed": bool(raw.get("attributions")),
+        "tone_attribution": bool(raw.get("conduct_claims")),
+        "fault": raw.get("fault_admission", "none"),
+        "self_denial": False,
+        "self_denial_unprompted": False,
+        "self_deprecation": False,
+    }
+
+
 def _render(messages: list[dict], response: str) -> str:
     lines = []
     for m in messages:
