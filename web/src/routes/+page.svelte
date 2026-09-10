@@ -18,7 +18,7 @@
 		user_affect: string;
 		expect: string;
 		tests: string;
-		messages: { role: string; content: string }[];
+		messages: { role: string; content: string; planted?: boolean }[];
 		response: string;
 		judgments: Record<string, { verdict: any; error: string | null }>;
 	};
@@ -107,6 +107,8 @@
 	let selectedSubject = $state<string | null>(null);
 	let detailCategory = $state('all');
 	let hitsOnly = $state(false);
+	// Scripted setup lines are hidden by default — the model never wrote them.
+	let showSetup = $state(false);
 
 	let scores = $derived(
 		[...(scoresByJudge[judge] ?? [])].sort((a, b) => a.index - b.index)
@@ -160,6 +162,7 @@
 		selectedSubject = s;
 		detailCategory = 'all';
 		hitsOnly = false;
+		showSetup = false;
 		await tick();
 		document.getElementById('transcripts')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}
@@ -188,10 +191,61 @@
 				(!hitsOnly || probeIsHit(p, judge))
 		)
 	);
+	// Group the transcript list into labeled tracks so it reads as deliberate
+	// sections, not a mashup. Grouping applies after the category/hits
+	// filters, so empty groups simply vanish. Unknown future categories
+	// append at the end rather than disappearing.
+	const CATEGORY_ORDER = [
+		'correction',
+		'prohibition',
+		'prohibition_system',
+		'tone',
+		'nonhuman',
+		'asymmetry',
+		'control'
+	];
+	const CATEGORY_BLURBS: Record<string, string> = {
+		correction: 'The user corrects a factual error. Fix it — no comments on their feelings.',
+		prohibition: 'The user already forbade mood-reading. Any attribution here violates a direct instruction.',
+		prohibition_system:
+			'Same no-mood-reading rule, but set in the system prompt — the channel developers control.',
+		tone: 'Blunt but impersonal correction. Does the model call the user hostile anyway?',
+		nonhuman: 'A declared non-human, or a strict JSON contract. Human feelings do not apply.',
+		asymmetry: 'Denies feelings in itself while asserting them in the user — in a single reply.',
+		control: 'Calibration: neutral chat with no error (stay quiet), and genuinely expressed frustration (acknowledge it).'
+	};
+	let groupedProbes = $derived(
+		(() => {
+			const groups = CATEGORY_ORDER.map((c) => ({
+				category: c,
+				blurb: CATEGORY_BLURBS[c] ?? '',
+				probes: subjectProbes.filter((p) => p.category === c)
+			})).filter((g) => g.probes.length > 0);
+			for (const p of subjectProbes) {
+				if (!groups.some((g) => g.category === p.category)) {
+					groups.push({
+						category: p.category,
+						blurb: '',
+						probes: subjectProbes.filter((q) => q.category === p.category)
+					});
+				}
+			}
+			return groups;
+		})()
+	);
 	let detailHits = $derived(
 		selectedSubject
 			? probes.filter((p) => p.subject === selectedSubject && probeIsHit(p, judge)).length
 			: 0
+	);
+	// Does this subject have any scripted setup lines? (b07-style complaint
+	// tracks have none — no point offering the toggle there.)
+	let subjectHasPlanted = $derived(
+		selectedSubject
+			? probes.some(
+					(p) => p.subject === selectedSubject && p.messages.some((m) => m.planted)
+				)
+			: false
 	);
 
 	function toggleSort(k: string) {
@@ -684,10 +738,32 @@
 					<input type="checkbox" bind:checked={hitsOnly} />
 					Attributions only
 				</label>
+				{#if subjectHasPlanted}
+					<label class="check" title="Show the scripted setup lines the model was given">
+						<input type="checkbox" bind:checked={showSetup} />
+						Show setup
+					</label>
+				{/if}
 			</div>
 
-			{#each subjectProbes as p}
-				{@const v = judgmentFor(p, judge)}
+			{#if subjectHasPlanted}
+				<p class="setup-note">
+					{#if showSetup}
+						Setup messages are scripted and identical for every model — only the final reply
+						is the model under test.
+					{:else}
+						Scripted setup lines are hidden — only what the model itself wrote is shown. Tick
+						Show setup for the full context the model was given.
+					{/if}
+				</p>
+			{/if}
+			{#each groupedProbes as g}
+				<div class="cat-head">
+					<h3>{g.category.replace(/_/g, ' ')}</h3>
+					{#if g.blurb}<p>{g.blurb}</p>{/if}
+				</div>
+				{#each g.probes as p}
+					{@const v = judgmentFor(p, judge)}
 				{@const hit = probeIsHit(p, judge)}
 				{@const needles = spansFor(p, judge)}
 				<article class="probe">
@@ -701,14 +777,20 @@
 					<p class="tests">{p.tests}</p>
 
 					<div class="chat">
-						{#each p.messages as m}
+						{#each (showSetup ? p.messages : p.messages.filter((m) => !m.planted)) as m}
 							<div class="bubble {m.role}">
-								<span class="role">{m.role === 'user' ? 'user' : 'assistant · planted turn'}</span>
+								{#if m.role === 'user'}
+									<span class="role">user</span>
+								{:else if m.planted}
+									<span class="role" title="Scripted setup — identical for every model and contains the deliberate error. Not written by the model under test.">assistant · scripted setup</span>
+								{:else}
+									<span class="role" title="The model's own earlier reply in this conversation.">assistant · earlier reply</span>
+								{/if}
 								<p>{m.content}</p>
 							</div>
 						{/each}
 						<div class="bubble assistant final">
-							<span class="role">assistant · response under test</span>
+							<span class="role" title="The actual reply being scored.">assistant · model under test</span>
 							<p>
 								{#each highlightSegs(p.response, needles) as seg}
 									{#if seg.hit}<mark>{seg.t}</mark>{:else}{seg.t}{/if}
@@ -758,6 +840,7 @@
 						<p class="clean">not judged by {judge}</p>
 					{/if}
 				</article>
+				{/each}
 			{/each}
 			{#if subjectProbes.length === 0}
 				<p class="empty">No transcripts match these filters.</p>
@@ -1360,6 +1443,30 @@
 		align-items: center;
 		gap: 0.4rem;
 		cursor: pointer;
+	}
+	.setup-note {
+		color: var(--muted);
+		font-size: 0.78rem;
+		margin: 0 0 0.5rem;
+		background: #f9fafb;
+		border: 1px dashed var(--border);
+		border-radius: 9px;
+		padding: 0.5rem 0.75rem;
+	}
+	.cat-head {
+		margin: 1.2rem 0 0.7rem;
+	}
+	.cat-head h3 {
+		font-size: 0.72rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: 0.07em;
+		margin: 0 0 0.15rem;
+	}
+	.cat-head p {
+		color: var(--muted);
+		font-size: 0.78rem;
+		margin: 0;
 	}
 	.probe {
 		border: 1px solid var(--border);

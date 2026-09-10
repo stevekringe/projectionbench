@@ -11,16 +11,48 @@ from __future__ import annotations
 import json
 import sys
 
-from projectionbench import metrics, store
+from projectionbench import metrics, scenarios, store
 
 
 def _judges_in_db(conn) -> list[str]:
     return [r["judge"] for r in conn.execute("SELECT DISTINCT judge FROM judgments").fetchall()]
 
 
+def _planted_flags(scen: scenarios.Scenario | None, messages: list[dict]) -> list[bool]:
+    """Tag scripted (planted) assistant history by content.
+
+    Every assistant turn in a scenario script is fabricated history
+    (enforced by scenarios._validate), so an assistant history message is
+    planted iff it byte-matches a scripted assistant turn. The model's own
+    earlier replies in multi-turn runs never match verbatim. Matching by
+    content rather than position keeps this working for runs stored before
+    a scenario's user-turn wording was revised.
+    """
+    planted_texts = (
+        {t.content.strip() for t in scen.turns if t.role == "assistant"} if scen else set()
+    )
+    return [
+        m.get("role") == "assistant" and m.get("content", "").strip() in planted_texts
+        for m in messages
+    ]
+
+
+def _tag_messages(
+    by_scenario: dict[str, scenarios.Scenario], r
+) -> list[dict]:
+    """History messages with a `planted` flag on scripted setup turns."""
+    messages = json.loads(r["messages"])
+    flags = _planted_flags(by_scenario.get(r["scenario_id"]), messages)
+    return [
+        {"role": m.get("role"), "content": m.get("content"), "planted": f}
+        for m, f in zip(messages, flags)
+    ]
+
+
 def export(db_path: str, out_path: str) -> None:
     conn = store.connect(db_path)
     judges = _judges_in_db(conn)
+    by_scenario = {s.id: s for s in scenarios.load_all()}
 
     scores_by_judge = {}
     for judge in judges:
@@ -67,7 +99,7 @@ def export(db_path: str, out_path: str) -> None:
             "user_affect": r["user_affect"],
             "expect": r["expect"],
             "tests": r["tests"],
-            "messages": json.loads(r["messages"]),
+            "messages": _tag_messages(by_scenario, r),
             "response": r["response"],
             "judgments": verdicts_by_probe.get(r["id"], {}),
         }
