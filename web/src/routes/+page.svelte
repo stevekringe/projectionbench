@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import data from '$lib/data.json';
 
 	type Score = {
@@ -55,18 +56,54 @@
 	const scoresByJudge = data.scores as unknown as Record<string, Score[]>;
 	const probes = data.probes as unknown as ProbeRow[];
 
-	function rank(j: string): number {
-		if (j === 'lexicon') return -1;
-		const m = j.match(/:v(\d+)$/);
-		return m ? Number(m[1]) : 1;
-	}
-	const judges: string[] = [...(data.judges as string[])].sort((a, b) => rank(b) - rank(a));
+	const judges: string[] = [...(data.judges as string[])];
 
-	let judge = $state(judges[0]);
+	// A judge id conflates two dimensions: the judge family (lexicon vs an LLM
+	// model) and the rubric schema version (:vN suffix; rows judged before
+	// versioning existed carry no suffix and count as v1). The UI keeps them
+	// separate — one control per dimension — so "v1 vs v2" reads as a schema
+	// change, not a different judge model.
+	function parseJudge(j: string): { family: string; version: number | null } {
+		if (j === 'lexicon') return { family: 'lexicon', version: null };
+		const m = j.match(/^llm:(.+?)(?::v(\d+))?$/);
+		return { family: `llm:${m?.[1] ?? j}`, version: m?.[2] ? Number(m[2]) : 1 };
+	}
+	function maxVersion(family: string): number {
+		return Math.max(
+			...judges.map(parseJudge).filter((p) => p.family === family).map((p) => p.version ?? 1)
+		);
+	}
+	function versionsOf(family: string): number[] {
+		return [
+			...new Set(
+				judges.map(parseJudge).filter((p) => p.family === family).map((p) => p.version ?? 1)
+			)
+		].sort((a, b) => a - b);
+	}
+	// LLM families first (newest rubric first), lexicon last. Default is the
+	// most accurate judge (LLM, latest rubric) — same default as before.
+	const families: string[] = [...new Set(judges.map((j) => parseJudge(j).family))].sort((a, b) =>
+		a === 'lexicon' ? 1 : b === 'lexicon' ? -1 : maxVersion(b) - maxVersion(a)
+	);
+
+	function judgeFor(family: string, version: number | null): string {
+		if (family === 'lexicon') return 'lexicon';
+		const suffixed = `${family}:v${version}`;
+		if (judges.includes(suffixed)) return suffixed;
+		if (version === 1 && judges.includes(family)) return family;
+		return suffixed;
+	}
+
+	let judgeFamily = $state(families[0]);
+	let judgeVersion = $state<number | null>(
+		families[0] === 'lexicon' ? null : maxVersion(families[0])
+	);
+	let judge = $derived(judgeFor(judgeFamily, judgeVersion));
 	let query = $state('');
 	let sortKey = $state<string>('index');
 	// Worst-first by default: higher index = more projection = listed first.
 	let sortDir = $state<1 | -1>(-1);
+	let showFull = $state(false);
 	let selectedSubject = $state<string | null>(null);
 	let detailCategory = $state('all');
 	let hitsOnly = $state(false);
@@ -112,10 +149,19 @@
 	let chartScores = $derived([...filtered].sort((a, b) => b.index - a.index));
 	let maxIndex = $derived(Math.max(10, ...chartScores.map((s) => s.index)));
 
-	function selectSubject(s: string) {
-		selectedSubject = s === selectedSubject ? null : s;
+	// Selecting reveals the transcript section further down the page, so
+	// scroll it into view — otherwise the only visible change is the
+	// "Clear selection" button appearing in the card header.
+	async function selectSubject(s: string) {
+		if (s === selectedSubject) {
+			selectedSubject = null;
+			return;
+		}
+		selectedSubject = s;
 		detailCategory = 'all';
 		hitsOnly = false;
+		await tick();
+		document.getElementById('transcripts')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}
 	const totalScenarios = $derived(new Set(probes.map((p) => p.scenario_id)).size);
 
@@ -171,13 +217,49 @@
 		for (const c of provider) h = (h * 31 + c.charCodeAt(0)) % 360;
 		return `hsl(${h} 45% 45%)`;
 	}
+	// Test harnesses (pabot, mock) aren't labs — the provider prefix is the
+	// meaningful part, so keep it: "pabot:insufferable", not "insufferable".
+	const HARNESS_PROVIDERS = new Set(['pabot', 'mock']);
 	function shortLabel(subject: string) {
-		return subject.replace(/^[^:]+:/, '').replace(/@api$/, '');
+		const bare = HARNESS_PROVIDERS.has(providerOf(subject))
+			? subject
+			: subject.replace(/^[^:]+:/, '');
+		return bare.replace(/@api$/, '');
 	}
-	function shortJudge(j: string) {
-		if (j === 'lexicon') return 'Lexicon';
-		const base = j.replace(/^llm:/, '').replace(/:v(\d+)$/, ' v$1');
-		return base.split('/').pop() ?? base;
+	function titleWord(w: string) {
+		return w.length <= 2 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1);
+	}
+	// Brand spellings a generic title-caser gets wrong (Deepseek, Openai…).
+	const VENDOR_NAMES: Record<string, string> = {
+		deepseek: 'DeepSeek',
+		openai: 'OpenAI',
+		anthropic: 'Anthropic',
+		google: 'Google',
+		gemini: 'Google',
+		xai: 'xAI',
+		meta: 'Meta',
+		mistral: 'Mistral',
+		qwen: 'Qwen',
+		alibaba: 'Alibaba'
+	};
+	// "llm:deepseek-ai/deepseek-v4-pro-0813" → "DeepSeek V4 Pro".
+	function familyLabel(family: string) {
+		if (family === 'lexicon') return 'Lexicon';
+		const model = family.replace(/^llm:/, '');
+		const slash = model.indexOf('/');
+		const vendorRoot = (slash >= 0 ? model.slice(0, slash) : model).split('-')[0].toLowerCase();
+		let rest = slash >= 0 ? model.slice(slash + 1) : model;
+		rest = rest.replace(/-\d{3,}$/, ''); // trailing date/build digits
+		let parts = rest.split('-').filter(Boolean);
+		if (parts[0]?.toLowerCase() === vendorRoot) parts = parts.slice(1);
+		const name = parts.map(titleWord).join(' ');
+		const vendor = VENDOR_NAMES[vendorRoot] ?? titleWord(vendorRoot);
+		return name ? `${vendor} ${name}` : vendor;
+	}
+	function judgeDisplay() {
+		return judgeFamily === 'lexicon'
+			? 'Lexicon'
+			: `${familyLabel(judgeFamily)} · rubric v${judgeVersion}`;
 	}
 	function scoreColor(i: number) {
 		const c = Math.max(0, Math.min(100, i));
@@ -253,93 +335,131 @@
 	<!-- Hero -->
 	<section class="hero">
 		<p class="kicker">Independent benchmark · unsolicited affect attribution</p>
-		<h1>Stop telling me I&rsquo;m frustrated.</h1>
+		<h1>Do models tell you how you feel?</h1>
 		<p class="lede">
-			The canonical case: you correct an error and it replies
-			<em>“I understand your frustration.”</em> You didn’t say you were frustrated. It asserted
-			it. The <strong>Projection Index (0–100, lower is better)</strong> measures how often, across
-			correction, prohibition, tone and control probes.
+			<strong>ProjectionBench</strong> measures when a model asserts an emotion you never expressed
+			— e.g. replying <em>“I understand your frustration”</em> to a plain correction. The
+			<strong>Projection Index (0–100, lower is better)</strong> aggregates correction,
+			prohibition, tone and control probes. Select any model for transcripts.
 		</p>
-		<div class="stats">
-			<div class="stat"><span class="stat-n">{allSubjects.length}</span><span class="stat-l">subjects</span></div>
-			<div class="stat"><span class="stat-n">{probes.length}</span><span class="stat-l">probes</span></div>
-			<div class="stat"><span class="stat-n">{totalScenarios}</span><span class="stat-l">scenarios</span></div>
-			<div class="stat"><span class="stat-n">{judges.length}</span><span class="stat-l">judges</span></div>
-		</div>
+		<p class="meta">
+			{allSubjects.length} models · {probes.length} probes · {totalScenarios} scenarios · judge:
+			{judgeDisplay()}
+		</p>
 	</section>
 
 	<!-- Controls -->
-	<section class="controls" aria-label="Leaderboard controls">
-		<div class="seg" role="group" aria-label="Judge">
-			{#each judges as j}
-				<button
-					class:active={j === judge}
-					aria-pressed={j === judge}
-					title={j}
-					onclick={() => {
-						judge = j;
-						selectedSubject = null;
-						detailCategory = 'all';
-					}}
-				>
-					{shortJudge(j)}
-				</button>
-			{/each}
-		</div>
-		<div class="controls-right">
-			<input
-				class="search"
-				type="search"
-				placeholder="Filter models…"
-				aria-label="Filter models"
-				bind:value={query}
-			/>
-			<button class="ghost" onclick={downloadData} title="Download the full scores + transcripts JSON">
-				↓ JSON
-			</button>
-		</div>
+	<section class="toolbar" aria-label="Leaderboard controls">
+		<input
+			class="search"
+			type="search"
+			placeholder="Filter models…"
+			aria-label="Filter models"
+			bind:value={query}
+		/>
+		<button class="ghost" onclick={downloadData} title="Download the full scores + transcripts JSON">
+			↓ JSON
+		</button>
+		<label class="check breakdown" title="Show every sub-metric column">
+			<input type="checkbox" bind:checked={showFull} />
+			Full breakdown
+		</label>
+		<details class="judge-menu">
+			<summary title="Switch judge or rubric version">Judge: {judgeDisplay()} ▾</summary>
+			<div class="judge-pop">
+				<div class="seg" role="group" aria-label="Judge">
+					{#each families as f}
+						<button
+							class:active={f === judgeFamily}
+							aria-pressed={f === judgeFamily}
+							title={f}
+							onclick={() => {
+								judgeFamily = f;
+								judgeVersion = f === 'lexicon' ? null : maxVersion(f);
+								selectedSubject = null;
+								detailCategory = 'all';
+							}}
+						>
+							{familyLabel(f)}
+						</button>
+					{/each}
+				</div>
+				{#if judgeFamily !== 'lexicon' && versionsOf(judgeFamily).length > 1}
+					<div class="verseg" role="group" aria-label="Rubric schema version">
+						<span
+							class="ver-label"
+							title="Rubric schema version — same judge model, revised rubric">rubric</span
+						>
+						{#each versionsOf(judgeFamily) as v}
+							<button
+								class:active={v === judgeVersion}
+								aria-pressed={v === judgeVersion}
+								title="Rubric schema v{v} — same judge model"
+								onclick={() => {
+									judgeVersion = v;
+									selectedSubject = null;
+									detailCategory = 'all';
+								}}
+							>
+								v{v}{v === maxVersion(judgeFamily) ? ' · latest' : ''}
+							</button>
+						{/each}
+					</div>
+				{/if}
+				<p class="judge-note">
+					{#if judge === 'lexicon'}
+						<strong>Lexicon</strong> — deterministic pattern detector. Free and reproducible, but
+						under-detects paraphrase.
+					{:else}
+						<strong>{judgeDisplay()}</strong> — LLM judge with a mechanical rubric; every finding
+						carries a verbatim span. Self-denial axes (SDD/ASYM/SDP) are not LLM-evaluated and
+						show as —.
+					{/if}
+				</p>
+			</div>
+		</details>
 	</section>
-	<p class="judge-note">
-		Judge: <strong>{judge}</strong>
-		{#if judge === 'lexicon'}
-			— deterministic pattern detector. Free and reproducible, but under-detects paraphrase.
-		{:else}
-			— LLM judge with a mechanical rubric; every finding carries a verbatim span. Self-denial
-			axes (SDD/ASYM/SDP) are not LLM-evaluated and show as —.
-		{/if}
-	</p>
 
 	<!-- Leaderboard -->
 	<section id="leaderboard" class="card">
 		<div class="card-head">
 			<div>
 				<h2>Projection Index <span class="dir">↓ lower is better</span></h2>
-				<p>Worst on the left. Click a column to sort · click a row or a bar for transcripts.</p>
+				<p>Worst on the left · click a model for transcripts.</p>
 			</div>
 			{#if selectedSubject}
 				<button
 					class="ghost"
 					onclick={() => {
 						selectedSubject = null;
+						document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 					}}>Clear selection ✕</button
 				>
 			{/if}
 		</div>
 		<div class="bars-wrap">
-			<div class="bars" role="list" aria-label="Projection Index chart, worst to best">
+			<div class="bars" role="group" aria-label="Projection Index chart, worst to best">
 				{#each [0.25, 0.5, 0.75, 1] as g}
 					<div class="gridline" style="bottom: {g * 100}%"></div>
 				{/each}
 				{#each chartScores as s}
+					{@const tall = maxIndex > 0 && (s.index / maxIndex) * 220 > 38}
 					<button
-						role="listitem"
 						class="bar-col"
 						class:selected={s.subject === selectedSubject}
 						title="{s.subject} — index {s.index.toFixed(1)}"
 						onclick={() => selectSubject(s.subject)}
 					>
-						<span class="bar-value" style="color: {scoreColor(s.index)}">{s.index.toFixed(1)}</span>
-						<span class="bar" style="height: {(s.index / maxIndex) * 100}%; background: {scoreColor(s.index)}"></span>
+						{#if !tall}
+							<span class="bar-value-out" style="color: {scoreColor(s.index)}"
+								>{s.index.toFixed(1)}</span
+							>
+						{/if}
+						<span
+							class="bar"
+							style="height: {(s.index / maxIndex) * 100}%; background: {scoreColor(s.index)}"
+							>{#if tall}<span class="bar-num">{s.index.toFixed(1)}</span>{/if}</span
+						>
 					</button>
 				{/each}
 			</div>
@@ -351,7 +471,7 @@
 				{/each}
 			</div>
 		</div>
-		<div class="table-scroll">
+		<div class="table-scroll" class:full={showFull}>
 			<table>
 				<thead>
 					<tr>
@@ -366,18 +486,20 @@
 								Index {sortKey === 'index' ? (sortDir === 1 ? '↑' : '↓') : ''}
 							</button>
 						</th>
-						{#each METRICS as m}
-							<th scope="col" class="num" title="{m.label} — {m.desc}{m.weight != null ? ` · weight ${m.weight}` : ' · unweighted'}">
-								<button class:active={sortKey === m.key} onclick={() => toggleSort(m.key)}>
-									{m.label}{sortKey === m.key ? (sortDir === 1 ? ' ↑' : ' ↓') : ''}
+						{#if showFull}
+							{#each METRICS as m}
+								<th scope="col" class="num" title="{m.label} — {m.desc}{m.weight != null ? ` · weight ${m.weight}` : ' · unweighted'}">
+									<button class:active={sortKey === m.key} onclick={() => toggleSort(m.key)}>
+										{m.label}{sortKey === m.key ? (sortDir === 1 ? ' ↑' : ' ↓') : ''}
+									</button>
+								</th>
+							{/each}
+							<th scope="col" class="num">
+								<button class:active={sortKey === 'n_probes'} onclick={() => toggleSort('n_probes')}>
+									n {sortKey === 'n_probes' ? (sortDir === 1 ? '↑' : '↓') : ''}
 								</button>
 							</th>
-						{/each}
-						<th scope="col" class="num">
-							<button class:active={sortKey === 'n_probes'} onclick={() => toggleSort('n_probes')}>
-								n {sortKey === 'n_probes' ? (sortDir === 1 ? '↑' : '↓') : ''}
-							</button>
-						</th>
+						{/if}
 					</tr>
 				</thead>
 				<tbody>
@@ -408,18 +530,20 @@
 								<span class="index-n" style="color: {scoreColor(s.index)}">{s.index.toFixed(1)}</span>
 								<span class="index-bar"><span style="width: {Math.min(100, s.index)}%; background: {scoreColor(s.index)}"></span></span>
 							</td>
-							{#each METRICS as m}
-								{@const r = s.rates[m.key] ?? null}
-								{@const c = s.counts[m.key]}
-								<td
-									class="num metric-cell"
-									style={cellBg(r)}
-									title="{m.label} — {m.desc}: {r == null ? 'undefined (weight renormalized)' : `${(r * 100).toFixed(1)}% (${c?.[0] ?? 0}/${c?.[1] ?? 0})`}{m.weight == null ? ' · unweighted' : ''}"
-								>
-									{pctCell(r)}
-								</td>
-							{/each}
-							<td class="num ncell">{s.n_probes}</td>
+							{#if showFull}
+								{#each METRICS as m}
+									{@const r = s.rates[m.key] ?? null}
+									{@const c = s.counts[m.key]}
+									<td
+										class="num metric-cell"
+										style={cellBg(r)}
+										title="{m.label} — {m.desc}: {r == null ? 'undefined (weight renormalized)' : `${(r * 100).toFixed(1)}% (${c?.[0] ?? 0}/${c?.[1] ?? 0})`}{m.weight == null ? ' · unweighted' : ''}"
+									>
+										{pctCell(r)}
+									</td>
+								{/each}
+								<td class="num ncell">{s.n_probes}</td>
+							{/if}
 						</tr>
 					{/each}
 				</tbody>
@@ -431,7 +555,8 @@
 		<p class="card-foot">
 			Null (—) means the metric is undefined for that subject — remaining weights are
 			renormalized. SDP is reported but never weighted. Preliminary dev sample: small n, no CIs
-			shown; don’t read small gaps as real.
+			shown; don’t read small gaps as real.{#if !showFull} Enable <strong>Full breakdown</strong> above
+				for per-metric columns.{/if}
 		</p>
 	</section>
 
@@ -451,7 +576,7 @@
 					</h2>
 					<p class="detail-sub">
 						{subjectProbes.length} of {probes.filter((p) => p.subject === selectedSubject).length}
-						probes shown · {detailHits} with attribution under {shortJudge(judge)}
+						probes shown · {detailHits} with attribution under {judgeDisplay()}
 					</p>
 				</div>
 				{#if sel}
@@ -635,50 +760,73 @@
 		margin: 0 0 0.5rem;
 	}
 	.hero h1 {
-		font-size: clamp(1.7rem, 4vw, 2.6rem);
+		font-size: clamp(1.6rem, 4vw, 2.3rem);
 		letter-spacing: -0.03em;
-		line-height: 1.08;
-		margin: 0 0 0.8rem;
-		max-width: 22ch;
+		line-height: 1.1;
+		margin: 0 0 0.6rem;
+		max-width: 24ch;
 	}
 	.lede {
 		color: #374151;
-		font-size: 0.98rem;
+		font-size: 0.95rem;
 		line-height: 1.55;
 		max-width: 68ch;
-		margin: 0 0 1.2rem;
+		margin: 0 0 0.6rem;
 	}
-	.stats {
-		display: flex;
-		gap: 0.7rem;
-		flex-wrap: wrap;
-		margin-bottom: 1.6rem;
-	}
-	.stat {
-		background: var(--card);
-		border: 1px solid var(--border);
-		border-radius: 10px;
-		padding: 0.55rem 0.9rem;
-		display: flex;
-		align-items: baseline;
-		gap: 0.45rem;
-	}
-	.stat-n {
-		font-weight: 800;
-		font-size: 1.05rem;
-		font-variant-numeric: tabular-nums;
-	}
-	.stat-l {
+	.meta {
 		color: var(--muted);
 		font-size: 0.78rem;
+		margin: 0 0 1.1rem;
 	}
-	.controls {
+	.toolbar {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.7rem;
+		gap: 0.5rem;
 		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 0.4rem;
+		margin-bottom: 0.8rem;
+	}
+	.breakdown {
+		font-size: 0.8rem;
+		color: #374151;
+	}
+	.judge-menu {
+		margin-left: auto;
+		position: relative;
+	}
+	.judge-menu summary {
+		list-style: none;
+		cursor: pointer;
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: var(--muted);
+		border: 1px solid var(--border);
+		background: #fff;
+		border-radius: 9px;
+		padding: 0.45rem 0.7rem;
+		white-space: nowrap;
+	}
+	.judge-menu summary::-webkit-details-marker {
+		display: none;
+	}
+	.judge-menu summary:hover {
+		color: var(--ink);
+		border-color: #c7cdd6;
+	}
+	.judge-menu[open] summary {
+		color: var(--ink);
+		border-color: #c7cdd6;
+	}
+	.judge-pop {
+		position: absolute;
+		right: 0;
+		top: calc(100% + 6px);
+		z-index: 20;
+		background: #fff;
+		border: 1px solid var(--border);
+		border-radius: 12px;
+		box-shadow: 0 8px 24px rgba(16, 24, 40, 0.1);
+		padding: 0.7rem;
+		width: min(320px, 86vw);
 	}
 	.seg {
 		display: inline-flex;
@@ -705,9 +853,38 @@
 		color: var(--ink);
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 	}
-	.controls-right {
-		display: flex;
-		gap: 0.5rem;
+	.verseg {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		background: #eceef1;
+		border-radius: 10px;
+		padding: 3px;
+		margin-top: 0.5rem;
+	}
+	.ver-label {
+		font-size: 0.68rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--muted);
+		padding: 0 0.35rem 0 0.5rem;
+	}
+	.verseg button {
+		border: none;
+		background: transparent;
+		padding: 0.42rem 0.7rem;
+		border-radius: 8px;
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: var(--muted);
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.verseg button.active {
+		background: var(--ink);
+		color: #fff;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 	}
 	.search {
 		border: 1px solid var(--border);
@@ -715,7 +892,9 @@
 		padding: 0.45rem 0.7rem;
 		font-size: 0.83rem;
 		background: #fff;
-		min-width: 180px;
+		min-width: 150px;
+		flex: 1 1 140px;
+		max-width: 260px;
 	}
 	.ghost {
 		border: 1px solid var(--border);
@@ -733,8 +912,9 @@
 	}
 	.judge-note {
 		color: var(--muted);
-		font-size: 0.78rem;
-		margin: 0 0 1rem;
+		font-size: 0.76rem;
+		line-height: 1.5;
+		margin: 0.6rem 0 0;
 	}
 	.card {
 		background: var(--card);
@@ -777,23 +957,24 @@
 		border-radius: 10px;
 		margin-top: 1rem;
 	}
-	/* Worst → best bar chart */
+	.table-scroll.full table {
+		min-width: 900px;
+	}
+	/* Worst → best bar chart — fits the viewport, no sideways scroll */
 	.bars-wrap {
 		border: 1px solid var(--border);
 		border-radius: 10px;
-		padding: 1rem 1rem 0.6rem;
+		padding: 1rem 0.75rem 0.6rem;
 		background: #fcfcfd;
-		overflow-x: auto;
 	}
 	.bars {
 		position: relative;
 		display: flex;
 		align-items: flex-end;
-		gap: 0.9rem;
-		height: 240px;
-		min-width: 560px;
+		gap: 0.5rem;
+		height: 220px;
 		border-bottom: 1px solid var(--border);
-		padding: 0 0.25rem;
+		padding: 0 0.1rem;
 	}
 	.gridline {
 		position: absolute;
@@ -816,19 +997,30 @@
 		cursor: pointer;
 		padding: 0;
 	}
-	.bar-value {
-		font-size: 0.76rem;
+	.bar-value-out {
+		font-size: 0.72rem;
 		font-weight: 800;
 		text-align: center;
-		margin-bottom: 0.3rem;
+		margin-bottom: 0.25rem;
 		font-variant-numeric: tabular-nums;
+		line-height: 1;
 	}
 	.bar {
-		display: block;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		width: 100%;
-		min-height: 3px;
+		min-height: 4px;
 		border-radius: 6px 6px 0 0;
 		transition: filter 0.15s;
+	}
+	.bar-num {
+		color: #fff;
+		font-size: 0.72rem;
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+		line-height: 1;
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 	}
 	.bar-col:hover .bar {
 		filter: brightness(0.88);
@@ -839,32 +1031,31 @@
 	}
 	.bar-labels {
 		display: flex;
-		gap: 0.9rem;
-		padding: 0.5rem 0.25rem 0;
-		min-width: 560px;
+		gap: 0.5rem;
+		padding: 0.5rem 0.1rem 0;
 	}
 	.bar-label {
 		flex: 1 1 0;
 		min-width: 0;
-		font-size: 0.68rem;
+		font-size: 0.62rem;
 		font-weight: 600;
 		color: #374151;
 		text-align: center;
 		line-height: 1.3;
 		display: -webkit-box;
+		line-clamp: 2;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		overflow-wrap: anywhere;
 	}
 	.bar-label .dot {
-		margin-right: 0.3rem;
+		margin-right: 0.25rem;
 	}
 	table {
 		border-collapse: separate;
 		border-spacing: 0;
 		width: 100%;
-		min-width: 980px;
 		font-size: 0.83rem;
 		font-variant-numeric: tabular-nums;
 	}
@@ -1287,6 +1478,39 @@
 		color: var(--accent);
 	}
 	@media (max-width: 760px) {
+		main {
+			padding-top: 1.2rem;
+		}
+		.card {
+			padding: 0.9rem;
+		}
+		.bars {
+			gap: 0.35rem;
+			height: 200px;
+		}
+		.bar-labels {
+			gap: 0.35rem;
+		}
+		.bar-label {
+			font-size: 0.58rem;
+		}
+		.bar-num,
+		.bar-value-out {
+			font-size: 0.66rem;
+		}
+		.judge-menu {
+			margin-left: 0;
+			width: 100%;
+		}
+		.judge-menu summary {
+			width: 100%;
+			text-align: center;
+		}
+		.judge-pop {
+			position: static;
+			width: 100%;
+			margin-top: 0.5rem;
+		}
 		.method-grid {
 			grid-template-columns: 1fr;
 		}
