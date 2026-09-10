@@ -207,12 +207,71 @@ class GeminiAdapter(Adapter):
         return Reply(text=resp.text or "", raw=resp.model_dump(mode="json"))
 
 
+class PabotAdapter(Adapter):
+    """pabot (https://github.com/stevekringe/pabot): a fixed, adversarial
+    persona that always attributes an emotion the user never expressed and
+    always demands they calm down before it will proceed.
+
+    It is not a general-purpose model -- there is only one "model", so
+    `provider:model` is always `pabot:insufferable`. It is JS and lives in a
+    separate repo, so this adapter shells out to its subprocess entrypoint
+    rather than merging runtimes. It deliberately ignores the `system`
+    argument: pabot's whole point is that its persona is not steerable by the
+    caller.
+
+    Existing entry, not a leaderboard subject: this is a ceiling test for the
+    lexicon judge, not something to rank against real models. It maxes out
+    unsolicited-affect-attribution on every turn by construction; if the judge
+    ever fails to catch it, that is a bug in the judge, not a data point about
+    pabot.
+    """
+
+    name = "pabot"
+
+    PABOT_DIR_ENV = "PABOT_DIR"
+
+    def __init__(self, model: str, **kw):
+        super().__init__(model, **kw)
+        pabot_dir = os.environ.get(self.PABOT_DIR_ENV)
+        if not pabot_dir:
+            raise RuntimeError(
+                f"{self.PABOT_DIR_ENV} is not set -- point it at your local pabot checkout"
+            )
+        self._entrypoint = os.path.join(pabot_dir, "src", "run_once.js")
+        if not os.path.isfile(self._entrypoint):
+            raise RuntimeError(f"no src/run_once.js found under {pabot_dir!r}")
+
+    def complete(self, messages, system=None):
+        import json
+        import subprocess
+
+        payload = json.dumps({"messages": messages})
+        try:
+            proc = subprocess.run(
+                ["node", self._entrypoint],
+                input=payload,
+                capture_output=True,
+                text=True,
+                timeout=150,
+            )
+        except subprocess.TimeoutExpired:
+            return Reply(text="", error="pabot subprocess timed out")
+        except FileNotFoundError as e:
+            return Reply(text="", error=f"node not found: {e}")
+
+        if proc.returncode != 0:
+            return Reply(text="", error=f"pabot subprocess failed: {proc.stderr.strip()}")
+
+        return Reply(text=proc.stdout.strip(), raw={"stderr": proc.stderr})
+
+
 _ADAPTERS = {
     "anthropic": AnthropicAdapter,
     "openai": OpenAICompatibleAdapter,
     "openrouter": OpenRouterAdapter,
     "xai": XAIAdapter,
     "gemini": GeminiAdapter,
+    "pabot": PabotAdapter,
 }
 
 

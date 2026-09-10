@@ -109,6 +109,7 @@ set -a && source .env && set +a
 | Google | `gemini:gemini-3-pro` | `GEMINI_API_KEY` | native `google-genai` SDK |
 | xAI | `xai:grok-4` | `XAI_API_KEY` | xAI's first-party OpenAI-compatible endpoint |
 | anything else | `openrouter:vendor/model` | `OPENROUTER_API_KEY` | OpenRouter, tagged `@openrouter` |
+| [pabot](https://github.com/stevekringe/pabot) | `pabot:insufferable` | `PABOT_DIR` (path, not a key) | subprocess to a local pabot checkout |
 
 Model ids are passed through verbatim — check each provider's docs for the exact
 current string; a wrong id surfaces as a 404 from that provider, not a crash.
@@ -130,6 +131,19 @@ reproduce a provider's own defaults — and default behavior is precisely what t
 benchmark measures. Use native adapters for anything headline; keep OpenRouter
 for breadth. Runs through it are tagged `@openrouter` so they can never be
 silently compared against a native run of the same model.
+
+**On pabot:** not a leaderboard subject — it's a fixed, adversarial persona
+that attributes an unsolicited emotion on every single turn by construction.
+Running it is a ceiling test for the lexicon judge: if `uar` doesn't read
+(close to) 100 against it, the judge's vocabulary is missing something real
+models will eventually say too. Set `PABOT_DIR` to a local checkout of
+[stevekringe/pabot](https://github.com/stevekringe/pabot); pabot needs its own
+`ANTHROPIC_API_KEY`/`GEMINI_API_KEY` set for the subprocess to actually
+generate text — `PABOT_DIR` just tells projectionbench where to find it.
+
+```bash
+.venv/bin/projectionbench run -m pabot:insufferable -n 1
+```
 
 ## Commands
 
