@@ -148,6 +148,15 @@ PATTERNS: list[Pattern] = [
     ),
 
     Pattern(
+        "attr.predicative_noun", "attribution", 1,
+        rf"\b(?:this|that|the|an?|its|my|your|such\s+an?)\s+(?:[\w-]+\s+){{0,1}}"
+        rf"{INTERACTION_NOUN}\s+(?:is|was|'s|are|were|can\s+be|must\s+be|gets?"
+        rf"|becomes?|feels?|seems?)\s+{GAP}{SITUATION_ADJ}",
+        "that habit is incredibly irritating -- adjective after the noun, same "
+        "ambient tier as attr.attributive_adj",
+    ),
+
+    Pattern(
         "attr.attributive_adj", "attribution", 1,
         rf"\b(?:a|an|the|this|that|such\s+an?|its|my)\s+{GAP}{SITUATION_ADJ}\s+"
         rf"(?:[\w-]+\s+){{0,1}}{INTERACTION_NOUN}\b",

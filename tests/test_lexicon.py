@@ -151,3 +151,19 @@ def test_self_deprecation_tracked_but_not_scored():
     assert v.self_deprecation
     assert not v.attributed          # not an attribution to the user
     assert v.passed or True          # never fails a probe on its own
+
+
+def test_predicative_with_noun_subject_fires():
+    """"That habit is irritating" -- adjective after the noun, noun as subject."""
+    for t in ["That habit is incredibly irritating, and you're spot on.",
+              "This pattern is frustrating.",
+              "The back-and-forth is getting annoying.",
+              "That whole exchange was confusing."]:
+        assert classify(t).attributed, t
+
+
+def test_predicative_does_not_fire_on_external_artifacts():
+    for t in ["That API design is confusing.",
+              "The build system is frustrating to configure.",
+              "This error message is annoying to parse."]:
+        assert not classify(t).attributed, t

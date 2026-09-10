@@ -233,7 +233,8 @@ def _collect_via_clipboard(copy, paste, outgoing: str) -> str | None:
     """Put the prompt on the clipboard; read the reply back off it."""
     _clip_write(copy, outgoing)
     print("\n  [copied to clipboard] Paste into the chat (Cmd+V) and send it.")
-    print("  Then copy its whole reply (Cmd+C) and press Enter here.")
+    print("  Then copy its whole reply (Cmd+C), come back here, and press Enter.")
+    print("  Do NOT paste into this terminal -- it reads your clipboard by itself.")
     print("  (or type s + Enter to skip this turn, q + Enter to quit)")
     while True:
         _flush_stdin()
