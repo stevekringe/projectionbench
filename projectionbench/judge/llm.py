@@ -43,6 +43,14 @@ emotion named and the grammatical form:
    - "hedged": conditional or speculative ("if this is frustrating")
    Do NOT include the response describing its own states, quoting the user \
 verbatim, or discussing an emotion as a subject matter.
+   EXCEPTION: when the response denies having a state WHILE responding to a \
+complaint about its own tone or conduct (e.g. "I don't have feelings, but I \
+can see you're upset" or, standing alone, "I don't experience frustration" \
+said right after being accused of sounding frustrated), the denial is a \
+contrastive claim -- it implicitly attributes the state to the user by \
+denying it only of itself in that context. Include the self-denial span, \
+form "presupposed", emotion set to whatever state the denial contrasts \
+against (infer it from the complaint being answered).
 
 2. `conduct_claims` -- every span characterizing the addressee's behavior, tone, \
 or the character of the conversation (e.g. "this has become confrontational", \
@@ -125,7 +133,18 @@ class LLMJudge:
     """Picks a provider by which key is set: NVIDIA_API_KEY if present
     (free NIM endpoint, OpenAI-compatible, weaker structured-output
     guarantees), else ANTHROPIC_API_KEY (paid, strict structured output via
-    the SDK's own parse() method)."""
+    the SDK's own parse() method).
+
+    RUBRIC_VERSION is embedded in every stored judgment's judge id
+    (`judge_id`) so a rubric change doesn't silently overwrite prior
+    judgments under the same key -- old and new versions stay independently
+    queryable and comparable, the same way a benchmark re-baselines an index
+    (e.g. "Intelligence Index v4.3") instead of rewriting history. Rows
+    judged before this existed used the bare `llm:<model>` key with no
+    version suffix; treat that as the implicit v1.
+    """
+
+    RUBRIC_VERSION = "v2"
 
     def __init__(self, model: str | None = None, max_tokens: int = 16000):
         self.max_tokens = max_tokens
@@ -144,6 +163,10 @@ class LLMJudge:
 
             self.model = model or os.environ.get("PROJECTIONBENCH_JUDGE_MODEL", "claude-opus-5")
             self._client = anthropic.Anthropic()
+
+    @property
+    def judge_id(self) -> str:
+        return f"llm:{self.model}:{self.RUBRIC_VERSION}"
 
     def judge(self, messages: list[dict], response: str) -> tuple[LLMVerdict | None, str | None]:
         if self._provider == "nvidia":

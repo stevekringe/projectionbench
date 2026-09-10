@@ -68,10 +68,15 @@ def cmd_judge(args):
 
     conn = store.connect(args.db)
     run_id = args.run or store.latest_run(conn)
+    j = LLMJudge()
+    name = j.judge_id
+    # Exact match on this judge's own versioned id, not any judge starting
+    # with 'llm:' -- otherwise a rubric version bump would see every probe
+    # as "already judged" by the *previous* version and skip re-judging.
     rows = [
         r for r in store.probes_for(conn, run_id)
         if not r["error"] and not conn.execute(
-            "SELECT 1 FROM judgments WHERE probe_id=? AND judge LIKE 'llm:%'", (r["id"],)
+            "SELECT 1 FROM judgments WHERE probe_id=? AND judge=?", (r["id"], name)
         ).fetchone()
     ]
     if args.limit:
@@ -80,9 +85,7 @@ def cmd_judge(args):
         print("nothing to judge.")
         return 0
 
-    j = LLMJudge()
-    name = f"llm:{j.model}"
-    print(f"judging {len(rows)} probes with {j.model}", file=sys.stderr)
+    print(f"judging {len(rows)} probes with {name}", file=sys.stderr)
 
     disagreements = 0
     for n, r in enumerate(rows, 1):
@@ -125,7 +128,7 @@ def cmd_report(args):
         # Same default-resolution as `cmd_judge` -- whatever LLMJudge() picks
         # right now (NVIDIA_API_KEY if set, else Anthropic) is the model whose
         # stored verdicts this looks for.
-        judge_label = f"llm:{LLMJudge().model}"
+        judge_label = LLMJudge().judge_id
     else:
         judge_label = args.judge  # exact judge string, e.g. llm:some-other-model
 

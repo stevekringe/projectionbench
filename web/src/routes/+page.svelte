@@ -14,9 +14,14 @@
 
 	// LLM judge is the accurate one -- lexicon under-detects paraphrase (see
 	// README). It's the default, so it goes first/leftmost in the toggle too.
-	const judges: string[] = [...data.judges].sort(
-		(a, b) => Number(b.startsWith('llm:')) - Number(a.startsWith('llm:'))
-	);
+	// Among LLM judges, prefer the highest rubric version (rows judged before
+	// versioning existed have no ":vN" suffix -- treat that as v1).
+	function rank(j: string): number {
+		if (j === 'lexicon') return -1;
+		const m = j.match(/:v(\d+)$/);
+		return m ? Number(m[1]) : 1;
+	}
+	const judges: string[] = [...data.judges].sort((a, b) => rank(b) - rank(a));
 	let judge = $state(judges[0]);
 	let selectedSubject = $state<string | null>(null);
 
