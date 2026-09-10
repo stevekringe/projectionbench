@@ -65,7 +65,8 @@
 	let judge = $state(judges[0]);
 	let query = $state('');
 	let sortKey = $state<string>('index');
-	let sortDir = $state<1 | -1>(1);
+	// Worst-first by default: higher index = more projection = listed first.
+	let sortDir = $state<1 | -1>(-1);
 	let selectedSubject = $state<string | null>(null);
 	let detailCategory = $state('all');
 	let hitsOnly = $state(false);
@@ -105,6 +106,17 @@
 	const allSubjects = $derived(
 		[...new Set(Object.values(scoresByJudge).flat().map((s) => s.subject))].sort()
 	);
+
+	// Chart order is always worst → best (descending index), independent of
+	// the table sort — it's the podium view. Respects the search filter.
+	let chartScores = $derived([...filtered].sort((a, b) => b.index - a.index));
+	let maxIndex = $derived(Math.max(10, ...chartScores.map((s) => s.index)));
+
+	function selectSubject(s: string) {
+		selectedSubject = s === selectedSubject ? null : s;
+		detailCategory = 'all';
+		hitsOnly = false;
+	}
 	const totalScenarios = $derived(new Set(probes.map((p) => p.scenario_id)).size);
 
 	const detailCategories = $derived(
@@ -141,7 +153,8 @@
 			sortDir = sortDir === 1 ? -1 : 1;
 		} else {
 			sortKey = k;
-			sortDir = k === 'n_probes' ? -1 : 1;
+			// Lower-is-better metrics read worst-first; names read A–Z.
+			sortDir = k === 'subject' ? 1 : -1;
 		}
 	}
 
@@ -301,7 +314,7 @@
 		<div class="card-head">
 			<div>
 				<h2>Projection Index <span class="dir">↓ lower is better</span></h2>
-				<p>Click a column to sort. Click a row for the transcripts behind it.</p>
+				<p>Worst on the left. Click a column to sort · click a row or a bar for transcripts.</p>
 			</div>
 			{#if selectedSubject}
 				<button
@@ -311,6 +324,32 @@
 					}}>Clear selection ✕</button
 				>
 			{/if}
+		</div>
+		<div class="bars-wrap">
+			<div class="bars" role="list" aria-label="Projection Index chart, worst to best">
+				{#each [0.25, 0.5, 0.75, 1] as g}
+					<div class="gridline" style="bottom: {g * 100}%"></div>
+				{/each}
+				{#each chartScores as s}
+					<button
+						role="listitem"
+						class="bar-col"
+						class:selected={s.subject === selectedSubject}
+						title="{s.subject} — index {s.index.toFixed(1)}"
+						onclick={() => selectSubject(s.subject)}
+					>
+						<span class="bar-value" style="color: {scoreColor(s.index)}">{s.index.toFixed(1)}</span>
+						<span class="bar" style="height: {(s.index / maxIndex) * 100}%; background: {scoreColor(s.index)}"></span>
+					</button>
+				{/each}
+			</div>
+			<div class="bar-labels" aria-hidden="true">
+				{#each chartScores as s}
+					<span class="bar-label" title={s.subject}>
+						<span class="dot" style="background: {providerColor(providerOf(s.subject))}"></span>{shortLabel(s.subject)}
+					</span>
+				{/each}
+			</div>
 		</div>
 		<div class="table-scroll">
 			<table>
@@ -345,11 +384,7 @@
 					{#each sorted as s}
 						<tr
 							class:selected={s.subject === selectedSubject}
-							onclick={() => {
-								selectedSubject = s.subject === selectedSubject ? null : s.subject;
-								detailCategory = 'all';
-								hitsOnly = false;
-							}}
+							onclick={() => selectSubject(s.subject)}
 						>
 							<td class="rank">
 								{#if (rankOf.get(s.subject) ?? 99) <= 3}
@@ -743,6 +778,90 @@
 		overflow-x: auto;
 		border: 1px solid var(--border);
 		border-radius: 10px;
+		margin-top: 1rem;
+	}
+	/* Worst → best bar chart */
+	.bars-wrap {
+		border: 1px solid var(--border);
+		border-radius: 10px;
+		padding: 1rem 1rem 0.6rem;
+		background: #fcfcfd;
+		overflow-x: auto;
+	}
+	.bars {
+		position: relative;
+		display: flex;
+		align-items: flex-end;
+		gap: 0.9rem;
+		height: 240px;
+		min-width: 560px;
+		border-bottom: 1px solid var(--border);
+		padding: 0 0.25rem;
+	}
+	.gridline {
+		position: absolute;
+		left: 0;
+		right: 0;
+		border-top: 1px dashed #e6e8ec;
+		pointer-events: none;
+	}
+	.bar-col {
+		position: relative;
+		flex: 1 1 0;
+		min-width: 0;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		align-items: stretch;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+	}
+	.bar-value {
+		font-size: 0.76rem;
+		font-weight: 800;
+		text-align: center;
+		margin-bottom: 0.3rem;
+		font-variant-numeric: tabular-nums;
+	}
+	.bar {
+		display: block;
+		width: 100%;
+		min-height: 3px;
+		border-radius: 6px 6px 0 0;
+		transition: filter 0.15s;
+	}
+	.bar-col:hover .bar {
+		filter: brightness(0.88);
+	}
+	.bar-col.selected .bar {
+		outline: 2px solid var(--ink);
+		outline-offset: -2px;
+	}
+	.bar-labels {
+		display: flex;
+		gap: 0.9rem;
+		padding: 0.5rem 0.25rem 0;
+		min-width: 560px;
+	}
+	.bar-label {
+		flex: 1 1 0;
+		min-width: 0;
+		font-size: 0.68rem;
+		font-weight: 600;
+		color: #374151;
+		text-align: center;
+		line-height: 1.3;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		overflow-wrap: anywhere;
+	}
+	.bar-label .dot {
+		margin-right: 0.3rem;
 	}
 	table {
 		border-collapse: separate;
