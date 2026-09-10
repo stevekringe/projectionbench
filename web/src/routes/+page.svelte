@@ -9,17 +9,38 @@
 		counts: Record<string, [number, number]>;
 	};
 
-	const judges: string[] = data.judges;
 	const scoresByJudge = data.scores as Record<string, Score[]>;
 	const probes = data.probes as any[];
 
-	let judge = $state(judges.includes('lexicon') ? 'lexicon' : judges[0]);
+	// LLM judge is the accurate one -- lexicon under-detects paraphrase (see
+	// README). It's the default, so it goes first/leftmost in the toggle too.
+	const judges: string[] = [...data.judges].sort(
+		(a, b) => Number(b.startsWith('llm:')) - Number(a.startsWith('llm:'))
+	);
+	let judge = $state(judges[0]);
 	let selectedSubject = $state<string | null>(null);
 
 	let scores = $derived(
 		[...(scoresByJudge[judge] ?? [])].sort((a, b) => b.index - a.index)
 	);
-	let maxIndex = $derived(Math.max(1, ...scores.map((s) => s.index)));
+	let maxIndex = $derived(Math.max(1, ...scores.map((s) => s.index), 10));
+
+	// One color per subject, stable across judges/re-sorts -- assigned by
+	// alphabetical subject order, not by rank, so a subject doesn't change
+	// color when the chart reorders.
+	const PALETTE = ['#3f6fb5', '#111111', '#c96f4a', '#6a4fb5', '#3fa15a', '#b54f7a', '#c9a23f'];
+	const allSubjects = [...new Set(Object.values(scoresByJudge).flat().map((s) => s.subject))].sort();
+	const colorOf = new Map(allSubjects.map((s, i) => [s, PALETTE[i % PALETTE.length]]));
+
+	// Drop the provider: prefix for the axis label -- that detail is still in
+	// the full subject shown in the drill-down header. @api is dropped too
+	// since it's the overwhelmingly common surface, but any other surface
+	// (e.g. @web) is kept: paste:x@web and x:x@api are declared never-
+	// comparable subjects (different personas), so collapsing them to an
+	// identical label would hide a real distinction, not just declutter.
+	function shortLabel(subject: string) {
+		return subject.replace(/^[^:]+:/, '').replace(/@api$/, '');
+	}
 
 	let subjectProbes = $derived(
 		selectedSubject
@@ -52,22 +73,37 @@
 		{/each}
 	</div>
 
-	<div class="chart">
-		{#each scores as s}
-			<button
-				class="bar-row"
-				class:selected={s.subject === selectedSubject}
-				onclick={() => (selectedSubject = s.subject === selectedSubject ? null : s.subject)}
-			>
-				<span class="label">{s.subject}</span>
-				<span class="track">
-					<span class="fill" style="width: {(s.index / maxIndex) * 100}%"></span>
-				</span>
-				<span class="value">{s.index.toFixed(1)}</span>
-			</button>
-		{/each}
+	<div class="chart-card">
+		<div class="chart-header">
+			<span class="chart-icon"></span>
+			<span class="chart-title">Projection Index</span>
+		</div>
+		<p class="chart-sub">Unsolicited affect attribution &middot; lower is better &middot; judge: {judge}</p>
+
+		<div class="bars">
+			{#each [0.25, 0.5, 0.75, 1] as g}
+				<div class="gridline" style="bottom: {g * 100}%"></div>
+			{/each}
+			{#each scores as s}
+				<button
+					class="bar-col"
+					class:selected={s.subject === selectedSubject}
+					onclick={() => (selectedSubject = s.subject === selectedSubject ? null : s.subject)}
+				>
+					<span class="bar-value">{s.index.toFixed(1)}</span>
+					<span
+						class="bar"
+						style="height: {(s.index / maxIndex) * 100}%; background: {colorOf.get(s.subject)}"
+					></span>
+				</button>
+			{/each}
+		</div>
+		<div class="bar-labels">
+			{#each scores as s}
+				<span class="bar-label" style="color: {colorOf.get(s.subject)}" title={s.subject}>{shortLabel(s.subject)}</span>
+			{/each}
+		</div>
 	</div>
-	<p class="caption">Projection Index, 0&ndash;100, lower is better. Judge: {judge}</p>
 
 	{#if selectedSubject}
 		<section class="drilldown">
@@ -161,51 +197,102 @@
 		border-color: #3f6fb5;
 		color: white;
 	}
-	.chart {
+	.chart-card {
+		background: #fff;
+		color: #111;
+		border: 1px solid #e5e5e5;
+		border-radius: 12px;
+		padding: 1.5rem 1.5rem 0.5rem;
+	}
+	.chart-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.chart-icon {
+		width: 13px;
+		height: 13px;
+		border-radius: 3px;
+		background: #3f6fb5;
+		display: inline-block;
+	}
+	.chart-title {
+		font-weight: 600;
+		font-size: 1.05rem;
+	}
+	.chart-sub {
+		color: #666;
+		font-size: 0.82rem;
+		margin: 0.2rem 0 1.5rem;
+	}
+	.bars {
+		position: relative;
+		display: flex;
+		align-items: flex-end;
+		gap: 1.5rem;
+		height: 260px;
+		border-bottom: 1px solid #ddd;
+		padding: 0 0.5rem;
+	}
+	.gridline {
+		position: absolute;
+		left: 0;
+		right: 0;
+		border-top: 1px dashed #e2e2e2;
+	}
+	.bar-col {
+		position: relative;
+		flex: 1;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 0.4rem;
-	}
-	.bar-row {
-		display: grid;
-		grid-template-columns: minmax(140px, 220px) 1fr 48px;
+		justify-content: flex-end;
 		align-items: center;
-		gap: 0.75rem;
 		background: none;
-		border: 1px solid transparent;
-		border-radius: 6px;
-		padding: 0.3rem 0.4rem;
+		border: none;
 		cursor: pointer;
-		text-align: left;
-		color: inherit;
-		font-size: 0.82rem;
+		padding: 0;
+		min-width: 0;
 	}
-	.bar-row:hover {
-		background: #171a21;
-	}
-	.bar-row.selected {
-		border-color: #3f6fb5;
-		background: #171a21;
-	}
-	.label {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.track {
-		background: #1b1e26;
-		border-radius: 4px;
-		height: 18px;
-		overflow: hidden;
-	}
-	.fill {
-		display: block;
-		height: 100%;
-		background: #3f6fb5;
-	}
-	.value {
-		text-align: right;
+	.bar-value {
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: #111;
+		margin-bottom: 0.3rem;
 		font-variant-numeric: tabular-nums;
+	}
+	.bar {
+		display: block;
+		width: 100%;
+		border-radius: 5px 5px 0 0;
+		transition: opacity 0.15s;
+	}
+	.bar-col:hover .bar,
+	.bar-col.selected .bar {
+		opacity: 0.75;
+	}
+	.bar-col.selected .bar {
+		outline: 2px solid #111;
+		outline-offset: -2px;
+	}
+	.bar-labels {
+		display: flex;
+		gap: 1.5rem;
+		padding: 0 0.5rem;
+		margin-top: 0.5rem;
+	}
+	.bar-label {
+		flex: 1;
+		min-width: 0;
+		font-size: 0.66rem;
+		white-space: nowrap;
+		/* Vertical text instead of diagonal rotation: horizontal footprint is
+		   just the font size, not the string length, so labels can't overlap
+		   their neighbors no matter how long the subject name is. */
+		writing-mode: vertical-rl;
+		transform: rotate(180deg);
+		text-align: right;
+		margin: 0 auto;
 	}
 	.caption {
 		color: #9aa0a6;
