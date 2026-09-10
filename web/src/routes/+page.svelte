@@ -28,7 +28,10 @@
 	// One color per subject, stable across judges/re-sorts -- assigned by
 	// alphabetical subject order, not by rank, so a subject doesn't change
 	// color when the chart reorders.
-	const PALETTE = ['#3f6fb5', '#111111', '#c96f4a', '#6a4fb5', '#3fa15a', '#b54f7a', '#c9a23f'];
+	// No near-black: rotated labels can spill past the white card's bottom
+	// edge onto the page's dark background, where a black label would be
+	// invisible (this happened -- looked like an overlap bug, wasn't one).
+	const PALETTE = ['#3f6fb5', '#3a3f4a', '#c96f4a', '#6a4fb5', '#3fa15a', '#b54f7a', '#c9a23f'];
 	const allSubjects = [...new Set(Object.values(scoresByJudge).flat().map((s) => s.subject))].sort();
 	const colorOf = new Map(allSubjects.map((s, i) => [s, PALETTE[i % PALETTE.length]]));
 
@@ -202,7 +205,7 @@
 		color: #111;
 		border: 1px solid #e5e5e5;
 		border-radius: 12px;
-		padding: 1.5rem 1.5rem 0.5rem;
+		padding: 1.5rem 1.5rem 5rem;
 	}
 	.chart-header {
 		display: flex;
@@ -286,13 +289,10 @@
 		min-width: 0;
 		font-size: 0.66rem;
 		white-space: nowrap;
-		/* Vertical text instead of diagonal rotation: horizontal footprint is
-		   just the font size, not the string length, so labels can't overlap
-		   their neighbors no matter how long the subject name is. */
-		writing-mode: vertical-rl;
-		transform: rotate(180deg);
+		transform-origin: top right;
+		transform: rotate(-40deg);
 		text-align: right;
-		margin: 0 auto;
+		display: block;
 	}
 	.caption {
 		color: #9aa0a6;
