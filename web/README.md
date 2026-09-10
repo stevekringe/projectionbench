@@ -1,6 +1,20 @@
-# sv
+# projectionbench dashboard
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Interactive alternative to the static PNG charts in `../results/` -- click a
+subject's bar to see the actual transcripts, quotes, and hits behind its
+score, and toggle between the lexicon and LLM judge.
+
+Reads `src/lib/data.json`, which is a static export of the projectionbench
+sqlite db, not live-queried. Regenerate it after a new run or judge pass:
+
+```sh
+cd ..  # to the projectionbench repo root
+.venv/bin/python -m projectionbench.export_web results/projectionbench.sqlite web/src/lib/data.json
+```
+
+---
+
+Scaffolded with [`sv`](https://github.com/sveltejs/cli).
 
 ## Creating a project
 
