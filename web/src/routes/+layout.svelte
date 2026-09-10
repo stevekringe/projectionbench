@@ -17,8 +17,8 @@
 		</a>
 		<nav class="nav-links" aria-label="Sections">
 			<a href="#leaderboard">Leaderboard</a>
-			<a href="#transcripts">Transcripts</a>
 			<a href="#methodology">Methodology</a>
+			<a href="#transcripts">Transcripts</a>
 		</nav>
 	</div>
 </header>

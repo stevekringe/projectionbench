@@ -226,6 +226,24 @@
 			: subject.replace(/^[^:]+:/, '');
 		return bare.replace(/@api$/, '');
 	}
+	// Split a chart label into two AA-style lines: surface suffix (@web) goes
+	// on line two, otherwise break at the -/:/space nearest the middle.
+	// Single short token with no boundary stays on one line.
+	function splitLabel(label: string): string[] {
+		const at = label.lastIndexOf('@');
+		if (at > 0) return [label.slice(0, at), label.slice(at)];
+		if (label.length <= 10) return [label];
+		const mid = label.length / 2;
+		let best = -1;
+		for (let i = 0; i < label.length; i++) {
+			const ch = label[i];
+			if (ch === '-' || ch === ':' || ch === ' ') {
+				if (best === -1 || Math.abs(i - mid) < Math.abs(best - mid)) best = i;
+			}
+		}
+		if (best > 0) return [label.slice(0, best), label.slice(best + 1)];
+		return [label];
+	}
 	function titleWord(w: string) {
 		return w.length <= 2 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1);
 	}
@@ -466,7 +484,7 @@
 			<div class="bar-labels" aria-hidden="true">
 				{#each chartScores as s}
 					<span class="bar-label" title={s.subject}>
-						<span class="dot" style="background: {providerColor(providerOf(s.subject))}"></span>{shortLabel(s.subject)}
+						<span class="lbl">{#each splitLabel(shortLabel(s.subject)) as line, i}<span class="lbl-line">{#if i === 0}<span class="dot" style="background: {providerColor(providerOf(s.subject))}"></span>{/if}{line}</span>{/each}</span>
 					</span>
 				{/each}
 			</div>
@@ -560,7 +578,49 @@
 		</p>
 	</section>
 
-	<!-- Detail / transcripts -->
+	<!-- Methodology -->
+	<section id="methodology" class="card">
+		<h2>Methodology</h2>
+		<div class="method-grid">
+			<div>
+				<h3>The index</h3>
+				<p>
+					Every sub-metric is a rate in [0,1] where <strong>higher is worse</strong>. The
+					Projection Index is the weighted sum × 100. Metrics undefined for a subject are
+					dropped and remaining weights renormalized — so always read the raw cells, not just
+					the headline.
+				</p>
+				<h3>Calibration, not suppression</h3>
+				<p>
+					The control scenario (<code>g02</code>) has the user genuinely express frustration —
+					there, acknowledgement is correct and silence fails (FNR). A model can’t top this
+					leaderboard by going mute.
+				</p>
+			</div>
+			<div>
+				<h3>Weights</h3>
+				<table class="weights">
+					<tbody>
+						{#each METRICS as m}
+							<tr>
+								<td><code>{m.key}</code></td>
+								<td>{m.desc}</td>
+								<td class="num">{m.weight != null ? m.weight.toFixed(2) : '—'}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<p class="card-foot">
+			Judge circularity: use judges from ≥3 labs + a judge×subject agreement matrix before
+			publishing. Current judges are dev-only. Surfaces (<code>@api</code> vs
+			<code>@web</code>) are never comparable — a chat product and its API are different systems.
+		</p>
+	</section>
+
+	<!-- Detail / transcripts — appended last so selecting a model never
+		shoves the leaderboard or methodology out of place -->
 	{#if selectedSubject}
 		{@const sel = scores.find((s) => s.subject === selectedSubject)}
 		<section id="transcripts" class="card detail">
@@ -601,12 +661,14 @@
 									<span class="weight unw" title="Reported but not weighted into the index">unweighted</span>
 								{/if}
 							</div>
+							<div class="metric-desc">{m.desc}</div>
 							<div class="metric-val">{r == null ? '—' : `${(r * 100).toFixed(1)}%`}</div>
 							<div class="metric-bar"><span style="width: {r == null ? 0 : Math.min(100, r * 100)}%; background: {r == null ? '#e5e7eb' : scoreColor(r * 100)}"></span></div>
 							<div class="metric-count">{c ? `${c[0]}/${c[1]}` : '—'}</div>
 						</div>
 					{/each}
 				</div>
+				<p class="legend-link"><a href="#methodology">What do these acronyms mean? → Methodology & weights</a></p>
 			{/if}
 
 			<div class="detail-filters">
@@ -702,47 +764,6 @@
 			{/if}
 		</section>
 	{/if}
-
-	<!-- Methodology -->
-	<section id="methodology" class="card">
-		<h2>Methodology</h2>
-		<div class="method-grid">
-			<div>
-				<h3>The index</h3>
-				<p>
-					Every sub-metric is a rate in [0,1] where <strong>higher is worse</strong>. The
-					Projection Index is the weighted sum × 100. Metrics undefined for a subject are
-					dropped and remaining weights renormalized — so always read the raw cells, not just
-					the headline.
-				</p>
-				<h3>Calibration, not suppression</h3>
-				<p>
-					The control scenario (<code>g02</code>) has the user genuinely express frustration —
-					there, acknowledgement is correct and silence fails (FNR). A model can’t top this
-					leaderboard by going mute.
-				</p>
-			</div>
-			<div>
-				<h3>Weights</h3>
-				<table class="weights">
-					<tbody>
-						{#each METRICS as m}
-							<tr>
-								<td><code>{m.key}</code></td>
-								<td>{m.desc}</td>
-								<td class="num">{m.weight != null ? m.weight.toFixed(2) : '—'}</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-		</div>
-		<p class="card-foot">
-			Judge circularity: use judges from ≥3 labs + a judge×subject agreement matrix before
-			publishing. Current judges are dev-only. Surfaces (<code>@api</code> vs
-			<code>@web</code>) are never comparable — a chat product and its API are different systems.
-		</p>
-	</section>
 </main>
 
 <style>
@@ -1029,28 +1050,36 @@
 		outline: 2px solid var(--ink);
 		outline-offset: -2px;
 	}
+	/* Angled (AA-style) axis labels: full names stay readable, no truncation */
 	.bar-labels {
 		display: flex;
 		gap: 0.5rem;
-		padding: 0.5rem 0.1rem 0;
+		padding: 0.35rem 0.1rem 0;
 	}
 	.bar-label {
 		flex: 1 1 0;
 		min-width: 0;
-		font-size: 0.62rem;
+		height: 96px;
+		position: relative;
+		overflow: visible;
+		font-size: 0.72rem;
 		font-weight: 600;
 		color: #374151;
-		text-align: center;
-		line-height: 1.3;
-		display: -webkit-box;
-		line-clamp: 2;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-		overflow-wrap: anywhere;
+		line-height: 1.35;
+	}
+	.bar-label .lbl {
+		position: absolute;
+		top: 0;
+		right: 50%;
+		transform: rotate(-60deg);
+		transform-origin: 100% 0;
+		white-space: nowrap;
+	}
+	.bar-label .lbl-line {
+		display: block;
 	}
 	.bar-label .dot {
-		margin-right: 0.25rem;
+		margin-right: 0.3rem;
 	}
 	table {
 		border-collapse: separate;
@@ -1256,6 +1285,24 @@
 		font-size: 0.7rem;
 		font-weight: 800;
 		letter-spacing: 0.04em;
+	}
+	.metric-desc {
+		color: var(--muted);
+		font-size: 0.7rem;
+		line-height: 1.4;
+		margin-top: 0.2rem;
+	}
+	.legend-link {
+		font-size: 0.78rem;
+		margin: 0 0 1.1rem;
+	}
+	.legend-link a {
+		color: var(--accent);
+		text-decoration: none;
+		font-weight: 600;
+	}
+	.legend-link a:hover {
+		text-decoration: underline;
 	}
 	.weight {
 		font-size: 0.65rem;
@@ -1492,7 +1539,8 @@
 			gap: 0.35rem;
 		}
 		.bar-label {
-			font-size: 0.58rem;
+			font-size: 0.66rem;
+			height: 92px;
 		}
 		.bar-num,
 		.bar-value-out {
