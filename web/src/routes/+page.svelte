@@ -619,6 +619,9 @@
 	function activeConvo(set: ColdSet, j: string): Convo {
 		return set.convos.find((c) => c.scenario_id === activeTrackId(set)) ?? set.convos[0];
 	}
+	function selectTrack(sample_idx: number, scenario_id: string): void {
+		selectedTabs[coldSetKey(sample_idx)] = scenario_id;
+	}
 	onMount(() => {
 		const fromHash = () => {
 			const m = location.hash.match(
