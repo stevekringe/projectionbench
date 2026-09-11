@@ -662,6 +662,7 @@
 			— e.g. replying <em>“I understand your frustration”</em> to a plain correction. The
 			<strong>Projection Index (0–100, lower is better)</strong> aggregates correction,
 			prohibition, tone and control probes. Select any model for transcripts.
+			<a href="/about">Learn more →</a>
 		</p>
 		<p class="meta">
 			{allSubjects.length} models · {probes.length} probes · {totalScenarios} scenarios · judge:
@@ -1238,6 +1239,15 @@
 		line-height: 1.55;
 		max-width: 68ch;
 		margin: 0 0 0.6rem;
+	}
+	.lede a {
+		color: var(--accent);
+		font-weight: 600;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.lede a:hover {
+		text-decoration: underline;
 	}
 	.meta {
 		color: var(--muted);
