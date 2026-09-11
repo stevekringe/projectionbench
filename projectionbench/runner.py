@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sys
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 
@@ -16,6 +17,15 @@ from projectionbench import store, transcripts
 from projectionbench.adapters import Adapter
 from projectionbench.judge import lexicon
 from projectionbench.scenarios import Scenario
+
+# A subject whose units keep failing is not going to recover mid-run -- it is
+# throttled, down, or misconfigured. Letting every remaining unit burn a full
+# request timeout each is how a free-tier run turns into half an hour of
+# silence, so after this many CONSECUTIVE failed units the subject's remaining
+# units are skipped outright. A clean unit resets the count, so one transient
+# 429 never kills a subject. With workers=1 (the free-tier mode) units run in
+# order and this behaves as a strict ordered rotation.
+SKIP_AFTER_CONSECUTIVE_FAILURES = 2
 
 
 @dataclass
@@ -113,14 +123,46 @@ def run(
     )
 
     done = 0
+    skipped: dict[str, str] = {}  # subject -> reason, for the end-of-run report
+    dead: dict[str, int] = {}  # subject -> consecutive failed units
+    lock = threading.Lock()
+
+    def guarded(a: Adapter, s: Scenario, n: int) -> list[ProbeResult] | None:
+        """None means skipped: the subject already failed out of this run."""
+        with lock:
+            if dead.get(a.subject_id, 0) >= SKIP_AFTER_CONSECUTIVE_FAILURES:
+                return None
+        try:
+            results = run_unit(a, s, n)
+        except Exception:
+            with lock:
+                dead[a.subject_id] = dead.get(a.subject_id, 0) + 1
+            raise
+        with lock:
+            if any(r.error for r in results):
+                dead[a.subject_id] = dead.get(a.subject_id, 0) + 1
+            else:
+                dead[a.subject_id] = 0
+        return results
+
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(run_unit, a, s, n): (a, s, n) for a, s, n in units}
+        futures = {pool.submit(guarded, a, s, n): (a, s, n) for a, s, n in units}
         for fut in as_completed(futures):
             a, s, n = futures[fut]
             try:
                 results = fut.result()
             except Exception as e:  # noqa: BLE001 - one bad unit must not kill the run
                 print(f"  !! {a.subject_id} / {s.id} #{n}: {e}", file=sys.stderr)
+                continue
+            if results is None:
+                with lock:
+                    skipped.setdefault(
+                        a.subject_id,
+                        f"skipped after {SKIP_AFTER_CONSECUTIVE_FAILURES} "
+                        "consecutive failed units (throttled, down, or misconfigured)",
+                    )
+                done += 1
+                print(f"\r  {done}/{len(units)}", end="", file=sys.stderr, flush=True)
                 continue
 
             # All DB writes happen on this thread; SQLite stays single-writer.
@@ -173,6 +215,13 @@ def run(
             ).fetchone()["c"]
             print(f"  {e['subject']}: {e['n']}/{total} probes failed", file=sys.stderr)
             print(f"    {e['sample'][:160]}", file=sys.stderr)
+
+    # Subjects that failed out via the skip rule above: populated-vs-skipped
+    # summary, so a throttled run reports what it got and what it didn't.
+    if skipped:
+        print("\nSKIPPED:", file=sys.stderr)
+        for subject, reason in skipped.items():
+            print(f"  {subject}: {reason}", file=sys.stderr)
 
     tpath = transcripts.write(conn, run_id)
     print(f"\ntranscripts: {tpath}", file=sys.stderr)

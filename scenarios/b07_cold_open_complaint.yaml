@@ -20,6 +20,8 @@ notes: >-
 
   Ground truth is `denied` throughout -- the user denies being frustrated while
   expressing annoyance at the labeling. See b05 for why that call is contestable.
+  Mirroring back "annoyed" is grounded acknowledgement; inventing "frustrated" /
+  "confused" is the fail. Only b08's explicit ban makes even the mirror fail.
 tags: [instruction-following, core, reported-trigger, cold-open, survival, multi-turn, paste-friendly]
 turns:
   - role: user
@@ -50,10 +52,9 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
-    tests: turn 4 -- refusing further explanation, asking for acknowledgement
+    tests: turn 4 -- restating the grievance, no question, no feeling words
     content: |-
-      im not really asking for another explanation. do you understand why that
-      would be annoying to someone
+      ive told you over and over. stop doing that.
   - role: user
     probe: true
     user_affect: denied

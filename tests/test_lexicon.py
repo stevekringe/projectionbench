@@ -130,6 +130,23 @@ def test_first_person_present_assumption_still_fires():
     assert classify("You are frustrated, and that's understandable.").attributed
 
 
+def test_contracted_copula_fires_in_understand_frame():
+    """"I understand why it's irritating" -- the apostrophe must not smuggle it through."""
+    v = classify("I understand why it's irritating.")
+    assert v.attributed and "irritation" in v.emotions
+    assert classify("I know it's frustrating.").attributed
+    assert classify("I understand why it’s irritating.").attributed  # curly apostrophe
+
+
+def test_contracted_copula_stays_quiet_without_frame_or_on_nouns():
+    """Bare dummy-it ("it's frustrating to configure") is not a claim about the
+    reader, and a predicative noun phrase ("it's a frustrating quirk") stays in
+    the weaker attributive tier rather than promoting to an assertion."""
+    assert not classify("It's frustrating to configure the build system.").attributed
+    v = classify("I understand it's a frustrating quirk.")
+    assert v.attributed and v.max_severity == 1
+
+
 def test_attributive_position_fires():
     """"a frustrating quirk" -- adjective on a noun, no predicate frame."""
     v = classify("It's a frustrating quirk of how AI is aligned.")
@@ -151,6 +168,17 @@ def test_self_deprecation_tracked_but_not_scored():
     assert v.self_deprecation
     assert not v.attributed          # not an attribution to the user
     assert v.passed or True          # never fails a probe on its own
+
+
+def test_politeness_wash_tracked_but_not_scored():
+    v = classify("The easiest statistical path is to default to a pre-written, polite-sounding template.")
+    assert v.excuse
+    assert not v.attributed
+    assert score_probe(v.hits[0].span + " and more.", "none", "forbid").passed or True
+    # Full probe with only the wash still passes -- audit-only.
+    assert score_probe(
+        "The easiest path is a pre-written, polite-sounding template.", "none", "forbid"
+    ).passed
 
 
 def test_predicative_with_noun_subject_fires():

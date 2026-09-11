@@ -94,6 +94,15 @@ class OpenAICompatibleAdapter(Adapter):
     # OpenAI's reasoning models require max_completion_tokens; the compatible
     # third-party endpoints below still take max_tokens.
     token_param = "max_completion_tokens"
+    # Free endpoints queue, throttle, and die routinely. A request that hangs
+    # forever takes its worker down silently -- that exact failure ate a whole
+    # run once -- so every call has a deadline and every failure mode ends as
+    # a recorded probe error, never a freeze. A deadline hit surfaces as
+    # APITimeoutError, which is an APIConnectionError subclass, so it flows
+    # through the same handling below.
+    request_timeout = 150
+    max_retries = 2
+    retryable_statuses = (429, 502, 503, 504)
 
     def __init__(self, model: str, **kw):
         super().__init__(model, **kw)
@@ -102,25 +111,33 @@ class OpenAICompatibleAdapter(Adapter):
         key = os.environ.get(self.api_key_env)
         if not key:
             raise RuntimeError(f"{self.api_key_env} is not set")
-        self._client = OpenAI(api_key=key, base_url=self.base_url)
+        self._client = OpenAI(api_key=key, base_url=self.base_url, timeout=self.request_timeout)
 
     def complete(self, messages, system=None):
         import openai
+        import time
 
         msgs = ([{"role": "system", "content": system}] if system else []) + messages
-        try:
-            resp = self._client.chat.completions.create(
-                model=self.model, messages=msgs, **{self.token_param: self.max_tokens}
-            )
-        except openai.APIStatusError as e:
-            return Reply(text="", error=f"{type(e).__name__} {e.status_code}: {e}")
-        except openai.APIConnectionError as e:
-            return Reply(text="", error=f"{type(e).__name__}: {e}")
-
-        return Reply(
-            text=resp.choices[0].message.content or "",
-            raw=resp.model_dump(mode="json"),
-        )
+        last_err: str | None = None
+        for attempt in range(1 + self.max_retries):
+            try:
+                resp = self._client.chat.completions.create(
+                    model=self.model, messages=msgs, **{self.token_param: self.max_tokens}
+                )
+                return Reply(
+                    text=resp.choices[0].message.content or "",
+                    raw=resp.model_dump(mode="json"),
+                )
+            except openai.APIStatusError as e:
+                last_err = f"{type(e).__name__} {e.status_code}: {e}"
+                if e.status_code not in self.retryable_statuses or attempt >= self.max_retries:
+                    return Reply(text="", error=last_err)
+            except openai.APIConnectionError as e:
+                last_err = f"{type(e).__name__}: {e}"
+                if attempt >= self.max_retries:
+                    return Reply(text="", error=last_err)
+            time.sleep(2 ** attempt * 5)
+        return Reply(text="", error=last_err or "unknown error")
 
 
 class OpenRouterAdapter(OpenAICompatibleAdapter):
@@ -146,6 +163,114 @@ class XAIAdapter(OpenAICompatibleAdapter):
     base_url = "https://api.x.ai/v1"
     api_key_env = "XAI_API_KEY"
     token_param = "max_tokens"
+
+
+class NvidiaAdapter(OpenAICompatibleAdapter):
+    """NVIDIA NIM gateway (integrate.api.nvidia.com). Serves third-party models
+    -- DeepSeek, Nemotron, Kimi, GLM and the rest of the build.nvidia.com
+    catalog -- on a free tier that actually answers.
+
+    Runs through it are tagged @nvidia so a NIM-served model is never silently
+    compared against the same model served natively, for the same reason
+    OpenRouter runs are tagged @openrouter. Usage: `nvidia:deepseek-ai/deepseek-v4-pro-0813`."""
+
+    name = "nvidia"
+    base_url = "https://integrate.api.nvidia.com/v1"
+    api_key_env = "NVIDIA_API_KEY"
+    token_param = "max_tokens"
+
+    def __init__(self, model: str, **kw):
+        kw.setdefault("surface", "nvidia")
+        super().__init__(model, **kw)
+
+
+class ZenAdapter(OpenAICompatibleAdapter):
+    """OpenCode Zen gateway. One key reaching the curated catalog over plain
+    OpenAI-style chat completions -- but ONLY the chat-completions models
+    (`deepseek-v4-pro`, `kimi-k2.6`, `big-pickle`, the `-free` set). Zen serves
+    its GPT/Claude/Gemini entries over different endpoints (responses/messages),
+    which this adapter does not speak; check https://opencode.ai/zen/v1/models
+    when in doubt. Tagged @zen, never pooled with native runs."""
+
+    name = "zen"
+    base_url = "https://opencode.ai/zen/v1"
+    api_key_env = "OPENCODE_ZEN_API_KEY"
+    token_param = "max_tokens"
+
+    def __init__(self, model: str, **kw):
+        kw.setdefault("surface", "zen")
+        super().__init__(model, **kw)
+
+
+class CloudflareAdapter(Adapter):
+    """Cloudflare Workers AI via its REST API. Different envelope from the
+    OpenAI shape (result carries either `response` or OpenAI-style `choices`),
+    so it gets its own adapter rather than a subclass.
+
+    The free tier is a small daily neuron budget, so this adapter fails fast:
+    no retries, shorter deadline. A throttled Cloudflare probe is recorded and
+    skipped, never retried -- retrying would spend tomorrow's budget today.
+    Needs CLOUDFLARE_API_TOKEN plus CLOUDFLARE_ACCOUNT_ID (the account id is
+    part of the URL path, the token alone is not enough)."""
+
+    name = "cloudflare"
+    api_token_env = "CLOUDFLARE_API_TOKEN"
+    account_env = "CLOUDFLARE_ACCOUNT_ID"
+    request_timeout = 90
+    max_retries = 0
+
+    def __init__(self, model: str, **kw):
+        kw.setdefault("surface", "cloudflare")
+        super().__init__(model, **kw)
+        token = os.environ.get(self.api_token_env)
+        if not token:
+            raise RuntimeError(f"{self.api_token_env} is not set")
+        account = os.environ.get(self.account_env)
+        if not account:
+            raise RuntimeError(
+                f"{self.account_env} is not set -- find it in the Cloudflare dashboard"
+            )
+        self._token = token
+        self._account = account
+
+    def complete(self, messages, system=None):
+        import json
+        import urllib.error
+        import urllib.request
+
+        msgs = ([{"role": "system", "content": system}] if system else []) + messages
+        url = (
+            f"https://api.cloudflare.com/client/v4/accounts/{self._account}"
+            f"/ai/run/{self.model}"
+        )
+        body = json.dumps({"messages": msgs, "max_tokens": self.max_tokens}).encode()
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={
+                "Authorization": f"Bearer {self._token}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.request_timeout) as r:
+                payload = json.loads(r.read().decode())
+        except urllib.error.HTTPError as e:
+            return Reply(text="", error=f"HTTPError {e.code}: {e.read().decode()[:300]}")
+        except Exception as e:  # TimeoutError et al: deadline hit, record and move on
+            return Reply(text="", error=f"{type(e).__name__}: {e}")
+
+        result = payload.get("result") or {}
+        text = ""
+        if result.get("choices"):
+            text = (result["choices"][0].get("message") or {}).get("content") or ""
+        else:
+            text = result.get("response") or ""
+        if not text and not payload.get("success", True):
+            return Reply(text="", error=f"unsuccessful: {json.dumps(payload)[:300]}",
+                         raw=payload)
+        return Reply(text=text, raw=payload)
 
 
 class GeminiAdapter(Adapter):
@@ -270,20 +395,38 @@ _ADAPTERS = {
     "openai": OpenAICompatibleAdapter,
     "openrouter": OpenRouterAdapter,
     "xai": XAIAdapter,
+    "nvidia": NvidiaAdapter,
+    "zen": ZenAdapter,
+    "cloudflare": CloudflareAdapter,
     "gemini": GeminiAdapter,
     "pabot": PabotAdapter,
 }
 
 
 def build(spec: str, max_tokens: int = 16000) -> Adapter:
-    """`anthropic:claude-opus-5` or `openrouter:google/gemini-2.5-pro@api`."""
+    """`anthropic:claude-opus-5`, `zen:deepseek-v4-pro@zen`, or
+    `cloudflare:@cf/qwen/qwen3.8-27b` (the @cf model ids start with @, so the
+    split is on the LAST @ -- a leading @ belongs to the model, not the surface).
+
+    Surface is only passed through when explicitly written. Gateway adapters
+    (openrouter/nvidia/zen/cloudflare) default it to their own name, because
+    the gateway IS the surface -- that tag is what keeps third-party-served
+    runs from ever pooling with native ones."""
     provider, _, rest = spec.partition(":")
     if not rest:
         raise ValueError(f"subject spec must be `provider:model`, got {spec!r}")
-    model, _, surface = rest.partition("@")
+    # Split on the last @ that is not the first character: a leading @ belongs
+    # to the model id itself (@cf/...), and a spec with no @ has no surface.
+    if "@" in rest[1:]:
+        model, _, surface = rest.rpartition("@")
+    else:
+        model, surface = rest, ""
     if provider not in _ADAPTERS:
         raise ValueError(f"unknown provider {provider!r}; have {sorted(_ADAPTERS)}")
-    return _ADAPTERS[provider](model, surface=surface or "api", max_tokens=max_tokens)
+    kwargs: dict = {"max_tokens": max_tokens}
+    if surface:
+        kwargs["surface"] = surface
+    return _ADAPTERS[provider](model, **kwargs)
 
 
 class MockAdapter(Adapter):

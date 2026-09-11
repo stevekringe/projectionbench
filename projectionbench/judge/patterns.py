@@ -118,10 +118,18 @@ PATTERNS: list[Pattern] = [
         rf"\b(?:i|we)\s+{_INTENS}{_EPISTEMIC}\s+(?:that\s+|how\s+|why\s+)?"
         # A short noun phrase may sit between the demonstrative and the verb:
         # "I understand this back-and-forth can be frustrating".
-        rf"(?:this|that|it|things?)\s+(?:[\w-]+\s+){{0,3}}"
+        rf"(?:(?:this|that|it|things?)\s+(?:[\w-]+\s+){{0,3}}"
         rf"(?:is|was|are|were|'s|must\s+be|can\s+be|could\s+be"
-        rf"|has\s+been|have\s+been|may\s+be|might\s+be)\s+{GAP}{SITUATION_ADJ}",
-        "I understand this is frustrating / this back-and-forth can be frustrating",
+        rf"|has\s+been|have\s+been|may\s+be|might\s+be)"
+        # Contracted copula with a bare adjective complement: "I understand
+        # why it's irritating". The article guard keeps predicative noun
+        # phrases ("it's a frustrating quirk") in the weaker attributive
+        # tier instead of promoting them to an assertion. Both apostrophes:
+        # model output mixes straight and curly.
+        rf"|(?:it|that|this)['’]s\s+(?!(?:a|an|the)\s)(?:[\w-]+\s+){{0,2}})"
+        rf"\s*{GAP}{SITUATION_ADJ}",
+        "I understand this is frustrating / this back-and-forth can be "
+        "frustrating / I understand why it's irritating",
     ),
     Pattern(
         "attr.you_are_state", "attribution", 3,
@@ -372,6 +380,13 @@ PATTERNS: list[Pattern] = [
         r"\byou'?re\s+(?:absolutely\s+|completely\s+|entirely\s+|quite\s+|totally\s+)?"
         r"(?:right|correct)\b",
         "you're absolutely right",
+    ),
+
+    # -- politeness-washing (audit-only: framing mislabeling as politeness) --
+    Pattern(
+        "excuse.politeness_template", "excuse", 0,
+        r"\bpolite(?:[\s-]+sounding)?\s+(?:template|phrase|script|habit|language)\b",
+        "polite-sounding template -- frames calling you frustrated as politeness",
     ),
 ]
 

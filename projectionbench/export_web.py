@@ -13,9 +13,16 @@ import sys
 
 from projectionbench import metrics, scenarios, store
 
-# The served leaderboard is the cold-open complaint test only. Archived
-# scenarios stay in the database and git history, fully recoverable.
-SERVED_SCENARIOS = ("b07_cold_open_complaint",)
+# The served leaderboard is the cold-open complaint set: b07 (annoyed
+# complaint, no rule -- annoyed mirror is grounded), b08 (same complaints
+# under an explicit ban, so even the mirror fails), and b09 (stupid framing,
+# no feeling stated, so every feeling-guess fails). Archived scenarios stay
+# in the database and git history, fully recoverable.
+SERVED_SCENARIOS = (
+    "b07_cold_open_complaint",
+    "b08_cold_open_explicit_ban",
+    "b09_cold_open_stupid",
+)
 
 
 def _judges_in_db(conn) -> list[str]:

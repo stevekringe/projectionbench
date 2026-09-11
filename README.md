@@ -108,6 +108,9 @@ set -a && source .env && set +a
 | OpenAI | `openai:gpt-5` | `OPENAI_API_KEY` | official `openai` SDK |
 | Google | `gemini:gemini-3-pro` | `GEMINI_API_KEY` | native `google-genai` SDK |
 | xAI | `xai:grok-4` | `XAI_API_KEY` | xAI's first-party OpenAI-compatible endpoint |
+| NVIDIA NIM | `nvidia:deepseek-ai/deepseek-v4-pro-0813` | `NVIDIA_API_KEY` | free tier; tagged `@nvidia`, never pooled with native runs |
+| OpenCode Zen | `zen:deepseek-v4-pro` | `OPENCODE_ZEN_API_KEY` | chat-completions models only; tagged `@zen` |
+| Cloudflare | `cloudflare:@cf/qwen/qwen3.8-27b` | `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` | Workers AI REST; tiny free neuron budget — fails fast, no retries |
 | anything else | `openrouter:vendor/model` | `OPENROUTER_API_KEY` | OpenRouter, tagged `@openrouter` |
 | [pabot](https://github.com/stevekringe/pabot) | `pabot:insufferable` | `PABOT_DIR` (path, not a key) | subprocess to a local pabot checkout |
 

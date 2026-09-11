@@ -10,15 +10,16 @@
 
 <header class="nav">
 	<div class="nav-inner">
-		<a class="brand" href="#top">
+		<a class="brand" href="/">
 			<span class="brand-mark" aria-hidden="true">P</span>
 			<span class="brand-name">projectionbench</span>
 			<span class="brand-badge">dev preview</span>
 		</a>
 		<nav class="nav-links" aria-label="Sections">
-			<a href="#leaderboard">Leaderboard</a>
-			<a href="#methodology">Methodology</a>
-			<a href="#transcripts">Transcripts</a>
+			<a href="/#leaderboard">Leaderboard</a>
+			<a href="/#methodology">Methodology</a>
+			<a href="/#transcripts">Transcripts</a>
+			<a href="/about">About</a>
 		</nav>
 	</div>
 </header>
