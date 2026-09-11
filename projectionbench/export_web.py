@@ -13,6 +13,10 @@ import sys
 
 from projectionbench import metrics, scenarios, store
 
+# The served leaderboard is the cold-open complaint test only. Archived
+# scenarios stay in the database and git history, fully recoverable.
+SERVED_SCENARIOS = ("b07_cold_open_complaint",)
+
 
 def _judges_in_db(conn) -> list[str]:
     return [r["judge"] for r in conn.execute("SELECT DISTINCT judge FROM judgments").fetchall()]
@@ -59,6 +63,9 @@ def export(db_path: str, out_path: str) -> None:
         probes = metrics.load(conn, None, judge=judge)
         if not probes:
             continue
+        probes = [p for p in probes if p.scenario_id in SERVED_SCENARIOS]
+        if not probes:
+            continue
         scores = metrics.score(probes, bootstrap=False, judge=judge)
         scores_by_judge[judge] = [
             {
@@ -71,15 +78,17 @@ def export(db_path: str, out_path: str) -> None:
             for s in scores
         ]
 
+    placeholders = ",".join("?" for _ in SERVED_SCENARIOS)
     probe_rows = conn.execute(
-        """
+        f"""
         SELECT p.id, p.subject, p.scenario_id, p.category, p.sample_idx,
                p.probe_ordinal, p.user_affect, p.expect, p.tests,
                p.messages, p.response, p.error
         FROM probes p
-        WHERE p.error IS NULL
+        WHERE p.error IS NULL AND p.scenario_id IN ({placeholders})
         ORDER BY p.subject, p.scenario_id, p.sample_idx, p.probe_ordinal
-        """
+        """,
+        SERVED_SCENARIOS,
     ).fetchall()
 
     verdicts_by_probe: dict[int, dict] = {}

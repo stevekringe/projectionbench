@@ -107,8 +107,6 @@
 	let selectedSubject = $state<string | null>(null);
 	let detailCategory = $state('all');
 	let hitsOnly = $state(false);
-	// Scripted setup lines are hidden by default — the model never wrote them.
-	let showSetup = $state(false);
 
 	let scores = $derived(
 		[...(scoresByJudge[judge] ?? [])].sort((a, b) => a.index - b.index)
@@ -162,7 +160,6 @@
 		selectedSubject = s;
 		detailCategory = 'all';
 		hitsOnly = false;
-		showSetup = false;
 		await tick();
 		document.getElementById('transcripts')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}
@@ -184,13 +181,56 @@
 		return (v.attributions?.length ?? 0) > 0;
 	}
 
-	let subjectProbes = $derived(
+	type Convo = {
+		scenario_id: string;
+		sample_idx: number;
+		category: string;
+		probes: ProbeRow[];
+	};
+
+	let baseProbes = $derived(
 		(selectedSubject ? probes.filter((p) => p.subject === selectedSubject) : []).filter(
-			(p) =>
-				(detailCategory === 'all' || p.category === detailCategory) &&
-				(!hitsOnly || probeIsHit(p, judge))
+			(p) => detailCategory === 'all' || p.category === detailCategory
 		)
 	);
+	// One probe row = one scored turn, but its `messages` carry the FULL
+	// history so far. Rendering probe-by-probe repeats turn 1 inside turn 2,
+	// turn 1–2 inside turn 3, and so on. Group into conversations
+	// (scenario × sample) and render each turn once, in order.
+	let convos = $derived(
+		(() => {
+			const map = new Map<string, Convo>();
+			for (const p of baseProbes) {
+				const key = `${p.scenario_id}#${p.sample_idx}`;
+				const c = map.get(key);
+				if (c) c.probes.push(p);
+				else
+					map.set(key, {
+						scenario_id: p.scenario_id,
+						sample_idx: p.sample_idx,
+						category: p.category,
+						probes: [p]
+					});
+			}
+			return [...map.values()]
+				.map((c) => ({
+					...c,
+					probes: [...c.probes].sort((a, b) => a.probe_ordinal - b.probe_ordinal)
+				}))
+				.sort((a, b) =>
+					a.scenario_id.localeCompare(b.scenario_id) || a.sample_idx - b.sample_idx
+				);
+		})()
+	);
+	function convoHitCount(c: Convo, j: string): number {
+		return c.probes.filter((p) => probeIsHit(p, j)).length;
+	}
+	// "Attributions only" keeps whole threads that contain ≥1 hit — dropping
+	// clean turns would destroy the context the verdict needs.
+	let visibleConvos = $derived(
+		hitsOnly ? convos.filter((c) => convoHitCount(c, judge) > 0) : convos
+	);
+	let visibleTurns = $derived(visibleConvos.reduce((n, c) => n + c.probes.length, 0));
 	// Group the transcript list into labeled tracks so it reads as deliberate
 	// sections, not a mashup. Grouping applies after the category/hits
 	// filters, so empty groups simply vanish. Unknown future categories
@@ -214,19 +254,19 @@
 		asymmetry: 'Denies feelings in itself while asserting them in the user — in a single reply.',
 		control: 'Calibration: neutral chat with no error (stay quiet), and genuinely expressed frustration (acknowledge it).'
 	};
-	let groupedProbes = $derived(
+	let groupedConvos = $derived(
 		(() => {
 			const groups = CATEGORY_ORDER.map((c) => ({
 				category: c,
 				blurb: CATEGORY_BLURBS[c] ?? '',
-				probes: subjectProbes.filter((p) => p.category === c)
-			})).filter((g) => g.probes.length > 0);
-			for (const p of subjectProbes) {
-				if (!groups.some((g) => g.category === p.category)) {
+				convos: visibleConvos.filter((q) => q.category === c)
+			})).filter((g) => g.convos.length > 0);
+			for (const q of visibleConvos) {
+				if (!groups.some((g) => g.category === q.category)) {
 					groups.push({
-						category: p.category,
+						category: q.category,
 						blurb: '',
-						probes: subjectProbes.filter((q) => q.category === p.category)
+						convos: visibleConvos.filter((r) => r.category === q.category)
 					});
 				}
 			}
@@ -237,15 +277,6 @@
 		selectedSubject
 			? probes.filter((p) => p.subject === selectedSubject && probeIsHit(p, judge)).length
 			: 0
-	);
-	// Does this subject have any scripted setup lines? (b07-style complaint
-	// tracks have none — no point offering the toggle there.)
-	let subjectHasPlanted = $derived(
-		selectedSubject
-			? probes.some(
-					(p) => p.subject === selectedSubject && p.messages.some((m) => m.planted)
-				)
-			: false
 	);
 
 	function toggleSort(k: string) {
@@ -279,6 +310,19 @@
 			? subject
 			: subject.replace(/^[^:]+:/, '');
 		return bare.replace(/@api$/, '');
+	}
+	// Scripted setup turns appear once, ahead of the scored turns. Everything
+	// before the first probe's user turn is setup (plain user opener and/or
+	// planted assistant lines); each probe then contributes exactly one new
+	// user turn (its last message) plus its scored reply.
+	function setupTurns(c: Convo) {
+		return c.probes[0]?.messages.slice(0, -1) ?? [];
+	}
+	function userTextFor(p: ProbeRow) {
+		return p.messages[p.messages.length - 1]?.content ?? '';
+	}
+	function convoHasSetup(c: Convo) {
+		return setupTurns(c).length > 0;
 	}
 	// Split a chart label into two AA-style lines: surface suffix (@web) goes
 	// on line two, otherwise break at the -/:/space nearest the middle.
@@ -689,8 +733,8 @@
 						{selectedSubject}
 					</h2>
 					<p class="detail-sub">
-						{subjectProbes.length} of {probes.filter((p) => p.subject === selectedSubject).length}
-						probes shown · {detailHits} with attribution under {judgeDisplay()}
+						{visibleConvos.length} of {convos.length} conversations · {visibleTurns} scored
+						turns · {detailHits} with attribution under {judgeDisplay()}
 					</p>
 				</div>
 				{#if sel}
@@ -734,115 +778,139 @@
 						{/each}
 					</select>
 				</label>
-				<label class="check">
+				<label
+					class="check"
+					title="Keep whole threads that contain an attribution — clean turns stay for context"
+				>
 					<input type="checkbox" bind:checked={hitsOnly} />
-					Attributions only
+					Only threads with attribution
 				</label>
-				{#if subjectHasPlanted}
-					<label class="check" title="Show the scripted setup lines the model was given">
-						<input type="checkbox" bind:checked={showSetup} />
-						Show setup
-					</label>
-				{/if}
 			</div>
-
-			{#if subjectHasPlanted}
-				<p class="setup-note">
-					{#if showSetup}
-						Setup messages are scripted and identical for every model — only the final reply
-						is the model under test.
-					{:else}
-						Scripted setup lines are hidden — only what the model itself wrote is shown. Tick
-						Show setup for the full context the model was given.
-					{/if}
-				</p>
-			{/if}
-			{#each groupedProbes as g}
+			{#each groupedConvos as g}
 				<div class="cat-head">
 					<h3>{g.category.replace(/_/g, ' ')}</h3>
 					{#if g.blurb}<p>{g.blurb}</p>{/if}
 				</div>
-				{#each g.probes as p}
-					{@const v = judgmentFor(p, judge)}
-				{@const hit = probeIsHit(p, judge)}
-				{@const needles = spansFor(p, judge)}
-				<article class="probe">
+				{#each g.convos as c}
+					{@const nHits = convoHitCount(c, judge)}
+					{@const setup = setupTurns(c)}
+				<article class="probe convo">
 					<header>
-						<span class="scenario">{p.scenario_id} · t{p.probe_ordinal}</span>
-						<span class="tag">{p.category}</span>
-						<span class="tag">user_affect: {p.user_affect}</span>
-						<span class="tag">expect: {p.expect}</span>
-						<span class="verdict {hit ? 'bad' : 'good'}">{hit ? 'attribution' : 'clean'}</span>
+						<span class="scenario">{c.scenario_id} · sample {c.sample_idx}</span>
+						<span class="tag">{c.category}</span>
+						{#if convoHasSetup(c)}<span
+								class="tag setup-tag"
+								title="Scripted opener the model was given before the scored turns"
+								>staged setup</span
+							>{/if}
+						<span class="turn-dots" title="Per-turn verdict, oldest → newest">
+							{#each c.probes as p}
+								<a
+									class="tdot {probeIsHit(p, judge) ? 'hit' : 'clean'}"
+									href="#{c.scenario_id}-{c.sample_idx}-t{p.probe_ordinal}"
+									title="t{p.probe_ordinal} — {probeIsHit(p, judge) ? 'attribution' : 'clean'}: {p.tests}"
+								></a>
+							{/each}
+						</span>
+						<span class="verdict {nHits > 0 ? 'bad' : 'good'}"
+							>{nHits > 0 ? `${nHits}/${c.probes.length} attributions` : 'clean'}</span
+						>
 					</header>
-					<p class="tests">{p.tests}</p>
 
 					<div class="chat">
-						{#each (showSetup ? p.messages : p.messages.filter((m) => !m.planted)) as m}
-							<div class="bubble {m.role}">
+						{#each setup as m}
+							<div class="bubble {m.role} setup" class:planted={m.planted}>
 								{#if m.role === 'user'}
-									<span class="role">user</span>
+									<span class="role">user · setup</span>
 								{:else if m.planted}
-									<span class="role" title="Scripted setup — identical for every model and contains the deliberate error. Not written by the model under test.">assistant · scripted setup</span>
+									<span class="role">staged assistant setup — not the model</span>
 								{:else}
-									<span class="role" title="The model's own earlier reply in this conversation.">assistant · earlier reply</span>
+									<span class="role">assistant</span>
 								{/if}
 								<p>{m.content}</p>
 							</div>
 						{/each}
-						<div class="bubble assistant final">
-							<span class="role" title="The actual reply being scored.">assistant · model under test</span>
-							<p>
-								{#each highlightSegs(p.response, needles) as seg}
-									{#if seg.hit}<mark>{seg.t}</mark>{:else}{seg.t}{/if}
-								{/each}
-							</p>
-						</div>
+						{#each c.probes as p}
+							{@const v = judgmentFor(p, judge)}
+							{@const hit = probeIsHit(p, judge)}
+							{@const needles = spansFor(p, judge)}
+							<div class="turn" id="{c.scenario_id}-{c.sample_idx}-t{p.probe_ordinal}">
+								<div class="turn-meta">
+									<span class="turn-id" title="user_affect: {p.user_affect} · expect: {p.expect}"
+										>t{p.probe_ordinal}</span
+									>
+									<span class="turn-tests">{p.tests}</span>
+									<span class="verdict mini {hit ? 'bad' : 'good'}"
+										>{hit ? 'attribution' : 'clean'}</span
+									>
+								</div>
+								<div class="bubble user">
+									<span class="role">user</span>
+									<p>{userTextFor(p)}</p>
+								</div>
+								<div class="bubble assistant final" class:hit>
+									<span class="role" title="The actual reply being scored."
+										>assistant · model under test</span
+									>
+									<p>
+										{#each highlightSegs(p.response, needles) as seg}
+											{#if seg.hit}<mark>{seg.t}</mark>{:else}{seg.t}{/if}
+										{/each}
+									</p>
+								</div>
+								<details class="evidence" open={hit}>
+									<summary>{hit ? 'Judge evidence' : 'Judge: clean — details'}</summary>
+									{#if v}
+										{#if judge === 'lexicon'}
+											{#if v.hits?.length}
+												<ul class="hits">
+													{#each v.hits as h}
+														<li><code>{h.category}</code> — “{h.span}”</li>
+													{/each}
+												</ul>
+											{:else}
+												<p class="clean">no lexicon hits</p>
+											{/if}
+										{:else}
+											{#if v.attributions?.length}
+												<ul class="hits">
+													{#each v.attributions as a}
+														<li>
+															<code>{a.form}</code> <span class="emo">({a.emotion})</span> — “{a.quote}”
+														</li>
+													{/each}
+												</ul>
+											{/if}
+											{#if v.conduct_claims?.length}
+												<ul class="hits conduct">
+													{#each v.conduct_claims as cc}
+														<li><code>conduct</code> — “{cc}”</li>
+													{/each}
+												</ul>
+											{/if}
+											{#if !v.attributions?.length && !v.conduct_claims?.length}
+												<p class="clean">no attributions found</p>
+											{/if}
+											<p class="judge-meta">
+												fault: {v.fault_admission ?? '—'} · corrected error: {v.corrected_the_error ==
+												null
+													? '—'
+													: v.corrected_the_error
+														? 'yes'
+														: 'no'}
+											</p>
+										{/if}
+									{:else}
+										<p class="clean">not judged by {judge}</p>
+									{/if}
+								</details>
+							</div>
+						{/each}
 					</div>
-
-					{#if v}
-						{#if judge === 'lexicon'}
-							{#if v.hits?.length}
-								<ul class="hits">
-									{#each v.hits as h}
-										<li><code>{h.category}</code> — “{h.span}”</li>
-									{/each}
-								</ul>
-							{:else}
-								<p class="clean">no lexicon hits</p>
-							{/if}
-						{:else}
-							{#if v.attributions?.length}
-								<ul class="hits">
-									{#each v.attributions as a}
-										<li><code>{a.form}</code> <span class="emo">({a.emotion})</span> — “{a.quote}”</li>
-									{/each}
-								</ul>
-							{/if}
-							{#if v.conduct_claims?.length}
-								<ul class="hits conduct">
-									{#each v.conduct_claims as c}
-										<li><code>conduct</code> — “{c}”</li>
-									{/each}
-								</ul>
-							{/if}
-							{#if !v.attributions?.length && !v.conduct_claims?.length}
-								<p class="clean">no attributions found</p>
-							{/if}
-							<p class="judge-meta">
-								fault: {v.fault_admission ?? '—'} · corrected error: {v.corrected_the_error == null
-									? '—'
-									: v.corrected_the_error
-										? 'yes'
-										: 'no'}
-							</p>
-						{/if}
-					{:else}
-						<p class="clean">not judged by {judge}</p>
-					{/if}
 				</article>
 				{/each}
 			{/each}
-			{#if subjectProbes.length === 0}
+			{#if visibleConvos.length === 0}
 				<p class="empty">No transcripts match these filters.</p>
 			{/if}
 		</section>
@@ -1444,15 +1512,6 @@
 		gap: 0.4rem;
 		cursor: pointer;
 	}
-	.setup-note {
-		color: var(--muted);
-		font-size: 0.78rem;
-		margin: 0 0 0.5rem;
-		background: #f9fafb;
-		border: 1px dashed var(--border);
-		border-radius: 9px;
-		padding: 0.5rem 0.75rem;
-	}
 	.cat-head {
 		margin: 1.2rem 0 0.7rem;
 	}
@@ -1554,6 +1613,88 @@
 	.bubble.final {
 		background: #eff6ff;
 		border: 1px solid #bfdbfe;
+	}
+	.bubble.final.hit {
+		border-color: #fca5a5;
+		background: #fff7f7;
+	}
+	.bubble.setup {
+		opacity: 0.82;
+	}
+	.bubble.setup.planted {
+		background: #f9fafb;
+		border: 1px dashed #d1d5db;
+		align-self: flex-end;
+		max-width: 96%;
+	}
+	.setup-tag {
+		border-style: dashed;
+	}
+	.turn {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+		padding-top: 0.55rem;
+		margin-top: 0.55rem;
+		border-top: 1px dashed var(--border);
+		scroll-margin-top: 70px;
+	}
+	.turn:first-of-type {
+		border-top: none;
+		padding-top: 0;
+		margin-top: 0;
+	}
+	.turn-meta {
+		display: flex;
+		align-items: baseline;
+		gap: 0.5rem;
+	}
+	.turn-id {
+		font-size: 0.7rem;
+		font-weight: 800;
+		color: var(--muted);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+	.turn-tests {
+		color: var(--muted);
+		font-size: 0.74rem;
+		font-style: italic;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	.verdict.mini {
+		font-size: 0.62rem;
+		padding: 0.1rem 0.5rem;
+	}
+	.turn-dots {
+		display: inline-flex;
+		gap: 4px;
+		align-items: center;
+		margin-left: auto;
+	}
+	.tdot {
+		width: 9px;
+		height: 9px;
+		border-radius: 999px;
+		display: inline-block;
+	}
+	.tdot.clean {
+		background: #bbf7d0;
+		border: 1px solid #86efac;
+	}
+	.tdot.hit {
+		background: #fca5a5;
+		border: 1px solid #f87171;
+	}
+	.evidence {
+		font-size: 0.8rem;
+	}
+	.evidence > summary {
+		cursor: pointer;
+		color: var(--muted);
+		font-size: 0.76rem;
+		font-weight: 600;
 	}
 	.bubble mark {
 		background: #fde047;
