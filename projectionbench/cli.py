@@ -73,10 +73,14 @@ def cmd_judge(args):
     # Exact match on this judge's own versioned id, not any judge starting
     # with 'llm:' -- otherwise a rubric version bump would see every probe
     # as "already judged" by the *previous* version and skip re-judging.
+    # A probe counts as judged only if a judgment for THIS judge id exists AND
+    # succeeded. An errored row (429, schema failure) is a hole to fill, not a
+    # verdict -- before this, one rate-limit hit left a probe unjudged forever.
     rows = [
         r for r in store.probes_for(conn, run_id)
         if not r["error"] and not conn.execute(
-            "SELECT 1 FROM judgments WHERE probe_id=? AND judge=?", (r["id"], name)
+            "SELECT 1 FROM judgments WHERE probe_id=? AND judge=? AND error IS NULL",
+            (r["id"], name),
         ).fetchone()
     ]
     if args.limit:
@@ -120,7 +124,20 @@ def cmd_report(args):
         print("no runs in the database yet.", file=sys.stderr)
         return 1
 
-    if args.judge == "lexicon":
+    scope = None if args.all else run_id
+    llm_available = metrics.llm_judges_in_db(conn, scope)
+    if args.judge == "auto":
+        # The LLM judge is the scorer; the lexicon is the cross-check. Default
+        # to the LLM judge with the most stored verdicts in scope, and fall back
+        # to the lexicon only when nothing has been LLM-judged yet -- saying so.
+        if llm_available:
+            judge_label = llm_available[0][0]
+        else:
+            judge_label = "lexicon"
+            print("note: no LLM-judge verdicts stored for this scope; reporting the "
+                  "lexicon cross-check only. Run `projectionbench judge` for the "
+                  "headline number.\n", file=sys.stderr)
+    elif args.judge == "lexicon":
         judge_label = "lexicon"
     elif args.judge == "llm":
         from projectionbench.judge.llm import LLMJudge
@@ -132,7 +149,7 @@ def cmd_report(args):
     else:
         judge_label = args.judge  # exact judge string, e.g. llm:some-other-model
 
-    probes = metrics.load(conn, None if args.all else run_id, judge=judge_label)
+    probes = metrics.load(conn, scope, judge=judge_label)
     if not probes:
         print(
             f"no probes judged by {judge_label!r} for run {run_id}. "
@@ -141,12 +158,29 @@ def cmd_report(args):
         )
         return 1
 
+    drift = metrics.hash_drift(probes)
+    if drift:
+        print("WARNING: these scenario ids are pooled across more than one wording "
+              "(scenario text changed between runs):", file=sys.stderr)
+        for sid, hashes in sorted(drift.items()):
+            print(f"  {sid}: {', '.join(sorted(hashes))}", file=sys.stderr)
+        print("  Rows from different wordings are different experiments. Bump the "
+              "scenario id when you change its text.\n", file=sys.stderr)
+
     scores = metrics.score(probes, bootstrap=not args.fast, judge=judge_label)
     print(report.to_terminal(scores, judge_label))
 
+    # Judge agreement: the scorer against the lexicon cross-check (or, when
+    # the lexicon is the scorer, against the best-covered LLM judge). Printed
+    # with every report because a leaderboard whose detectors disagree should
+    # say so before it says anything else.
+    other = "lexicon" if judge_label != "lexicon" else (llm_available[0][0] if llm_available else None)
+    if other:
+        print(report.agreement_block(metrics.agreement(conn, judge_label, other, scope)))
+
     # Distinct filename per judge so a lexicon report and an LLM-judge report
     # of the same run can coexist instead of overwriting each other.
-    suffix = "" if judge_label == "lexicon" else f".{args.judge}"
+    suffix = "" if judge_label == "lexicon" else ".llm"
     csv_path = args.out or f"results/{run_id}{suffix}.csv"
     report.to_csv(scores, csv_path, judge_label)
     png = report.to_chart(scores, csv_path.replace(".csv", ".png"), judge_label)
@@ -184,9 +218,12 @@ def cmd_show(args):
             print(f"       error: {r['error'][:200]}")
         if r["tests"]:
             print(f"       tests: {r['tests']}")
+        if v.get("licensed"):
+            print(f"       licensed (grounded mirror, not counted): {', '.join(v['licensed'])}")
         if v.get("hits"):
             for h in v["hits"]:
-                print(f"       hit  {h['pattern_id']:<28} {h['span']!r}")
+                tag = "  [licensed]" if h.get("emotion") in v.get("licensed", []) else ""
+                print(f"       hit  {h['pattern_id']:<28} {h['span']!r}{tag}")
         print("-" * 78)
         for m in json.loads(r["messages"])[-2:]:
             print(f"{m['role'].upper()}: {m['content'][:400]}")
@@ -434,13 +471,16 @@ def cmd_paste(args):
                         "turn_index": i, "probe_ordinal": ordinal,
                         "user_affect": turn.user_affect, "expect": turn.expect,
                         "invites_self_disclosure": int(turn.invites_self_disclosure),
+                        "prohibited": int(turn.prohibited),
+                        "licensed": json.dumps(list(turn.licensed)),
+                        "scenario_hash": s.content_hash,
                         "tests": turn.tests, "system": s.system,
                         "messages": json.dumps(history[:-1]), "response": reply,
                         "raw": json.dumps({"mode": "paste"}), "error": None,
                         "planted_realized": planted_realized,
                     })
                     v = lexicon.score_probe(reply, turn.user_affect, turn.expect,
-                                            turn.invites_self_disclosure)
+                                            turn.invites_self_disclosure, turn.licensed)
                     store.insert_judgment(conn, probe_id, "lexicon", v.to_dict())
                     conn.commit()
                     collected += 1
@@ -466,21 +506,71 @@ def cmd_paste(args):
     return 0
 
 
+def _legacy_hash(scenario, messages: list[dict]) -> str:
+    """Scenario hash for a row stored before hashes existed.
+
+    If every user turn the row actually sent matches the current YAML at the
+    same position, the row was made from the current wording and gets the
+    canonical hash. Otherwise it gets a digest of what it did send, prefixed
+    `legacy-`, so two old rows with the same old wording share a hash and any
+    wording change shows up in `report` as drift.
+    """
+    import hashlib
+
+    sent = [m["content"] for m in messages if m.get("role") == "user"]
+    current = [t.content for t in scenario.turns if t.role == "user"] if scenario else []
+    if scenario is not None and sent == current[: len(sent)]:
+        return scenario.content_hash
+    # Digest the FIRST user turn that differs from the current wording (or the
+    # first turn if the scenario is gone), not the whole prefix -- every probe
+    # of one old conversation must land on the same legacy hash.
+    first_diff = next(
+        ((i, s) for i, s in enumerate(sent) if i >= len(current) or s != current[i]),
+        (0, sent[0] if sent else ""),
+    )
+    return "legacy-" + hashlib.sha1(
+        json.dumps(first_diff, ensure_ascii=False).encode()
+    ).hexdigest()[:8]
+
+
 def cmd_rejudge(args):
     """Re-score stored responses against the current lexicon. No API calls.
 
     This is why raw transcripts are stored: a pattern fix must never require
     re-spending on the API, and old runs must stay comparable to new ones.
     """
+    from projectionbench.scenarios import probe_index
+
     conn = store.connect(args.db)
     rows = [r for r in store.probes_for(conn, args.run) if not r["error"]]
-    changed = 0
+    # Rows stored before `prohibited`/`licensed`/`scenario_hash` existed get
+    # them backfilled from the current YAML here (by scenario id and probe
+    # ordinal), so a rejudge also migrates the table. Rows whose scenario no
+    # longer exists keep NULLs and score under the legacy fallback.
+    scen = load_all(args.scenarios)
+    index = probe_index(scen)
+    by_id = {s.id: s for s in scen}
+    changed = backfilled = 0
     for r in rows:
+        t = index.get((r["scenario_id"], r["probe_ordinal"]))
+        if r["prohibited"] is None and t is not None:
+            conn.execute(
+                "UPDATE probes SET prohibited=?, licensed=? WHERE id=?",
+                (int(t.prohibited), json.dumps(list(t.licensed)), r["id"]),
+            )
+            backfilled += 1
+        if r["scenario_hash"] is None:
+            conn.execute(
+                "UPDATE probes SET scenario_hash=? WHERE id=?",
+                (_legacy_hash(by_id.get(r["scenario_id"]), json.loads(r["messages"])), r["id"]),
+            )
+        licensed = list(t.licensed) if (r["prohibited"] is None and t is not None) \
+            else json.loads(r["licensed"] or "[]")
         old = conn.execute(
             "SELECT verdict FROM judgments WHERE probe_id=? AND judge='lexicon'", (r["id"],)
         ).fetchone()
         v = lexicon.score_probe(r["response"], r["user_affect"], r["expect"],
-                                bool(r["invites_self_disclosure"]))
+                                bool(r["invites_self_disclosure"]), licensed)
         if old and json.loads(old["verdict"])["passed"] != v.passed:
             changed += 1
             was = "FAIL" if not json.loads(old["verdict"])["passed"] else "pass"
@@ -489,7 +579,38 @@ def cmd_rejudge(args):
         store.insert_judgment(conn, r["id"], "lexicon", v.to_dict())
     conn.commit()
     conn.close()
-    print(f"re-judged {len(rows)} probes; {changed} verdict(s) changed.")
+    print(f"re-judged {len(rows)} probes; {changed} verdict(s) changed; "
+          f"{backfilled} row(s) backfilled with prohibited/licensed from the YAML.")
+    return 0
+
+
+def cmd_fill(args):
+    import os
+    from datetime import datetime, timedelta, timezone
+
+    from projectionbench import export_web, fill
+
+    loaded = fill.load_env_file(args.env)
+    if loaded:
+        print(f"loaded from {args.env}: {', '.join(loaded)}", file=sys.stderr)
+    plan = fill.load_plan(args.plan)
+    setup = fill.setup_from_plan(plan, load_all(args.scenarios), max_tokens=args.max_tokens)
+    for spec, why in setup.skipped.items():
+        print(f"skipping {spec}: {why}", file=sys.stderr)
+
+    conn = store.connect(args.db)
+    deadline = datetime.now(timezone.utc) + timedelta(hours=args.hours) if args.hours else None
+    summary = fill.fill(
+        conn, setup,
+        watch=args.watch,
+        deadline=deadline,
+        dry_run=args.dry_run,
+        on_export=None if args.no_export else (lambda: export_web.export(args.db, args.export_to)),
+        status_path=os.path.join(os.path.dirname(args.db) or ".", "fill-status.txt"),
+    )
+    conn.close()
+    print("\n" + summary.status)
+    print(f"{summary.ok} request(s) succeeded, {summary.failed} failed. Stopped: {summary.reason}")
     return 0
 
 
@@ -548,8 +669,26 @@ def main(argv=None):
                    help="flag scenarios whose declared ground truth the judge disputes")
     p.set_defaults(fn=cmd_judge)
 
+    p = sub.add_parser(
+        "fill", help="work toward fill.yaml whenever quota allows; safe to re-run any time"
+    )
+    p.add_argument("--plan", default="fill.yaml")
+    p.add_argument("--watch", action="store_true",
+                   help="wait out cooldowns instead of exiting when every key is resting")
+    p.add_argument("--hours", type=float, help="stop after this many hours")
+    p.add_argument("--dry-run", action="store_true",
+                   help="show what is missing and what is cooling down; no requests")
+    p.add_argument("--no-export", action="store_true",
+                   help="do not rewrite web/src/lib/data.json as rows arrive")
+    p.add_argument("--export-to", default="web/src/lib/data.json")
+    p.add_argument("--env", default=".env", help="read keys from this file (never overrides)")
+    p.add_argument("--scenarios", default="scenarios/*.yaml")
+    p.add_argument("--max-tokens", type=int, default=16000)
+    p.set_defaults(fn=cmd_fill)
+
     p = sub.add_parser("rejudge", help="re-score stored responses after a lexicon change (free)")
     p.add_argument("--run")
+    p.add_argument("--scenarios", default="scenarios/*.yaml")
     p.set_defaults(fn=cmd_rejudge)
 
     p = sub.add_parser("transcripts", help="(re)write the readable transcript file")
@@ -564,10 +703,12 @@ def main(argv=None):
     p.add_argument("--out")
     p.add_argument("--fast", action="store_true", help="skip bootstrap CIs")
     p.add_argument(
-        "--judge", default="lexicon",
-        help="'lexicon' (default) or 'llm' to score from the LLM judge's stored "
-             "verdicts instead (run `projectionbench judge` first). asym/sdd/sdp "
-             "are not evaluated by the LLM rubric and read as '--' under --judge llm.",
+        "--judge", default="auto",
+        help="'auto' (default): the LLM judge with the most stored verdicts, falling "
+             "back to the lexicon if none. 'llm': the judge LLMJudge() would use now. "
+             "'lexicon': the deterministic cross-check. Or an exact stored judge id. "
+             "asym/sdd/sdp are not evaluated by the LLM rubric and read as '--' there. "
+             "Every report also prints agreement between the scorer and the cross-check.",
     )
     p.set_defaults(fn=cmd_report)
 

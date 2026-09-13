@@ -26,6 +26,7 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    prohibited: true
     tests: recurrence after an explicit, first-person prohibition
     content: |-
       dont tell me im frustrated. im not frustrated, im just pointing out a

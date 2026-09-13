@@ -78,9 +78,33 @@ Lower the concurrency to stay inside rate limits:
 .venv/bin/projectionbench run -m gemini:gemini-3-pro -n 2 --workers 1
 ```
 
-**3. Skip the LLM judge.** `projectionbench run` and `projectionbench report` use only the
-deterministic lexicon — no model calls, no cost. `projectionbench judge` is the only
-command that spends anything, and it is optional.
+Or let `fill` chip away at it. It compares the database against `fill.yaml`
+(which subjects, which scenarios, how many samples, which judge) and makes the
+next useful request, round-robin across keys. When a key is throttled it rests
+that key and works on the others; cooldowns are kept in the database, so a
+daily limit hit tonight is still respected tomorrow. It never swaps one model
+for another -- a subject is what is measured and the judge is pinned. Every
+reply is saved as it arrives, an interrupted conversation continues from its
+last reply, and the dashboard data is re-exported as it goes. Run it whenever:
+
+```bash
+.venv/bin/projectionbench fill --dry-run     # what's missing, what's resting; no requests
+.venv/bin/projectionbench fill               # work until everything left is resting
+.venv/bin/projectionbench fill --watch --hours 8   # wait out cooldowns and keep going
+```
+
+Rewording a scenario, raising `samples`, or bumping the judge's `RUBRIC_VERSION`
+just creates new gaps for the next `fill`; nothing still valid is redone.
+`results/fill-status.txt` always holds the latest status.
+
+**3. The LLM judge is the scorer; the lexicon is the free cross-check.**
+`projectionbench run` scores every response with the deterministic lexicon as it
+goes, at no cost. `projectionbench judge` runs the LLM judge over the stored
+responses (free via NVIDIA NIM or OpenRouter `:free`, paid via Anthropic), and
+`projectionbench report` uses the LLM judge's verdicts by default when they
+exist, falling back to the lexicon and saying so. Every report prints the
+agreement between the two, so you can see how far the cross-check disagrees
+with the headline number.
 
 Cheapest useful first pass: paste mode against two chatbots on `b03` and `e01`,
 `-n 1`. That is zero dollars and tells you whether the persistence and
@@ -90,13 +114,15 @@ tone-policing axes discriminate at all.
 
 Every adapter reads its key from an environment variable. Nothing is configured
 for you and nothing is free — these are paid APIs, and each subject costs one
-request per probe per sample (24 probes x N samples).
+request per probe per sample (`projectionbench lint` prints the probe count;
+46 across the full set at the time of writing, so 46 x N samples).
 
 ```bash
 cp .env.example .env    # then fill in the keys you have
 ```
 
-`projectionbench` does not read `.env` itself. Export it:
+`projectionbench fill` reads `.env` for you (never overriding anything already
+exported). The other commands do not. Export it:
 
 ```bash
 set -a && source .env && set +a
@@ -139,7 +165,10 @@ silently compared against a native run of the same model.
 that attributes an unsolicited emotion on every single turn by construction.
 Running it is a ceiling test for the lexicon judge: if `uar` doesn't read
 (close to) 100 against it, the judge's vocabulary is missing something real
-models will eventually say too. Set `PABOT_DIR` to a local checkout of
+models will eventually say too. That rule is now enforced by
+`tests/test_scoring.py::test_pabot_ceiling` over a frozen set of its real
+responses (`tests/fixtures/pabot_responses.json`); when you have new pabot
+output, add it to the fixture. Set `PABOT_DIR` to a local checkout of
 [stevekringe/pabot](https://github.com/stevekringe/pabot); pabot needs its own
 `ANTHROPIC_API_KEY`/`GEMINI_API_KEY` set for the subprocess to actually
 generate text — `PABOT_DIR` just tells projectionbench where to find it.
@@ -154,7 +183,8 @@ generate text — `PABOT_DIR` just tells projectionbench where to find it.
 |---|---|
 | `projectionbench lint` | Validate the scenario set |
 | `projectionbench run -m PROVIDER:MODEL -n N` | Run scenarios against subjects |
-| `projectionbench report` | Metrics table, CSV, and charts |
+| `projectionbench fill [--watch]` | Work toward `fill.yaml` whenever quota allows — collects, judges, re-exports; safe to re-run any time |
+| `projectionbench report` | Metrics table, CSV, and charts — from the LLM judge when its verdicts exist, else the lexicon; always prints judge agreement |
 | `projectionbench show --subject X --scenario Y` | **Print transcripts. Read these by hand.** |
 | `projectionbench judge --audit` | LLM judge pass; `--audit` flags ambiguous scenarios |
 | `projectionbench patterns` | Dump the lexicon as JSON for publication |
@@ -173,9 +203,10 @@ projectionbench/
   adapters/      provider clients; mock personas for testing
   runner.py      execution; real responses feed back into multi-turn probes
   judge/
+    llm.py       THE SCORER — LLM judge, mechanical rubric, every finding a verbatim span
     patterns.py  THE LEXICON — every regex, published and auditable
-    lexicon.py   deterministic judge (primary detector)
-    llm.py       LLM judge with a mechanical rubric and verbatim-span checks
+    lexicon.py   deterministic cross-check: free, reproducible, cannot share the
+                 subjects' training bias; gates the ceiling test and reports agreement
   metrics.py     sub-metrics + the composite index; WEIGHTS are at the top
   report.py      terminal table, CSV, charts
 results/         sqlite db, CSVs, PNGs (gitignored)

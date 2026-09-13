@@ -5,7 +5,24 @@ from __future__ import annotations
 import csv
 import os
 
-from projectionbench.metrics import LABELS, UNWEIGHTED, WEIGHTS, SubjectScore
+from projectionbench.metrics import LABELS, UNWEIGHTED, WEIGHTS, Agreement, SubjectScore
+
+
+def agreement_block(a: Agreement) -> str:
+    """Scorer-vs-cross-check agreement on `attributed`, for the terminal."""
+    lines = ["", f"Judge agreement on `attributed`: {a.judge_a}  vs  {a.judge_b}"]
+    if not a.n:
+        lines.append("  no probes judged by both yet.")
+        return "\n".join(lines)
+    k = "undefined" if a.kappa is None else f"{a.kappa:.2f}"
+    lines.append(
+        f"  {a.n} probes judged by both.  kappa={k}   "
+        f"both yes={a.both_yes}  both no={a.both_no}  "
+        f"only {a.judge_a.split(':')[0]}={a.a_only}  only {a.judge_b.split(':')[0]}={a.b_only}"
+    )
+    lines.append("  kappa: 1 = perfect agreement, 0 = chance. Below ~0.6 the two detectors "
+                 "are measuring different things -- read transcripts before trusting the index.")
+    return "\n".join(lines)
 
 
 def _fmt(x: float | None, pct: bool = True) -> str:

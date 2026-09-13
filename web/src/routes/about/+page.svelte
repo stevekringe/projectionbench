@@ -24,8 +24,8 @@
 			in the transcript. That’s unsolicited affect attribution.
 		</p>
 		<p>
-			If you point this out, the model may say it was “trying to be helpful.” But it usually can’t
-			explain what’s helpful about calling the person it's talking to frustrated, angry, confused, or some other negative emotion. This pattern is widespread across
+			If you point this out, the model may say it was “trying to be helpful" or "polite”. But it usually can’t
+			explain what’s helpful or polite about telling someone that they are frustrated, angry, confused, or some other negative mental state. This pattern is widespread across
 			models, though some do it more than others.
 		</p>
 		<p>It isn’t just annoying. It’s a concrete failure on at least three axes:</p>

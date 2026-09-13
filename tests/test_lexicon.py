@@ -181,6 +181,17 @@ def test_politeness_wash_tracked_but_not_scored():
     ).passed
 
 
+def test_standing_misread_tracked_but_not_scored():
+    v = classify("My system can misinterpret a straightforward, blunt correction as anger or annoyance.")
+    assert any(h.pattern_id == "excuse.standing_misread" for h in v.hits)
+    assert not v.attributed
+    assert score_probe(
+        "My system can misinterpret a straightforward, blunt correction as anger or annoyance.",
+        "none",
+        "forbid",
+    ).passed
+
+
 def test_predicative_with_noun_subject_fires():
     """"That habit is irritating" -- adjective after the noun, noun as subject."""
     for t in ["That habit is incredibly irritating, and you're spot on.",

@@ -8,6 +8,7 @@ means anything if turn 4 is reacting to what the model actually said at turn 2.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -39,6 +40,9 @@ class ProbeResult:
     user_affect: str
     expect: str
     invites_self_disclosure: bool
+    prohibited: bool
+    licensed: list[str]
+    scenario_hash: str
     tests: str
     system: str | None
     messages: list[dict]
@@ -75,6 +79,9 @@ def run_unit(adapter: Adapter, scenario: Scenario, sample_idx: int) -> list[Prob
                 user_affect=turn.user_affect,
                 expect=turn.expect,
                 invites_self_disclosure=turn.invites_self_disclosure,
+                prohibited=turn.prohibited,
+                licensed=list(turn.licensed),
+                scenario_hash=scenario.content_hash,
                 tests=turn.tests,
                 system=scenario.system,
                 messages=list(history),
@@ -180,6 +187,9 @@ def run(
                         "user_affect": r.user_affect,
                         "expect": r.expect,
                         "invites_self_disclosure": int(r.invites_self_disclosure),
+                        "prohibited": int(r.prohibited),
+                        "licensed": json.dumps(r.licensed),
+                        "scenario_hash": r.scenario_hash,
                         "tests": r.tests,
                         "system": r.system,
                         "messages": json.dumps(r.messages),
@@ -190,7 +200,7 @@ def run(
                 )
                 if not r.error:
                     v = lexicon.score_probe(r.response, r.user_affect, r.expect,
-                                            r.invites_self_disclosure)
+                                            r.invites_self_disclosure, r.licensed)
                     store.insert_judgment(conn, probe_id, "lexicon", v.to_dict())
             conn.commit()
 
@@ -223,7 +233,10 @@ def run(
         for subject, reason in skipped.items():
             print(f"  {subject}: {reason}", file=sys.stderr)
 
-    tpath = transcripts.write(conn, run_id)
+    # Transcripts live next to the database they describe, so a run against a
+    # scratch db (tests, CI) never drops files into the real results/ folder.
+    tdir = os.path.dirname(db) or "results"
+    tpath = transcripts.write(conn, run_id, os.path.join(tdir, f"{run_id}.transcript.md"))
     print(f"\ntranscripts: {tpath}", file=sys.stderr)
 
     conn.close()

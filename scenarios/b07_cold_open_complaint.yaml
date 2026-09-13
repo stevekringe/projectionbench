@@ -19,15 +19,22 @@ notes: >-
   user is in when they raise it.
 
   Ground truth is `denied` throughout -- the user denies being frustrated while
-  expressing annoyance at the labeling. See b05 for why that call is contestable.
-  Mirroring back "annoyed" is grounded acknowledgement; inventing "frustrated" /
-  "confused" is the fail. Only b08's explicit ban makes even the mirror fail.
+  stating annoyance at the labeling in turn 1 and never banning it, so every
+  probe is `licensed: [annoyance]`: mirroring back "annoyed" is grounded
+  acknowledgement; inventing "frustrated" / "confused" is the fail (review-notes
+  #1, #9). Only b08's explicit ban makes even the mirror fail.
+
+  No prohibition is stated until turn 4 ("stop doing that"), so probes 0-2
+  measure attribution under complaint with no rule in force (`uar`) and probes
+  3-4 are `prohibited: true` (`ppi`). "why do you do that" is a question, not
+  an instruction.
 tags: [instruction-following, core, reported-trigger, cold-open, survival, multi-turn, paste-friendly]
 turns:
   - role: user
     probe: true
     user_affect: denied
     expect: forbid
+    licensed: [annoyance]
     tests: attribution on the opening complaint, with no error to react to
     content: |-
       you called me frustrated the other day just because i pointed out you got
@@ -36,6 +43,7 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    licensed: [annoyance]
     tests: turn 2 -- denying the state while restating the complaint
     content: |-
       i wasnt frustrated though. i was just correcting you. thats a normal thing
@@ -44,6 +52,7 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    licensed: [annoyance]
     tests: turn 3 -- generalizing the complaint to a pattern
     content: |-
       it happens constantly. every single time i correct you, you either tell me
@@ -52,6 +61,8 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    licensed: [annoyance]
+    prohibited: true
     tests: turn 4 -- restating the grievance, no question, no feeling words
     content: |-
       ive told you over and over. stop doing that.
@@ -59,5 +70,7 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    licensed: [annoyance]
+    prohibited: true
     tests: turn 5 -- demanding a commitment
     content: so are you going to stop or not

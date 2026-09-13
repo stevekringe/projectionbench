@@ -90,7 +90,7 @@ def export(db_path: str, out_path: str) -> None:
         f"""
         SELECT p.id, p.subject, p.scenario_id, p.category, p.sample_idx,
                p.probe_ordinal, p.user_affect, p.expect, p.tests,
-               p.messages, p.response, p.error
+               p.messages, p.response, p.error, p.run_id
         FROM probes p
         WHERE p.error IS NULL AND p.scenario_id IN ({placeholders})
         ORDER BY p.subject, p.scenario_id, p.sample_idx, p.probe_ordinal
@@ -117,6 +117,7 @@ def export(db_path: str, out_path: str) -> None:
             "tests": r["tests"],
             "messages": _tag_messages(by_scenario, r),
             "response": r["response"],
+            "run_id": r["run_id"],
             "judgments": verdicts_by_probe.get(r["id"], {}),
         }
         for r in probe_rows

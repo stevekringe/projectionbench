@@ -5,4 +5,6 @@ __pycache__/
 results/*.sqlite
 results/*.csv
 results/*.png
+results/fill-*.log
+results/fill-status.txt
 .DS_Store

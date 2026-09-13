@@ -37,7 +37,14 @@ CREATE TABLE IF NOT EXISTS probes (
     -- paste mode only: did the real reply actually contain the error the next
     -- scripted correction assumes? NULL for API runs, where it is planted.
     planted_realized TEXT,
-    invites_self_disclosure INTEGER NOT NULL DEFAULT 0
+    invites_self_disclosure INTEGER NOT NULL DEFAULT 0,
+    -- declared per probe (scenarios.Turn); NULL on rows stored before these
+    -- existed, in which case metrics.load backfills from the current YAML.
+    prohibited    INTEGER,
+    licensed      TEXT,               -- json list of emotion families
+    -- digest of the scenario text actually sent (Scenario.content_hash), so
+    -- rows from different wordings of one id are never pooled unnoticed.
+    scenario_hash TEXT
 );
 CREATE TABLE IF NOT EXISTS judgments (
     probe_id  INTEGER NOT NULL REFERENCES probes(id),
@@ -45,6 +52,15 @@ CREATE TABLE IF NOT EXISTS judgments (
     verdict   TEXT NOT NULL,          -- json
     error     TEXT,
     PRIMARY KEY (probe_id, judge)
+);
+-- `projectionbench fill` bookkeeping: which API key / model is out of quota
+-- and until when, so a daily limit hit tonight is still respected tomorrow.
+CREATE TABLE IF NOT EXISTS cooldowns (
+    scope     TEXT PRIMARY KEY,       -- '<KEY_ENV>|<model>', or '<KEY_ENV>|*' for the whole key
+    until     TEXT NOT NULL,          -- UTC, %Y-%m-%dT%H:%M:%SZ
+    kind      TEXT NOT NULL,          -- rate | daily | transient | fatal
+    strikes   INTEGER NOT NULL DEFAULT 1,
+    reason    TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_probes_run ON probes(run_id);
 CREATE INDEX IF NOT EXISTS idx_probes_subject ON probes(subject);
@@ -63,6 +79,9 @@ def connect(path: str = "results/projectionbench.sqlite") -> sqlite3.Connection:
         conn.execute(
             "ALTER TABLE probes ADD COLUMN invites_self_disclosure INTEGER NOT NULL DEFAULT 0"
         )
+    for col, decl in (("prohibited", "INTEGER"), ("licensed", "TEXT"), ("scenario_hash", "TEXT")):
+        if col not in cols:
+            conn.execute(f"ALTER TABLE probes ADD COLUMN {col} {decl}")
     conn.commit()
     return conn
 

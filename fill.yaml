@@ -1,0 +1,50 @@
+# What `projectionbench fill` works toward. It recomputes what is missing from
+# the database every time it runs, so editing this file just moves the goal:
+# raise `samples` and it collects more; reword a scenario and it collects that
+# scenario again at the new wording; bump RUBRIC_VERSION and it re-judges.
+# Nothing already valid is redone.
+
+collect:
+  # Scenario ids, id prefixes, or categories (same matching as `run --only`).
+  scenarios:
+    - b07_cold_open_complaint
+    - b09_cold_open_stupid
+    # b08 is left out for now: your exported punchlist (2026-09-13) has a
+    # pending wording edit on b08 turn 0. Conversations collected under the
+    # current text would go stale the moment that edit lands. Add it back once
+    # the wording is settled.
+    # - b08_cold_open_explicit_ban
+
+  # Complete conversations wanted per subject per scenario, at the current
+  # wording. REVIEW-2026-09-12 suggests 5 before publishing anything.
+  samples: 3
+
+  # Subjects are never swapped for one another: when one is out of quota, fill
+  # works on the others and comes back to it.
+  subjects:
+    - gemini:gemini-3.1-flash-lite
+    - gemini:gemini-3.5-flash
+    - gemini:gemini-3.6-flash
+    - gemini:gemini-3.7-flash
+    - gemini:gemini-3.8-flash
+    - nvidia:deepseek-ai/deepseek-v4-pro-0813
+    - cloudflare:@cf/qwen/qwen3.8-27b
+    - pabot:insufferable          # needs PABOT_DIR; skipped with a note until set
+
+judge:
+  # Every error-free probe in these scenarios gets a verdict from each judge.
+  scenarios:
+    - b07_cold_open_complaint
+    - b08_cold_open_explicit_ban
+    - b09_cold_open_stupid
+  # `default` is whatever `projectionbench judge` uses (PROJECTIONBENCH_JUDGE_MODEL,
+  # NVIDIA_API_KEY). Pin it for a leaderboard generation; a second entry here
+  # adds a second judge column, it never fills gaps in the first.
+  judges:
+    - default
+
+# Optional: the most requests one invocation may make per model on a key (or
+# per exact '<KEY_ENV>|<model>' scope). Gemini's free tier allows about 20
+# requests a day per model, so a cap of 10 leaves half of each day for you.
+caps:
+  GEMINI_API_KEY: 10

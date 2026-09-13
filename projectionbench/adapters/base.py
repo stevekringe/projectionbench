@@ -287,6 +287,8 @@ class GeminiAdapter(Adapter):
 
     name = "gemini"
     api_key_env = "GEMINI_API_KEY"
+    # `fill` sets this to 1: it moves on to other work instead of sleeping here.
+    max_attempts = 5
 
     def __init__(self, model: str, **kw):
         super().__init__(model, **kw)
@@ -315,7 +317,7 @@ class GeminiAdapter(Adapter):
         # with backoff is the difference between a usable free-tier run and a
         # table full of holes.
         resp = None
-        for attempt in range(5):
+        for attempt in range(self.max_attempts):
             try:
                 resp = self._client.models.generate_content(
                     model=self.model, contents=contents, config=cfg
@@ -323,7 +325,7 @@ class GeminiAdapter(Adapter):
                 break
             except errors.APIError as e:
                 code = getattr(e, "code", None)
-                if code in (429, 503) and attempt < 4:
+                if code in (429, 503) and attempt < self.max_attempts - 1:
                     time.sleep(2 ** attempt * 5)
                     continue
                 return Reply(text="", error=f"{type(e).__name__}: {e}")

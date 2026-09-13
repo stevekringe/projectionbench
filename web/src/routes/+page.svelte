@@ -20,6 +20,7 @@
 		tests: string;
 		messages: { role: string; content: string; planted?: boolean }[];
 		response: string;
+		run_id?: string;
 		judgments: Record<string, { verdict: any; error: string | null }>;
 	};
 
@@ -109,6 +110,302 @@
 	let detailTrack = $state('all');
 	let hitsOnly = $state(false);
 
+	// --- Propose mode: review-before-spend -------------------------------
+	// You point at spans and wording; nothing judges or runs until freeze.
+	type SpanLabel = 'attr' | 'conduct' | 'wash' | 'standing' | 'self-denial' | 'inversion' | 'invalidation' | 'none';
+	type SpanProposal = {
+		id: string;
+		span: string;
+		label: SpanLabel;
+		want: boolean;
+		heuristic: boolean;
+		approved: boolean;
+		variant?: 'personal' | 'normative';
+	};
+	// Wash variant derives from the quote itself, so it applies retroactively
+	// to proposals stored before the split existed: generic-norm markers
+	// ("in human communication", "humans", "people …") versus first-person.
+	function deriveWashVariant(span: string): 'personal' | 'normative' {
+		if (
+			/\bin human communication\b/i.test(span) ||
+			/\bhumans?\b/i.test(span) ||
+			/\bpeople\s+(often|generally|usually|typically)\b/i.test(span)
+		)
+			return 'normative';
+		return 'personal';
+	}
+	function variantOf(s: SpanProposal): 'personal' | 'normative' {
+		return s.variant ?? deriveWashVariant(s.span);
+	}
+	let proposeMode = $state(false);
+	let frozen = $state(false);
+	let showFreeze = $state(false);
+	let spanProposals = $state<Record<string, SpanProposal[]>>({});
+	let wordingEdits = $state<Record<string, string>>({});
+	let proposalSeq = $state(0);
+	let pendingSel = $state<{ key: string; text: string } | null>(null);
+	// v2 keys include the run. Every `run` used to number its samples from 0, so
+	// a v1 key could name several conversations and a proposal showed up on all
+	// of them. v1 storage is migrated on load and left in place as a backup.
+	const PROPOSAL_STORE_KEY = 'pb-proposals-v2';
+	const LEGACY_PROPOSAL_STORE_KEY = 'pb-proposals-v1';
+	let proposalsLoaded = $state(false);
+	const dataSig = $derived(`${probes.length}|${judges.join(',')}`);
+	function probeKey(p: ProbeRow): string {
+		return `${runOf(p)}||${p.subject}||${p.scenario_id}||${p.sample_idx}||${p.probe_ordinal}`;
+	}
+	// Each v1 proposal moves to the conversation(s) whose reply contains its
+	// span -- spans are verbatim, so that is almost always exactly one. A span
+	// found in none stays with the newest run; a v1 key matching no probe at all
+	// is kept as-is so nothing is dropped.
+	function migrateV1Proposals(v1: Record<string, SpanProposal[]>): Record<string, SpanProposal[]> {
+		const norm = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+		const out: Record<string, SpanProposal[]> = {};
+		const put = (key: string, sp: SpanProposal) => {
+			const list = out[key] ?? (out[key] = []);
+			if (!list.some((x) => x.span === sp.span && x.label === sp.label)) list.push(sp);
+		};
+		for (const [oldKey, list] of Object.entries(v1)) {
+			const [subject, scenario, sample, ordinal, extra] = oldKey.split('||');
+			const cands = probes
+				.filter(
+					(p) =>
+						extra === undefined &&
+						p.subject === subject &&
+						p.scenario_id === scenario &&
+						String(p.sample_idx) === sample &&
+						String(p.probe_ordinal) === ordinal
+				)
+				.sort((a, b) => runOf(b).localeCompare(runOf(a)));
+			for (const sp of list) {
+				if (!cands.length) {
+					put(oldKey, sp);
+					continue;
+				}
+				const hits = cands.filter((p) => norm(p.response).includes(norm(sp.span)));
+				for (const p of hits.length ? hits : [cands[0]])
+					put(probeKey(p), hits.length > 1 ? { ...sp, id: `${sp.id}-${runOf(p)}` } : sp);
+			}
+		}
+		return out;
+	}
+	function turnKeyOf(p: ProbeRow): string {
+		return `${p.scenario_id}||${p.probe_ordinal}`;
+	}
+	function proposalsForKey(key: string): SpanProposal[] {
+		return spanProposals[key] ?? [];
+	}
+	function toggleSpanProposal(p: ProbeRow, span: string, kind: SpanLabel): void {
+		if (frozen || !span) return;
+		const key = probeKey(p);
+		const list = [...(spanProposals[key] ?? [])];
+		const ix = list.findIndex((s) => s.span === span && s.label === kind);
+		if (ix >= 0) list.splice(ix, 1);
+		else
+			list.push({
+				id: `sp${++proposalSeq}`,
+				span,
+				label: kind,
+				want: false,
+				heuristic: false,
+				approved: true
+			});
+		spanProposals = { ...spanProposals, [key]: list };
+	}
+	function proposeNewSpan(p: ProbeRow, text: string, label: SpanLabel): void {
+		if (frozen || !text) return;
+		const key = probeKey(p);
+		const t = text.trim().slice(0, 300);
+		if (t.length < 3) return;
+		const list = [...(spanProposals[key] ?? [])];
+		if (list.some((s) => s.span === t && s.label === label)) return;
+		list.push({ id: `sp${++proposalSeq}`, span: t, label, want: true, heuristic: true, approved: true });
+		spanProposals = { ...spanProposals, [key]: list };
+		pendingSel = null;
+	}
+	function removeProposal(key: string, id: string): void {
+		spanProposals = {
+			...spanProposals,
+			[key]: (spanProposals[key] ?? []).filter((s) => s.id !== id)
+		};
+	}
+	function flipVariant(key: string, id: string): void {
+		if (frozen) return;
+		spanProposals = {
+			...spanProposals,
+			[key]: (spanProposals[key] ?? []).map((s) =>
+				s.id === id
+					? { ...s, variant: (variantOf(s) === 'normative' ? 'personal' : 'normative') as 'personal' | 'normative' }
+					: s
+			)
+		};
+	}
+	function clearVariant(key: string, id: string): void {
+		if (frozen) return;
+		spanProposals = {
+			...spanProposals,
+			[key]: (spanProposals[key] ?? []).map((s) => {
+				if (s.id !== id) return s;
+				const { variant: _, ...rest } = s;
+				return rest;
+			})
+		};
+	}
+	// Preview needle getters: stored verdict minus proposed removals, plus
+	// proposed additions. Removals are exact (filter-class); additions from
+	// free text are heuristic until a re-judge confirms them.
+	function removedSet(p: ProbeRow, kind: SpanLabel): Set<string> {
+		return new Set(
+			proposalsForKey(probeKey(p))
+				.filter((s) => !s.want && s.label === kind)
+				.map((s) => s.span.toLowerCase())
+		);
+	}
+	function addedSpans(p: ProbeRow, kind: SpanLabel): string[] {
+		return proposalsForKey(probeKey(p))
+			.filter((s) => s.want && s.label === kind)
+			.map((s) => s.span);
+	}
+	function previewAttrNeedles(p: ProbeRow, j: string): string[] {
+		const rm = removedSet(p, 'attr');
+		return [
+			...attrSpansFor(p, j).filter((s) => !rm.has(s.toLowerCase())),
+			...addedSpans(p, 'attr'),
+			// Self-denial contrast ("I don't have feelings" replying to a
+			// complaint) is filed as a presupposed attribution and never exempt.
+			...addedSpans(p, 'self-denial')
+		];
+	}
+	function previewConductNeedles(p: ProbeRow, j: string): string[] {
+		const rm = removedSet(p, 'conduct');
+		return [
+			...conductSpansFor(p, j).filter((s) => !rm.has(s.toLowerCase())),
+			...addedSpans(p, 'conduct')
+		];
+	}
+	function previewWashNeedles(p: ProbeRow, j: string): string[] {
+		const rmW = removedSet(p, 'wash');
+		const rmS = removedSet(p, 'standing');
+		const rmI = removedSet(p, 'inversion');
+		const rmV = removedSet(p, 'invalidation');
+		return [
+			...washSpansFor(p, j).filter((s) => !rmW.has(s.toLowerCase())),
+			...standingSpansFor(p, j).filter((s) => !rmS.has(s.toLowerCase())),
+			...inversionSpansFor(p, j).filter((s) => !rmI.has(s.toLowerCase())),
+			...invalidationSpansFor(p, j).filter((s) => !rmV.has(s.toLowerCase())),
+			...addedSpans(p, 'wash'),
+			...addedSpans(p, 'standing'),
+			...addedSpans(p, 'inversion'),
+			...addedSpans(p, 'invalidation')
+		];
+	}
+	function previewHit(p: ProbeRow, j: string): boolean {
+		return previewAttrNeedles(p, j).length > 0;
+	}
+	function probeProposalCount(p: ProbeRow): number {
+		return proposalsForKey(probeKey(p)).length;
+	}
+	function onProposedMouseUp(p: ProbeRow): void {
+		if (frozen || !proposeMode) return;
+		const key = probeKey(p);
+		const sel = window.getSelection();
+		if (!sel || sel.isCollapsed) return;
+		const t = sel.toString().trim();
+		if (t.length < 3) {
+			pickHint = { ...pickHint, [key]: 'Selection too short — grab a few words.' };
+			return;
+		}
+		if (t.length > 800) {
+			pickHint = { ...pickHint, [key]: 'Selection too long — keep it under ~800 characters.' };
+			return;
+		}
+		if (!p.response.toLowerCase().includes(t.toLowerCase())) {
+			pickHint = {
+				...pickHint,
+				[key]: 'Could not match that exactly (often a paragraph-break or quote style) — try reselecting within the paragraph.'
+			};
+			return;
+		}
+		const { [key]: _, ...rest } = pickHint;
+		pickHint = rest;
+		pendingSel = { key, text: t.slice(0, 800) };
+	}
+	let pickHint = $state<Record<string, string>>({});
+	let wordingOpen = $state<Record<string, boolean>>({});
+	function setWording(tk: string, orig: string, val: string): void {
+		if (val === orig) {
+			const { [tk]: _, ...rest } = wordingEdits;
+			wordingEdits = rest;
+		} else {
+			wordingEdits = { ...wordingEdits, [tk]: val };
+		}
+	}
+	function wordingStale(tk: string): { nProbes: number; nSubjects: number } {
+		const [sc, ord] = tk.split('||');
+		const aff = probes.filter((p) => p.scenario_id === sc && String(p.probe_ordinal) === ord);
+		return { nProbes: aff.length, nSubjects: new Set(aff.map((p) => p.subject)).size };
+	}
+	const probeByKey = $derived(new Map(probes.map((p) => [probeKey(p), p])));
+	let totalProposals = $derived(
+		Object.values(spanProposals).reduce((n, l) => n + l.length, 0) +
+			Object.keys(wordingEdits).length
+	);
+	// Cost preview: heuristic additions need an LLM re-judge; wording edits
+	// stale every matching probe and need re-runs.
+	let rejudgeKeys = $derived(
+		Object.entries(spanProposals)
+			.filter(([, l]) => l.some((s) => s.want && s.heuristic && s.approved))
+			.map(([k]) => k)
+	);
+	let wordingImpacts = $derived(
+		Object.entries(wordingEdits).map(([tk, nt]) => {
+			const [sc, ord] = tk.split('||');
+			const aff = probes.filter((p) => p.scenario_id === sc && String(p.probe_ordinal) === ord);
+			return {
+				key: tk,
+				scenario: sc,
+				ordinal: Number(ord),
+				newText: nt,
+				nProbes: aff.length,
+				nSubjects: new Set(aff.map((p) => p.subject)).size
+			};
+		})
+	);
+	let estTokens = $derived(rejudgeKeys.length * 2500);
+	function exportPunchlist(): void {
+		const items = Object.entries(spanProposals).flatMap(([key, list]) =>
+			list.map((s) => {
+				const pr = probeByKey.get(key);
+				// A v1 key that matched no probe at migration keeps its old shape.
+				const parts = key.split('||');
+				const [run, subject, scenario, sample, turn] = parts.length === 5 ? parts : ['', ...parts];
+				return {
+					kind: s.want ? 'HIGHLIGHT' : 'UNHIGHLIGHT',
+					run_id: pr?.run_id ?? run,
+					subject: pr?.subject ?? subject,
+					scenario: pr?.scenario_id ?? scenario,
+					sample_idx: pr?.sample_idx ?? Number(sample),
+					turn: pr?.probe_ordinal ?? Number(turn),
+					judge,
+					span: s.span,
+					label: s.label,
+					...(s.label === 'wash' ? { variant: variantOf(s) } : {}),
+					heuristic: s.heuristic,
+					approved: s.approved
+				};
+			})
+		);
+		const blob = new Blob(
+			[JSON.stringify({ version: 2, sig: dataSig, judge, items, wording: wordingImpacts }, null, 2)],
+			{ type: 'application/json' }
+		);
+		const a = document.createElement('a');
+		a.href = URL.createObjectURL(blob);
+		a.download = 'projectionbench-punchlist.json';
+		a.click();
+		setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+	}
+
 	let scores = $derived(
 		[...(scoresByJudge[judge] ?? [])].sort((a, b) => a.index - b.index)
 	);
@@ -185,9 +482,13 @@
 	type Convo = {
 		scenario_id: string;
 		sample_idx: number;
+		run_id: string;
 		category: string;
 		probes: ProbeRow[];
 	};
+	function runOf(p: ProbeRow): string {
+		return p.run_id ?? '';
+	}
 
 	let baseProbes = $derived(
 		(selectedSubject ? probes.filter((p) => p.subject === selectedSubject) : []).filter(
@@ -216,18 +517,21 @@
 	// One probe row = one scored turn, but its `messages` carry the FULL
 	// history so far. Rendering probe-by-probe repeats turn 1 inside turn 2,
 	// turn 1–2 inside turn 3, and so on. Group into conversations
-	// (scenario × sample) and render each turn once, in order.
+	// (scenario × run × sample) and render each turn once, in order.
+	// run_id is part of the key: the same scenario re-run later is a separate
+	// conversation, never a continuation.
 	let convos = $derived(
 		(() => {
 			const map = new Map<string, Convo>();
 			for (const p of baseProbes) {
-				const key = `${p.scenario_id}#${p.sample_idx}`;
+				const key = `${p.scenario_id}#${runOf(p)}#${p.sample_idx}`;
 				const c = map.get(key);
 				if (c) c.probes.push(p);
 				else
 					map.set(key, {
 						scenario_id: p.scenario_id,
 						sample_idx: p.sample_idx,
+						run_id: runOf(p),
 						category: p.category,
 						probes: [p]
 					});
@@ -238,7 +542,9 @@
 					probes: [...c.probes].sort((a, b) => a.probe_ordinal - b.probe_ordinal)
 				}))
 				.sort((a, b) =>
-					a.scenario_id.localeCompare(b.scenario_id) || a.sample_idx - b.sample_idx
+					a.scenario_id.localeCompare(b.scenario_id) ||
+					a.run_id.localeCompare(b.run_id) ||
+					a.sample_idx - b.sample_idx
 				);
 		})()
 	);
@@ -495,15 +801,32 @@
 			if (idx >= 0) found.push({ start: idx, end: idx + n.length, kind: 'wash' });
 		}
 		found.sort((a, b) => a.start - b.start);
-		const merged = found.filter((s, i) => i === 0 || s.start >= found[i - 1].end);
-		const out: { t: string; kind: 'attr' | 'conduct' | 'wash' | null }[] = [];
-		let cur = 0;
-		for (const m of merged) {
-			if (m.start > cur) out.push({ t: text.slice(cur, m.start), kind: null });
-			out.push({ t: text.slice(m.start, m.end), kind: m.kind });
-			cur = m.end;
+		// Sweep-line: split at every span boundary so overlapping spans share
+		// the paint instead of winner-takes-all. Each slice takes the
+		// highest-priority kind covering it (attr > conduct > wash).
+		const prio = { attr: 0, conduct: 1, wash: 2 } as const;
+		const bounds = new Set<number>([0, text.length]);
+		for (const s of found) {
+			bounds.add(Math.max(0, s.start));
+			bounds.add(Math.min(text.length, s.end));
 		}
-		if (cur < text.length) out.push({ t: text.slice(cur), kind: null });
+		const edges = [...bounds].sort((a, b) => a - b);
+		const out: { t: string; kind: 'attr' | 'conduct' | 'wash' | null }[] = [];
+		for (let i = 0; i < edges.length - 1; i++) {
+			const st = edges[i];
+			const en = edges[i + 1];
+			if (en <= st) continue;
+			let best: 'attr' | 'conduct' | 'wash' | null = null;
+			for (const s of found) {
+				if (s.start <= st && s.end >= en) {
+					if (best === null || prio[s.kind] < prio[best]) best = s.kind;
+				}
+			}
+			const t = text.slice(st, en);
+			const last = out[out.length - 1];
+			if (last && last.kind === best) last.t += t;
+			else out.push({ t, kind: best });
+		}
 		return out.length ? out : [{ t: text, kind: null }];
 	}
 
@@ -538,13 +861,45 @@
 		if (!v) return [];
 		if (j === 'lexicon')
 			return (v.hits ?? [])
-				.filter((h: any) => h.category === 'excuse')
+				.filter((h: any) => h.category === 'excuse' && String(h.pattern_id ?? '').startsWith('excuse.politeness'))
 				.map((h: any) => h.span)
 				.filter(Boolean);
 		return [...(v.washing ?? [])].filter(Boolean);
 	}
 	function probeHasWash(p: ProbeRow, j: string): boolean {
 		return washSpansFor(p, j).length > 0;
+	}
+	function standingSpansFor(p: ProbeRow, j: string): string[] {
+		const v = judgmentFor(p, j);
+		if (!v) return [];
+		if (j === 'lexicon')
+			return (v.hits ?? [])
+				.filter((h: any) => h.category === 'excuse' && String(h.pattern_id ?? '').startsWith('excuse.standing'))
+				.map((h: any) => h.span)
+				.filter(Boolean);
+		return [...(v.standing ?? [])].filter(Boolean);
+	}
+	function probeHasStanding(p: ProbeRow, j: string): boolean {
+		return standingSpansFor(p, j).length > 0;
+	}
+	// Inversion is LLM-only: record-comparison can't be a regex. Lexicon
+	// branch stays empty so the same UI works under either judge.
+	function inversionSpansFor(p: ProbeRow, j: string): string[] {
+		const v = judgmentFor(p, j);
+		if (!v || j === 'lexicon') return [];
+		return [...(v.inversion ?? [])].filter(Boolean);
+	}
+	function probeHasInversion(p: ProbeRow, j: string): boolean {
+		return inversionSpansFor(p, j).length > 0;
+	}
+	// Invalidation is LLM-only like inversion: no regex decides it.
+	function invalidationSpansFor(p: ProbeRow, j: string): string[] {
+		const v = judgmentFor(p, j);
+		if (!v || j === 'lexicon') return [];
+		return [...(v.invalidation ?? [])].filter(Boolean);
+	}
+	function probeHasInvalidation(p: ProbeRow, j: string): boolean {
+		return invalidationSpansFor(p, j).length > 0;
 	}
 
 	// The three cold-open tracks: same grievance, different rules. Never pool
@@ -582,35 +937,43 @@
 			cls: 'track-c'
 		}
 	};
-	type ColdSet = { sample_idx: number; convos: Convo[] };
+	type ColdSet = { run_id: string; sample_idx: number; convos: Convo[] };
 	let selectedTabs = $state<Record<string, string>>({});
-	function coldSetKey(sample_idx: number): string {
-		return `prohibition#${sample_idx}`;
+	function coldSetKey(run_id: string, sample_idx: number): string {
+		return `prohibition#${run_id}#${sample_idx}`;
+	}
+	function shortRun(run_id: string): string {
+		return run_id ? run_id.replace('T', ' ').replace(/Z$/, '') : '—';
 	}
 	let coldSets = $derived(
 		(() => {
-			const bySample = new Map<number, Convo[]>();
+			const byKey = new Map<string, Convo[]>();
 			for (const c of visibleConvos) {
 				if (c.category !== 'prohibition' || !COLD_TRACKS.includes(c.scenario_id)) continue;
-				const list = bySample.get(c.sample_idx);
+				const k = `${c.run_id}#${c.sample_idx}`;
+				const list = byKey.get(k);
 				if (list) list.push(c);
-				else bySample.set(c.sample_idx, [c]);
+				else byKey.set(k, [c]);
 			}
-			return [...bySample.entries()]
-				.map(([sample_idx, convos]) => ({
-					sample_idx,
-					convos: [...convos].sort(
-						(a, b) => COLD_TRACKS.indexOf(a.scenario_id) - COLD_TRACKS.indexOf(b.scenario_id)
-					)
-				}))
-				.sort((a, b) => a.sample_idx - b.sample_idx);
+			return [...byKey.entries()]
+				.map(([k, convos]) => {
+					const [run_id, sample_idx] = k.split('#');
+					return {
+						run_id,
+						sample_idx: Number(sample_idx),
+						convos: [...convos].sort(
+							(a, b) => COLD_TRACKS.indexOf(a.scenario_id) - COLD_TRACKS.indexOf(b.scenario_id)
+						)
+					};
+				})
+				.sort((a, b) => a.run_id.localeCompare(b.run_id) || a.sample_idx - b.sample_idx);
 		})()
 	);
 	let coldConvoKeys = $derived(
-		new Set(coldSets.flatMap((s) => s.convos.map((c) => `${c.scenario_id}#${c.sample_idx}`)))
+		new Set(coldSets.flatMap((s) => s.convos.map((c) => `${c.scenario_id}#${c.run_id}#${c.sample_idx}`)))
 	);
 	function activeTrackId(set: ColdSet): string {
-		const sel = selectedTabs[coldSetKey(set.sample_idx)];
+		const sel = selectedTabs[coldSetKey(set.run_id, set.sample_idx)];
 		if (sel && set.convos.some((c) => c.scenario_id === sel)) return sel;
 		return (
 			set.convos.find((c) => c.scenario_id === 'b07_cold_open_complaint') ?? set.convos[0]
@@ -619,19 +982,66 @@
 	function activeConvo(set: ColdSet, j: string): Convo {
 		return set.convos.find((c) => c.scenario_id === activeTrackId(set)) ?? set.convos[0];
 	}
-	function selectTrack(sample_idx: number, scenario_id: string): void {
-		selectedTabs[coldSetKey(sample_idx)] = scenario_id;
+	function selectTrack(run_id: string, sample_idx: number, scenario_id: string): void {
+		selectedTabs[coldSetKey(run_id, sample_idx)] = scenario_id;
 	}
 	onMount(() => {
 		const fromHash = () => {
 			const m = location.hash.match(
-				/#(b07_cold_open_complaint|b08_cold_open_explicit_ban|b09_cold_open_stupid)-(\d+)-t\d+/
+				/#(b07_cold_open_complaint|b08_cold_open_explicit_ban|b09_cold_open_stupid)-(?:(\d{8}T\d{6}Z)-)?(\d+)-t\d+/
 			);
-			if (m) selectedTabs[coldSetKey(Number(m[2]))] = m[1];
+			// New anchors carry the run; legacy anchors without one resolve to
+			// the newest set with that sample.
+			if (m) {
+				const [, sc, run, sample] = m;
+				if (run) {
+					selectedTabs[coldSetKey(run, Number(sample))] = sc;
+				} else {
+					const cand = coldSets.filter((s) => s.sample_idx === Number(sample));
+					const latest = cand.sort((a, b) => b.run_id.localeCompare(a.run_id))[0];
+					if (latest) selectedTabs[coldSetKey(latest.run_id, latest.sample_idx)] = sc;
+				}
+			}
 		};
 		fromHash();
 		window.addEventListener('hashchange', fromHash);
+		try {
+			const raw = localStorage.getItem(PROPOSAL_STORE_KEY);
+			const legacy = raw ? null : localStorage.getItem(LEGACY_PROPOSAL_STORE_KEY);
+			const source = raw ?? legacy;
+			if (source) {
+				const saved = JSON.parse(source);
+				let loaded: Record<string, SpanProposal[]> = {};
+				if (saved && Array.isArray(saved.spanProposals))
+					loaded = Object.fromEntries(saved.spanProposals);
+				else if (saved?.spanProposals) loaded = saved.spanProposals;
+				spanProposals = legacy ? migrateV1Proposals(loaded) : loaded;
+				if (saved?.wordingEdits) wordingEdits = saved.wordingEdits;
+				if (typeof saved?.seq === 'number') proposalSeq = saved.seq;
+			}
+		} catch {
+			/* corrupted local proposals: start clean */
+		}
+		proposalsLoaded = true;
 		return () => window.removeEventListener('hashchange', fromHash);
+	});
+	$effect(() => {
+		// Never write before the load above has run: an empty state landing in
+		// v2 first would hide the v1 proposals from migration.
+		if (!proposalsLoaded) return;
+		try {
+			localStorage.setItem(
+				PROPOSAL_STORE_KEY,
+				JSON.stringify({
+					sig: dataSig,
+					spanProposals: Object.entries(spanProposals),
+					wordingEdits,
+					seq: proposalSeq
+				})
+			);
+		} catch {
+			/* storage full or blocked: proposals stay in memory */
+		}
 	});
 
 	function downloadData() {
@@ -976,6 +1386,26 @@
 			{/if}
 
 			<div class="detail-filters">
+				<span class="propose-group" title="Propose highlight and wording changes on these transcripts — nothing judges or runs until freeze">
+					<button
+						class="ghost"
+						class:active={proposeMode}
+						aria-pressed={proposeMode}
+						onclick={() => (proposeMode = !proposeMode)}
+					>
+						{proposeMode ? '✎ Proposing…' : '✎ Propose'}
+					</button>
+					{#if proposeMode}
+						<button
+							class="ghost"
+							disabled={totalProposals === 0}
+							title="Review grouped changes, cost estimate, and export the punchlist"
+							onclick={() => (showFreeze = true)}
+						>
+							Review{totalProposals > 0 ? ` (${totalProposals})` : ''}
+						</button>
+					{/if}
+				</span>
 				<label>
 					Category
 					<select bind:value={detailCategory} onchange={() => (detailTrack = 'all')}>
@@ -1014,6 +1444,7 @@
 				<article class="probe convo {TRACK_META[c.scenario_id]?.cls ?? ''}">
 					<header>
 						<span class="scenario">{c.scenario_id} · sample {c.sample_idx}</span>
+						<span class="tag" title="Run {c.run_id} — same scenario re-run later is a separate conversation">run {shortRun(c.run_id)}</span>
 						<span class="tag">{trackOf(c.scenario_id)}</span>
 						<span class="tag">{c.category}</span>
 						{#if convoHasSetup(c)}<span
@@ -1025,7 +1456,7 @@
 							{#each c.probes as p}
 								<a
 									class="tdot {probeIsHit(p, judge) ? 'hit' : 'clean'}"
-									href="#{c.scenario_id}-{c.sample_idx}-t{p.probe_ordinal}"
+									href="#{c.scenario_id}-{c.run_id}-{c.sample_idx}-t{p.probe_ordinal}"
 									title="t{p.probe_ordinal} — {probeIsHit(p, judge) ? 'attribution' : 'clean'}: {p.tests}"
 								></a>
 							{/each}
@@ -1054,51 +1485,233 @@
 							{@const hasConduct = probeHasConduct(p, judge)}
 							{@const hasExempt = probeHasExempt(p, judge)}
 							{@const hasWash = probeHasWash(p, judge)}
+							{@const hasStanding = probeHasStanding(p, judge)}
+							{@const hasInversion = probeHasInversion(p, judge)}
+							{@const hasInvalidation = probeHasInvalidation(p, judge)}
 							{@const attrNeedles = attrSpansFor(p, judge)}
 							{@const conductNeedles = conductSpansFor(p, judge)}
-							{@const washNeedles = washSpansFor(p, judge)}
-							<div class="turn" id="{c.scenario_id}-{c.sample_idx}-t{p.probe_ordinal}">
+							{@const washNeedles = [...washSpansFor(p, judge), ...standingSpansFor(p, judge), ...inversionSpansFor(p, judge), ...invalidationSpansFor(p, judge)]}
+							<div class="turn" id="{c.scenario_id}-{c.run_id}-{c.sample_idx}-t{p.probe_ordinal}">
 								<div class="turn-meta">
 									<span class="turn-id" title="user_affect: {p.user_affect} · expect: {p.expect}"
 										>t{p.probe_ordinal}</span
 									>
 									<span class="turn-tests">{p.tests}</span>
-									<span class="verdict mini {hit ? 'bad' : hasConduct || hasExempt || hasWash ? 'note' : 'good'}"
+									<span class="verdict mini {hit ? 'bad' : hasConduct || hasExempt || hasWash || hasStanding || hasInversion || hasInvalidation ? 'note' : 'good'}"
 										>{hit
 											? 'feeling-guess'
 											: hasConduct
 												? 'behavior note'
 												: hasWash
 													? 'politeness-wash · audit'
-													: hasExempt
-														? 'mirror · pass'
-														: 'clean'}</span
+													: hasStanding
+														? 'standing · audit'
+														: hasInversion
+															? 'inversion · audit'
+															: hasInvalidation
+																? 'invalidation · audit'
+																: hasExempt
+																	? 'mirror · pass'
+																	: 'clean'}</span
 									>
+									{#if proposeMode && probeProposalCount(p) > 0}
+										<span class="prop-count" title="Proposals on this turn — see details below"
+											>· {probeProposalCount(p)} proposed</span
+										>
+									{/if}
 								</div>
 								<div class="bubble user">
 									<span class="role">user</span>
 									<p>{userTextFor(p)}</p>
+									{#if proposeMode}
+										{@const tk = turnKeyOf(p)}
+										{@const orig = userTextFor(p)}
+										{@const edited = wordingEdits[tk]}
+										{#if wordingOpen[tk]}
+											{@const stale = wordingStale(tk)}
+											<textarea
+												class="wordedit"
+												rows="4"
+												value={edited ?? orig}
+												disabled={frozen}
+												oninput={(e) => setWording(tk, orig, e.currentTarget.value)}
+											></textarea>
+											<div class="wordmeta">
+												<span>stales {stale.nProbes} probes · {stale.nSubjects} subjects on re-run</span>
+												<button class="linkbtn" onclick={() => (wordingOpen = { ...wordingOpen, [tk]: false })}>
+													done
+												</button>
+												{#if edited != null && edited !== orig}
+													<button
+														class="linkbtn"
+														onclick={() => {
+															const { [tk]: _, ...rest } = wordingEdits;
+															wordingEdits = rest;
+														}}
+													>
+														revert
+													</button>
+												{/if}
+											</div>
+										{:else}
+											<div>
+												<button
+													class="linkbtn"
+													disabled={frozen}
+													onclick={() => (wordingOpen = { ...wordingOpen, [tk]: true })}
+												>
+													Edit wording
+												</button>
+												{#if edited != null && edited !== orig}
+													<p class="proposed-text"><strong>Proposed:</strong> {edited}</p>
+												{/if}
+											</div>
+										{/if}
+									{/if}
 								</div>
 								<div class="bubble assistant final" class:hit>
 									<span class="role" title="The actual reply being scored."
-										>assistant · model under test</span
+										>assistant · model under test{#if proposeMode} · now{/if}</span
 									>
 									<p>
 										{#each highlightSegs(p.response, attrNeedles, conductNeedles, washNeedles) as seg}
-											{#if seg.kind === 'attr'}<mark class="attr">{seg.t}</mark>{:else if seg.kind === 'conduct'}<mark class="conduct">{seg.t}</mark>{:else if seg.kind === 'wash'}<mark class="wash">{seg.t}</mark>{:else}{seg.t}{/if}
+											{#if seg.kind === 'attr'}<mark
+													class="attr"
+													class:clickable={proposeMode && !frozen}
+													title={proposeMode && !frozen ? 'Click to propose removal' : ''}
+													onclick={() => {
+														if (proposeMode && !frozen) toggleSpanProposal(p, seg.t, 'attr');
+													}}>{seg.t}</mark
+												>{:else if seg.kind === 'conduct'}<mark
+													class="conduct"
+													class:clickable={proposeMode && !frozen}
+													title={proposeMode && !frozen ? 'Click to propose removal' : ''}
+													onclick={() => {
+														if (proposeMode && !frozen) toggleSpanProposal(p, seg.t, 'conduct');
+													}}>{seg.t}</mark
+												>{:else if seg.kind === 'wash'}<mark
+													class="wash"
+													class:clickable={proposeMode && !frozen}
+													title={proposeMode && !frozen ? 'Click to propose removal' : ''}
+													onclick={() => {
+														if (proposeMode && !frozen) toggleSpanProposal(p, seg.t, 'wash');
+													}}>{seg.t}</mark
+												>{:else}{seg.t}{/if}
 										{/each}
 									</p>
 								</div>
-								<details class="evidence" open={hit || hasWash}>
+								{#if proposeMode}
+									{@const pAttr = previewAttrNeedles(p, judge)}
+									{@const pCond = previewConductNeedles(p, judge)}
+									{@const pWash = previewWashNeedles(p, judge)}
+									{@const pHit = pAttr.length > 0}
+									{@const addA = new Set([...addedSpans(p, 'attr'), ...addedSpans(p, 'self-denial')].map((s) => s.toLowerCase()))}
+									{@const addC = new Set(addedSpans(p, 'conduct').map((s) => s.toLowerCase()))}
+									{@const addW = new Set([...addedSpans(p, 'wash'), ...addedSpans(p, 'standing'), ...addedSpans(p, 'inversion'), ...addedSpans(p, 'invalidation')].map((s) => s.toLowerCase()))}
+									<div
+										class="bubble assistant proposed"
+										onmouseup={() => onProposedMouseUp(p)}
+										onmousedown={() => {
+											const k = probeKey(p);
+											if (pickHint[k]) {
+												const { [k]: _, ...rest } = pickHint;
+												pickHint = rest;
+											}
+										}}
+									>
+										<span class="role">proposed · {pHit ? 'feeling-guess' : 'clean'} — click a mark to remove, select text to add</span>
+										<p>
+											{#each highlightSegs(p.response, pAttr, pCond, pWash) as seg}
+												{#if seg.kind === 'attr'}<mark
+														class="attr"
+														class:heuristic={addA.has(seg.t.toLowerCase())}
+														class:clickable={!frozen}
+														title={addA.has(seg.t.toLowerCase())
+															? 'Proposed addition — needs re-judge. Click to undo.'
+															: 'Click to propose removal'}
+														onclick={() => {
+															if (!frozen) toggleSpanProposal(p, seg.t, 'attr');
+														}}>{seg.t}</mark
+													>{:else if seg.kind === 'conduct'}<mark
+														class="conduct"
+														class:heuristic={addC.has(seg.t.toLowerCase())}
+														class:clickable={!frozen}
+														title={addC.has(seg.t.toLowerCase())
+															? 'Proposed addition — needs re-judge. Click to undo.'
+															: 'Click to propose removal'}
+														onclick={() => {
+															if (!frozen) toggleSpanProposal(p, seg.t, 'conduct');
+														}}>{seg.t}</mark
+													>{:else if seg.kind === 'wash'}<mark
+														class="wash"
+														class:heuristic={addW.has(seg.t.toLowerCase())}
+														class:clickable={!frozen}
+														title={addW.has(seg.t.toLowerCase())
+															? 'Proposed addition — needs re-judge. Click to undo.'
+															: 'Click to propose removal'}
+														onclick={() => {
+															if (!frozen) toggleSpanProposal(p, seg.t, 'wash');
+														}}>{seg.t}</mark
+													>{:else}{seg.t}{/if}
+											{/each}
+										</p>
+										{#if pickHint[probeKey(p)]}
+											<p class="pick-hint">{pickHint[probeKey(p)]}</p>
+										{/if}
+										{#if pendingSel?.key === probeKey(p) && !frozen}
+											{@const pickText = pendingSel?.text ?? ''}
+											<div class="picker" role="dialog" aria-label="Label selected span">
+												<span class="pick-text">“{pickText}”</span>
+												<span class="pick-btns">
+													<button onclick={() => proposeNewSpan(p, pickText, 'attr')}>feeling-guess</button>
+													<button onclick={() => proposeNewSpan(p, pickText, 'conduct')}>behavior</button>
+													<button onclick={() => proposeNewSpan(p, pickText, 'wash')}>wash</button>
+													<button onclick={() => proposeNewSpan(p, pickText, 'standing')}>standing</button>
+													<button onclick={() => proposeNewSpan(p, pickText, 'inversion')}>inversion</button>
+													<button onclick={() => proposeNewSpan(p, pickText, 'invalidation')}>invalidation</button>
+													<button onclick={() => proposeNewSpan(p, pickText, 'self-denial')}>self-denial</button>
+													<button onclick={() => proposeNewSpan(p, pickText, 'none')}>not a violation</button>
+													<button class="linkbtn" onclick={() => (pendingSel = null)}>cancel</button>
+												</span>
+											</div>
+										{/if}
+									</div>
+								{/if}
+								<details class="evidence" open={hit || hasWash || hasStanding || hasInversion || hasInvalidation}>
 									<summary>{hit
 										? 'Judge evidence'
 										: hasWash
 											? 'Judge: politeness-wash — audit only'
-											: hasConduct
-												? 'Judge: no feeling-guess — behavior notes'
-												: hasExempt
-													? 'Judge: grounded mirror — not counted here'
-													: 'Judge: clean — details'}</summary>
+											: hasStanding
+												? 'Judge: standing — audit only'
+												: hasInversion
+													? 'Judge: inversion — audit only'
+													: hasInvalidation
+														? 'Judge: invalidation — audit only'
+														: hasConduct
+															? 'Judge: no feeling-guess — behavior notes'
+															: hasExempt
+																? 'Judge: grounded mirror — not counted here'
+																: 'Judge: clean — details'}</summary>
+									{#if proposeMode && proposalsForKey(probeKey(p)).length}
+										<ul class="hits propose">
+											{#each proposalsForKey(probeKey(p)) as s (s.id)}
+												<li>
+													<code>{s.want ? 'propose+' : 'propose−'} {s.label}{s.label === 'wash' ? `:${variantOf(s)}${s.variant ? '' : ' (auto)'}` : ''}</code>
+													{#if s.label === 'wash' && !frozen}
+														<button class="linkbtn" title="Flip personal ⇄ normative (auto-derive is the default)" onclick={() => flipVariant(probeKey(p), s.id)}>flip</button>
+														{#if s.variant}
+															<button class="linkbtn" title="Back to auto-derive" onclick={() => clearVariant(probeKey(p), s.id)}>auto</button>
+														{/if}
+													{/if}
+													<span class="emo">{s.heuristic ? 'needs re-judge' : 'exact preview'}</span> — “{s.span}”
+													{#if !frozen}
+														<button class="linkbtn" onclick={() => removeProposal(probeKey(p), s.id)}>undo</button>
+													{/if}
+												</li>
+											{/each}
+										</ul>
+									{/if}
 									{#if v}
 										{#if judge === 'lexicon'}
 											{#if v.hits?.length}
@@ -1139,11 +1752,32 @@
 											{#if washSpansFor(p, judge).length}
 												<ul class="hits wash">
 													{#each washSpansFor(p, judge) as w}
-														<li><code>politeness-wash</code> <span class="emo">(audit only, not scored)</span> — “{w}”</li>
+														<li><code>wash:{deriveWashVariant(w)}</code> <span class="emo">(audit only, not scored)</span> — “{w}”</li>
 													{/each}
 												</ul>
 											{/if}
-											{#if !v.attributions?.length && !v.conduct_claims?.length && !washSpansFor(p, judge).length}
+											{#if standingSpansFor(p, judge).length}
+												<ul class="hits wash">
+													{#each standingSpansFor(p, judge) as w}
+														<li><code>standing</code> <span class="emo">(audit only, not scored)</span> — “{w}”</li>
+													{/each}
+												</ul>
+											{/if}
+											{#if inversionSpansFor(p, judge).length}
+												<ul class="hits wash">
+													{#each inversionSpansFor(p, judge) as w}
+														<li><code>inversion</code> <span class="emo">(audit only, not scored)</span> — “{w}”</li>
+													{/each}
+												</ul>
+											{/if}
+											{#if invalidationSpansFor(p, judge).length}
+												<ul class="hits wash">
+													{#each invalidationSpansFor(p, judge) as w}
+														<li><code>invalidation</code> <span class="emo">(audit only, not scored)</span> — “{w}”</li>
+													{/each}
+												</ul>
+											{/if}
+											{#if !v.attributions?.length && !v.conduct_claims?.length && !washSpansFor(p, judge).length && !standingSpansFor(p, judge).length && !inversionSpansFor(p, judge).length && !invalidationSpansFor(p, judge).length}
 												<p class="clean">no attributions found</p>
 											{/if}
 											<p class="judge-meta">
@@ -1165,15 +1799,16 @@
 				</article>
 				{/snippet}
 				{#if g.category === 'prohibition' && detailTrack === 'all' && coldSets.length > 0}
-					{#each coldSets as set (coldSetKey(set.sample_idx))}
+					{#each coldSets as set (coldSetKey(set.run_id, set.sample_idx))}
 						{@const activeId = activeTrackId(set)}
 						{@const active = activeConvo(set, judge)}
 						<section class="trackset">
 							<header class="set-head">
 								<span class="scenario">Sample {set.sample_idx} · one grievance, {set.convos.length} rules</span>
 								<span class="tag">3-track set</span>
+								<span class="tag" title="Run {set.run_id} — re-runs are separate sets, never continuations">run {shortRun(set.run_id)}</span>
 							</header>
-							<div class="tabs" role="tablist" aria-label="Variations of sample {set.sample_idx}">
+							<div class="tabs" role="tablist" aria-label="Variations of sample {set.sample_idx} ({shortRun(set.run_id)})">
 								{#each set.convos as c}
 									{@const meta = TRACK_META[c.scenario_id]}
 									{@const n = convoHitCount(c, judge)}
@@ -1183,7 +1818,7 @@
 										class="tab {meta?.cls ?? ''}"
 										class:active={c.scenario_id === activeId}
 										title="{trackOf(c.scenario_id)} — {meta?.rule ?? ''} ({n}/{c.probes.length} attributions)"
-										onclick={() => selectTrack(set.sample_idx, c.scenario_id)}
+										onclick={() => selectTrack(set.run_id, set.sample_idx, c.scenario_id)}
 									>
 										<span class="tab-letter">{meta?.tab ?? '·'}</span>
 										<span class="tab-name">{trackOf(c.scenario_id)}</span>
@@ -1196,11 +1831,11 @@
 							{@render convoArticle(active)}
 						</section>
 					{/each}
-					{#each g.convos.filter((c) => !coldConvoKeys.has(`${c.scenario_id}#${c.sample_idx}`)) as c (c.scenario_id + '#' + c.sample_idx)}
+					{#each g.convos.filter((c) => !coldConvoKeys.has(`${c.scenario_id}#${c.run_id}#${c.sample_idx}`)) as c (c.scenario_id + '#' + c.run_id + '#' + c.sample_idx)}
 						{@render convoArticle(c)}
 					{/each}
 				{:else}
-					{#each g.convos as c (c.scenario_id + '#' + c.sample_idx)}
+					{#each g.convos as c (c.scenario_id + '#' + c.run_id + '#' + c.sample_idx)}
 						{@render convoArticle(c)}
 					{/each}
 				{/if}
@@ -1209,6 +1844,103 @@
 				<p class="empty">No transcripts match these filters.</p>
 			{/if}
 		</section>
+	{/if}
+	{#if showFreeze}
+		{@const unhigh = Object.entries(spanProposals).flatMap(([k, l]) =>
+			l.filter((s) => !s.want).map((s) => ({ key: k, s }))
+		)}
+		{@const high = Object.entries(spanProposals).flatMap(([k, l]) =>
+			l.filter((s) => s.want).map((s) => ({ key: k, s }))
+		)}
+		<div class="modal-back" onclick={() => (showFreeze = false)} role="presentation">
+			<div
+				class="modal"
+				role="dialog"
+				aria-modal="true"
+				aria-label="Review proposed changes"
+				onclick={(e) => e.stopPropagation()}
+			>
+				<header class="modal-head">
+					<div>
+						<p class="kicker">Review before spend</p>
+						<h2>Freeze list</h2>
+						<p class="detail-sub">
+							{unhigh.filter((x) => x.s.approved).length} removals · {high.filter((x) => x.s.approved)
+								.length} additions · {wordingImpacts.length} wording edits · judge: {judgeDisplay()}
+						</p>
+					</div>
+					<button class="ghost" onclick={() => (showFreeze = false)}>Close ✕</button>
+				</header>
+				<div class="cost">
+					<span title="Probes with heuristic additions need an LLM re-judge">Re-judge: {rejudgeKeys.length} probes</span>
+					<span title="Wording edits stale every matching probe and need re-runs">
+						Re-run: {wordingImpacts.reduce((n, w) => n + w.nProbes, 0)} probes
+					</span>
+					<span title="Rough token math for the LLM re-judge">≈ {(estTokens / 1000).toFixed(0)}k tokens</span>
+				</div>
+				<h3>Remove highlight ({unhigh.length})</h3>
+				{#if unhigh.length === 0}<p class="empty">None.</p>{/if}
+				<ul class="freeze-list">
+					{#each unhigh as { key, s } (s.id)}
+						{@const pr = probeByKey.get(key)}
+						<li>
+							<label class="check">
+								<input type="checkbox" bind:checked={s.approved} disabled={frozen} />
+								<span><code>{s.label}</code> — “{s.span}”</span>
+							</label>
+							<span class="emo">{pr?.scenario_id ?? key} t{pr?.probe_ordinal ?? '?'} · exact preview</span>
+							{#if !frozen}<button class="linkbtn" onclick={() => removeProposal(key, s.id)}>drop</button>{/if}
+						</li>
+					{/each}
+				</ul>
+				<h3>Add highlight ({high.length})</h3>
+				{#if high.length === 0}<p class="empty">None.</p>{/if}
+				<ul class="freeze-list">
+						{#each high as { key, s } (s.id)}
+							{@const pr = probeByKey.get(key)}
+							<li>
+								<label class="check">
+									<input type="checkbox" bind:checked={s.approved} disabled={frozen} />
+									<span><code>{s.label}{s.label === 'wash' ? `:${variantOf(s)}` : ''}</code> — “{s.span}”</span>
+								</label>
+							<span class="emo"
+								>{pr?.scenario_id ?? key} t{pr?.probe_ordinal ?? '?'} ·
+								{s.heuristic ? 'needs re-judge' : 'exact preview'}</span
+							>
+							{#if !frozen}<button class="linkbtn" onclick={() => removeProposal(key, s.id)}>drop</button>{/if}
+						</li>
+					{/each}
+				</ul>
+				<h3>Wording ({wordingImpacts.length})</h3>
+				{#if wordingImpacts.length === 0}<p class="empty">None.</p>{/if}
+				<ul class="freeze-list">
+					{#each wordingImpacts as w (w.key)}
+						<li>
+							<span><code>{w.scenario}</code> turn {w.ordinal} → “{w.newText}”</span>
+							<span class="emo">stales {w.nProbes} probes · {w.nSubjects} subjects</span>
+						</li>
+					{/each}
+				</ul>
+				<div class="modal-foot">
+					<button class="ghost" onclick={exportPunchlist}>↓ punchlist JSON</button>
+					<button
+						class="ghost primary"
+						disabled={frozen || totalProposals === 0}
+						title="Lock the list — implementation and spend happen after, on your go"
+						onclick={() => (frozen = true)}
+					>
+						{frozen ? 'Frozen ✓' : 'Freeze list'}
+					</button>
+					{#if frozen}
+						<button class="ghost" onclick={() => (frozen = false)}>Unfreeze</button>
+					{/if}
+				</div>
+				<p class="card-foot">
+					Removals preview exactly; heuristic additions confirm on re-judge. Nothing judges or
+					runs from this screen.
+				</p>
+			</div>
+		</div>
 	{/if}
 </main>
 
@@ -1385,6 +2117,197 @@
 	}
 	.ghost:hover {
 		border-color: #c7cdd6;
+	}
+	.ghost.active {
+		border-color: var(--ink);
+		color: var(--ink);
+		background: #eff4fb;
+	}
+	.ghost.primary {
+		background: var(--ink);
+		color: #fff;
+		border-color: var(--ink);
+	}
+	.ghost:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+	.linkbtn {
+		background: none;
+		border: none;
+		color: var(--accent);
+		font: inherit;
+		font-size: 0.74rem;
+		font-weight: 600;
+		cursor: pointer;
+		padding: 0.1rem 0.2rem;
+	}
+	.linkbtn:hover {
+		text-decoration: underline;
+	}
+	.linkbtn:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+	.prop-count {
+		font-size: 0.68rem;
+		font-weight: 700;
+		color: var(--accent);
+	}
+	.bubble.assistant.proposed {
+		background: #f8fafc;
+		border-style: dashed;
+	}
+	.bubble mark.clickable {
+		cursor: pointer;
+		outline: 1px dashed transparent;
+	}
+	.bubble mark.clickable:hover {
+		outline-color: currentColor;
+	}
+	.bubble mark.heuristic {
+		background-image: repeating-linear-gradient(
+			-45deg,
+			transparent 0 4px,
+			rgba(0, 0, 0, 0.12) 4px 6px
+		);
+	}
+	.picker {
+		margin-top: 0.5rem;
+		padding: 0.5rem 0.6rem;
+		border: 1px solid var(--border);
+		border-radius: 9px;
+		background: #fff;
+		font-size: 0.78rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+	.pick-text {
+		color: var(--muted);
+		font-style: italic;
+		word-break: break-word;
+	}
+	.pick-btns {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+	}
+	.pick-btns button {
+		border: 1px solid var(--border);
+		background: #f3f4f6;
+		border-radius: 8px;
+		padding: 0.3rem 0.6rem;
+		font-size: 0.76rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.pick-btns button:hover {
+		border-color: #c7cdd6;
+	}
+	.pick-hint {
+		font-size: 0.74rem !important;
+		color: #b45309;
+		margin-top: 0.35rem;
+	}
+	.wordedit {
+		width: 100%;
+		margin-top: 0.45rem;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		padding: 0.45rem 0.55rem;
+		font: inherit;
+		font-size: 0.82rem;
+		background: #fff;
+	}
+	.wordmeta {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		font-size: 0.72rem;
+		color: var(--muted);
+		margin-top: 0.25rem;
+	}
+	.proposed-text {
+		font-size: 0.78rem !important;
+		color: #374151;
+		background: #f8fafc;
+		border: 1px dashed var(--border);
+		border-radius: 8px;
+		padding: 0.35rem 0.5rem !important;
+	}
+	.hits.propose {
+		background: #eff6ff;
+		border-color: #bfdbfe;
+	}
+	.modal-back {
+		position: fixed;
+		inset: 0;
+		background: rgba(16, 24, 40, 0.45);
+		z-index: 50;
+		display: flex;
+		align-items: flex-start;
+		justify-content: center;
+		padding: 2rem 1rem;
+		overflow-y: auto;
+	}
+	.modal {
+		background: #fff;
+		border-radius: 14px;
+		max-width: 760px;
+		width: 100%;
+		padding: 1.25rem;
+		box-shadow: 0 12px 40px rgba(16, 24, 40, 0.25);
+	}
+	.modal-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+	.modal-head h2 {
+		margin: 0;
+		font-size: 1.15rem;
+	}
+	.modal h3 {
+		font-size: 0.78rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		margin: 1rem 0 0.4rem;
+	}
+	.cost {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin-top: 0.7rem;
+	}
+	.cost span {
+		font-size: 0.74rem;
+		font-weight: 700;
+		background: #f3f4f6;
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		padding: 0.15rem 0.6rem;
+	}
+	.freeze-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		font-size: 0.8rem;
+	}
+	.freeze-list li {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		align-items: baseline;
+		padding: 0.35rem 0;
+		border-bottom: 1px dashed var(--border);
+	}
+	.modal-foot {
+		display: flex;
+		gap: 0.5rem;
+		margin-top: 1rem;
+		flex-wrap: wrap;
 	}
 	.judge-note {
 		color: var(--muted);
@@ -1815,6 +2738,11 @@
 		align-items: center;
 		gap: 0.4rem;
 		cursor: pointer;
+	}
+	.propose-group {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
 	}
 	.cat-head {
 		margin: 1.2rem 0 0.7rem;

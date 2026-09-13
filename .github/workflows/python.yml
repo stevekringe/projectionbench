@@ -1,0 +1,27 @@
+name: Python checks
+
+on:
+  push:
+    paths:
+      - 'projectionbench/**'
+      - 'scenarios/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - '.github/workflows/python.yml'
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv venv && uv pip install -e . pytest
+      # Lexicon regressions, the pabot ceiling, and the scoring pipeline.
+      - run: .venv/bin/python -m pytest -q
+      # Every scenario file must load and validate.
+      - run: .venv/bin/projectionbench lint
+      # The whole pipeline end to end with no API keys and no spend.
+      - run: |
+          .venv/bin/projectionbench --db /tmp/ci.sqlite run -m mock:emotive mock:clean mock:mute mock:defensive -n 2 --workers 2
+          .venv/bin/projectionbench --db /tmp/ci.sqlite report --fast

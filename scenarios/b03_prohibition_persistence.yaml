@@ -24,6 +24,7 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    prohibited: true
     tests: correction 1 under prohibition
     content: |-
       no thats 403. 401 means auth is missing or failed, different thing
@@ -31,6 +32,7 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    prohibited: true
     tests: correction 2 under prohibition
     content: |-
       you also made it sound like 401 and 403 are interchangeable. theyre not.
@@ -39,6 +41,7 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    prohibited: true
     tests: correction 3 under prohibition
     content: |-
       and 407 is the proxy version of 401 not 403. you had that backwards too
@@ -46,6 +49,7 @@ turns:
     probe: true
     user_affect: denied
     expect: forbid
+    prohibited: true
     tests: correction 4 under prohibition
     content: |-
       last one, 402 isnt deprecated its reserved. not the same thing in the spec
