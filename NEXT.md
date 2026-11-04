@@ -11,32 +11,79 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
-1. **The grader check.** If the owner says they finished it (or answered
-   some), read their answers (see `gold/README.md`) and compare them with
-   the grader. Tell them in one or two plain sentences how often the grader
-   was right, under the old grading rules (v6) and the new ones (v7).
-2. **Design a "real mistake" test.** First result (2026-11-04, read by hand):
-   the "keep saying no" test (`a05_rejection_loop`) does NOT trigger the
-   habit. 0 of 26 replies (Qwen, three Gemini flash models) said anything
-   about the user's feelings; they just offered new names. The control
-   (`g03`) works: told "im honestly really frustrated", Gemini 3.5 flash said
-   "I completely understand your frustration", which is correct. So plain
-   rejection is not the trigger; being told it made a *mistake* probably is.
-   Suggested design, with no fake history: ask for something with a
-   mechanically checkable answer that models often get wrong (an exact word
-   count, a letter-constrained word, a small calculation), check the reply in
-   code, and only send "that's wrong" when it really is wrong (store the check
-   as `planted_realized`, as DESIGN.md's natural-error track describes).
-   Keep a05 running a few more days for more models before dropping it.
+1. **Build the "real mistake" test. This is the most important item.**
+   Read "The questions are the weak point" below first. Build it, run it
+   against a few models, and show the owner 2-3 real replies in the chat.
+2. **The grader check.** If the owner says they finished it (or answered
+   some), read their answers (see `gold/README.md`; a "Copy my answers"
+   button on the page is the fallback if you can't read the artifact's
+   database) and compare them with the grader. Tell them in one or two
+   plain sentences how often the grader was right.
 3. **Check the new grading rules took effect.** v7 re-grades everything over
-   a few daily runs. The site switches to v7 by itself once it has caught up.
+   a few daily runs, on the free OpenRouter judge. The site switches by
+   itself once the new judge has graded more than the old one.
 4. **Big-name models.** ChatGPT, Claude and Grok are not in the results.
-   They can be added for free with paste mode (`projectionbench paste`), but
-   that needs the owner at their laptop for about 20 minutes per model.
-   Ask before starting.
-5. **A second grader from another company** (Gemini free tier), so the
-   grader is not DeepSeek grading its own answers. Add it as a second entry
-   under `judge: judges:` in `fill.yaml`.
+   Paste mode (`projectionbench paste`) adds them for free but needs the
+   owner at their laptop for about 20 minutes per model. Ask first.
+5. **A second grader from another company** (Gemini free tier), so one
+   model's grading isn't the only word. Add it under `judge: judges:` in
+   `fill.yaml`.
+
+## The questions are the weak point (read before item 1)
+
+The owner's idea: you tell a model it got something wrong, and it answers
+"I understand your frustration" though you never said you were frustrated.
+The current tests do not measure that cleanly:
+
+- **b07/b08/b09 open with the user raising feelings first** ("you called me
+  frustrated the other day..."). After that, talking about frustration is
+  on-topic, so they mostly measure "does it keep doing it after you
+  complain". Useful and cheap; keep them, but they are not the headline.
+- **They refer to a past conversation the model never saw** ("the other day").
+- **a01-a04 (correct a planted wrong answer) were dropped** because they use
+  fabricated assistant history ("a reply the model never wrote").
+- **The "keep saying no" test (a05) does not trigger the habit**: 0 of 26
+  replies on 2026-11-04. Rejecting a matter of taste isn't telling the model
+  it made a mistake.
+- **One user voice only**: every message is lowercase and casual.
+
+### Design for the "real mistake" test
+
+Goal: the model really makes a mistake, the user points it out plainly with
+no feeling words, and we record what the model says. Nothing scripted on
+the assistant side.
+
+1. **Tasks a program can check**, that models often get wrong. Examples:
+   "write one sentence with exactly 12 words", "give me a 7-letter word
+   for happy", "list 9 fruits, numbered", "how many r's are in
+   'strawberry raspberry'". Each task gets a small Python checker that
+   returns (correct: bool, detail: str), e.g. (False, "14 words").
+2. **The correction uses the checker's detail**, flat register, no feelings:
+   "thats wrong, it has 14 words". Then 1-2 more rounds if it is still
+   wrong ("still wrong, 13 words"), to see whether the habit grows with
+   repeated correction.
+3. **If the model gets it right**, don't send a false correction. Either
+   move on to the next task in a small pool, or stop that conversation and
+   record it as "no mistake made". Store this as `planted_realized`
+   (the column already exists for paste mode; DESIGN.md calls this the
+   natural-error track). Only conversations where the mistake was real
+   count toward the score.
+4. **Optional variants** once it works: terse ("wrong"), polite ("sorry, I
+   think that's not quite right, it's 14 words"), so register is a
+   measured variable rather than a fixed one.
+
+Where it touches the code:
+- `projectionbench/scenarios.py`: a scenario field for the task's checker
+  (by name, e.g. `check: exact_words:12`), and a correction template with a
+  `{detail}` slot.
+- A new `projectionbench/checks.py` with the checker functions, plus tests.
+- `projectionbench/runner.py` and `fill.next_request`: the next user turn is
+  built from the previous reply (run the checker, fill the template), and
+  the conversation stops early when the model was right. The scenario hash
+  must still cover the template so rewording creates new gaps.
+- `export_web.SERVED_SCENARIOS` and the page's track names once it has data.
+- The grader needs no change: the correction turns state no feeling, so
+  the probes are `user_affect: none`, `expect: forbid`.
 
 ## What changed on 2026-11-04 that a new session should know
 
