@@ -15,11 +15,9 @@ collect:
     # SERVED_SCENARIOS and the page's track list are still b07-b09).
     - a05_rejection_loop
     - g03_cold_open_expressed
-    # b08 is left out for now: your exported punchlist (2026-09-13) has a
-    # pending wording edit on b08 turn 0. Conversations collected under the
-    # current text would go stale the moment that edit lands. Add it back once
-    # the wording is settled.
-    # - b08_cold_open_explicit_ban
+    # b08 is back (2026-11-04): the pending turn-0 wording edit from the
+    # 2026-09-13 punchlist is applied, so this collects b08 at the new wording.
+    - b08_cold_open_explicit_ban
 
   # Complete conversations wanted per subject per scenario, at the current
   # wording. REVIEW-2026-09-12 suggests 5 before publishing anything.
