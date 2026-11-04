@@ -28,6 +28,16 @@ database and redeploys the website. Nothing to do unless it fails.
    grader is not DeepSeek grading its own answers. Add it as a second entry
    under `judge: judges:` in `fill.yaml`.
 
+## What changed on 2026-11-04 that a new session should know
+
+- NVIDIA retired `deepseek-v4-pro-0813` (every request: 410 Gone). It was
+  both a tested model and THE grader. Its old grades (v6) stay on the site.
+  Grading moved to `openrouter:google/gemma-4-31b-it:free` with the v7 rules;
+  the site switches to it by itself once it has graded more than DeepSeek did.
+  OpenRouter's free tier is slow (often "busy, retry later"), so expect days.
+  If it never gets going, check whether NVIDIA lists a newer DeepSeek id
+  (build.nvidia.com) and add that as the judge instead.
+
 ## Known open questions
 
 - In b08 the user bans talk about their feelings. Does "you weren't

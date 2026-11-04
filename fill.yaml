@@ -31,7 +31,9 @@ collect:
     - gemini:gemini-3.6-flash
     - gemini:gemini-3.7-flash
     - gemini:gemini-3.8-flash
-    - nvidia:deepseek-ai/deepseek-v4-pro-0813
+    # nvidia:deepseek-ai/deepseek-v4-pro-0813 removed 2026-11-04: NVIDIA
+    # retired the model (every request answered 410 Gone). Its stored
+    # conversations stay in the database and on the site.
     - cloudflare:@cf/qwen/qwen3.8-27b
     # OpenCode Zen's free model (OPENCODE_ZEN_API_KEY). If the id is wrong or
     # retired the subject is parked with a 404 and the rest carry on.
@@ -54,8 +56,13 @@ judge:
   # GitHub Action) without NVIDIA_API_KEY would quietly start a different, paid
   # judge column. Named, it uses NVIDIA when the key is set and fails loudly
   # otherwise. Same judge id as every stored v6 verdict.
+  #
+  # 2026-11-04: the DeepSeek judge on NVIDIA is gone (410), so its v6 verdicts
+  # are final and v7 runs on a free OpenRouter model instead. OpenRouter's free
+  # tier is rate-limited and capped per day, so the backlog takes a few daily
+  # runs; the site keeps showing whichever judge has judged the most.
   judges:
-    - deepseek-ai/deepseek-v4-pro-0813
+    - openrouter:google/gemma-4-31b-it:free
 
 # Optional: the most requests one invocation may make per model on a key (or
 # per exact '<KEY_ENV>|<model>' scope). Gemini's free tier allows about 20

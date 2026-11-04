@@ -135,7 +135,9 @@ _BAD_OUTPUT = re.compile(r"schema validation|no parsed output", re.I)
 _RATE = re.compile(r"\b429\b|RESOURCE_EXHAUSTED|RateLimit|rate[ _-]?limit|quota", re.I)
 _DAILY = re.compile(r"per[ _-]?day|daily", re.I)
 _FATAL = re.compile(
-    r"\b(400|401|403|404)\b|UNAUTHENTICATED|PERMISSION_DENIED|NOT_FOUND|INVALID_ARGUMENT"
+    # 410 Gone: the provider retired the model (NVIDIA did this to
+    # deepseek-v4-pro-0813 on 2026-11-04). Waiting never brings it back.
+    r"\b(400|401|403|404|410)\b|UNAUTHENTICATED|PERMISSION_DENIED|NOT_FOUND|INVALID_ARGUMENT"
     r"|AuthenticationError|PermissionDenied|NotFoundError|BadRequestError"
     r"|no longer available|is not set|node not found",
     re.I,
