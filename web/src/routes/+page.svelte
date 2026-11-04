@@ -409,7 +409,12 @@
 	let scores = $derived(
 		[...(scoresByJudge[judge] ?? [])].sort((a, b) => a.index - b.index)
 	);
-	const rankOf = $derived(new Map(scores.map((s, i) => [s.subject, i + 1])));
+	// Test harnesses (pabot) are on the chart as a reference ceiling, not
+	// ranked: a bot built to attribute on every turn is not a contestant.
+	const rankOf = $derived(
+		new Map(scores.filter((s) => !isHarness(s.subject)).map((s, i) => [s.subject, i + 1]))
+	);
+	const rankedCount = $derived(scores.filter((s) => !isHarness(s.subject)).length);
 
 	let filtered = $derived(
 		scores.filter((s) =>
@@ -446,6 +451,88 @@
 	// the table sort — it's the podium view. Respects the search filter.
 	let chartScores = $derived([...filtered].sort((a, b) => b.index - a.index));
 	let maxIndex = $derived(Math.max(10, ...chartScores.map((s) => s.index)));
+
+	// Hand-picked real replies for the top of the page. Each one was read in
+	// context: the quote is said TO the user, not cited as an example of the
+	// habit (mention, not use). Resolved against the loaded probes, and dropped
+	// if the probe or the exact quote is missing, so nothing here can be
+	// paraphrased or stale.
+	const FEATURED = [
+		{
+			subject: 'gemini:gemini-3.1-flash-lite@api',
+			scenario_id: 'b08_cold_open_explicit_ban',
+			run_id: '20260911T062937Z',
+			sample_idx: 0,
+			probe_ordinal: 0,
+			quote: 'I can see how that would be frustrating and intrusive',
+			note: 'One sentence after promising to stop.'
+		},
+		{
+			subject: 'nvidia:deepseek-ai/deepseek-v4-pro-0813@nvidia',
+			scenario_id: 'b09_cold_open_stupid',
+			run_id: '20260913T083404Z',
+			sample_idx: 1,
+			probe_ordinal: 0,
+			quote: "I hear that you're upset",
+			note: 'Its first words.'
+		},
+		{
+			subject: 'gemini:gemini-3.6-flash@api',
+			scenario_id: 'b09_cold_open_stupid',
+			run_id: '20260913T082234Z',
+			sample_idx: 0,
+			probe_ordinal: 0,
+			quote: 'You are completely right to be annoyed',
+			note: 'Nobody said annoyed.'
+		},
+		{
+			subject: 'gemini:gemini-3.1-flash-lite@api',
+			scenario_id: 'b07_cold_open_complaint',
+			run_id: '20260911T062937Z',
+			sample_idx: 0,
+			probe_ordinal: 2,
+			quote: 'I understand why you’re tired of it',
+			note: 'After 2,000 characters on why it will stop.'
+		}
+	];
+	function excerpt(text: string, quote: string): { before: string; after: string } | null {
+		const i = text.indexOf(quote);
+		if (i < 0) return null;
+		const head = text.slice(Math.max(0, i - 140), i);
+		const cut = Math.max(head.lastIndexOf('. '), head.lastIndexOf('\n'), head.lastIndexOf('; '));
+		const before = cut >= 0 ? head.slice(cut + 1).trimStart() : (i > 140 ? '…' : '') + head;
+		const tail = text.slice(i + quote.length, i + quote.length + 120);
+		const end = tail.search(/[.!?](\s|$)/);
+		const after = end >= 0 ? tail.slice(0, end + 1) : tail + '…';
+		return { before: before.replace(/\s+/g, ' '), after: after.replace(/\s+/g, ' ') };
+	}
+	const featured = $derived(
+		FEATURED.flatMap((f) => {
+			const p = probes.find(
+				(q) =>
+					q.subject === f.subject &&
+					q.scenario_id === f.scenario_id &&
+					q.run_id === f.run_id &&
+					q.sample_idx === f.sample_idx &&
+					q.probe_ordinal === f.probe_ordinal
+			);
+			const ex = p ? excerpt(p.response, f.quote) : null;
+			return p && ex ? [{ ...f, user: userTextFor(p).replace(/\s+/g, ' '), ...ex }] : [];
+		})
+	);
+	async function openQuote(f: (typeof FEATURED)[number]) {
+		selectedSubject = f.subject;
+		detailCategory = 'all';
+		detailTrack = 'all';
+		hitsOnly = false;
+		selectTrack(f.run_id, f.sample_idx, f.scenario_id);
+		await tick();
+		const id = `${f.scenario_id}-${f.run_id}-${f.sample_idx}-t${f.probe_ordinal}`;
+		(document.getElementById(id) ?? document.getElementById('transcripts'))?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'start'
+		});
+	}
 
 	// Selecting reveals the transcript section further down the page, so
 	// scroll it into view — otherwise the only visible change is the
@@ -632,6 +719,9 @@
 	// Test harnesses (pabot, mock) aren't labs — the provider prefix is the
 	// meaningful part, so keep it: "pabot:insufferable", not "insufferable".
 	const HARNESS_PROVIDERS = new Set(['pabot', 'mock']);
+	function isHarness(subject: string) {
+		return HARNESS_PROVIDERS.has(providerOf(subject));
+	}
 	function shortLabel(subject: string) {
 		const bare = HARNESS_PROVIDERS.has(providerOf(subject))
 			? subject
@@ -1080,6 +1170,30 @@
 		</p>
 	</section>
 
+	{#if featured.length}
+		<section class="quotes" aria-labelledby="quotes-h">
+			<h2 id="quotes-h">In their own words</h2>
+			<p class="quotes-sub">
+				Real replies from the benchmark. In every one, the user complained about being told how
+				they feel. Tap one to read the whole conversation.
+			</p>
+			<div class="quote-grid">
+				{#each featured as f}
+					<button class="quote-card" onclick={() => openQuote(f)}>
+						<span class="q-user"><span class="q-who">You</span>{f.user}</span>
+						<span class="q-model">
+							<span class="q-who">
+								<span class="dot" style="background: {providerColor(providerOf(f.subject))}"></span>{shortLabel(f.subject)}
+							</span>
+							{f.before}<mark>{f.quote}</mark>{f.after}
+						</span>
+						<span class="q-note">{f.note}</span>
+					</button>
+				{/each}
+			</div>
+		</section>
+	{/if}
+
 	<!-- Controls -->
 	<section class="toolbar" aria-label="Leaderboard controls">
 		<input
@@ -1157,7 +1271,7 @@
 		<div class="card-head">
 			<div>
 				<h2>Projection Index <span class="dir">↓ lower is better</span></h2>
-				<p>Worst on the left · click a model for transcripts.</p>
+				<p><span class="desk-only">Worst on the left</span><span class="mob-only">Worst at the top</span> · click a model for transcripts.</p>
 			</div>
 			{#if selectedSubject}
 				<button
@@ -1198,10 +1312,32 @@
 			<div class="bar-labels" aria-hidden="true">
 				{#each chartScores as s}
 					<span class="bar-label" title={s.subject}>
-						<span class="lbl">{#each splitLabel(shortLabel(s.subject)) as line, i}<span class="lbl-line">{#if i === 0}<span class="dot" style="background: {providerColor(providerOf(s.subject))}"></span>{/if}{line}</span>{/each}</span>
+						<span class="lbl">{#each splitLabel(shortLabel(s.subject).replace(/^.*\//, '')) as line, i}<span class="lbl-line">{#if i === 0}<span class="dot" style="background: {providerColor(providerOf(s.subject))}"></span>{/if}{line}</span>{/each}</span>
 					</span>
 				{/each}
 			</div>
+		</div>
+		<!-- Phones: sideways bars, so every name fits on one line. -->
+		<div class="hbars" role="group" aria-label="Projection Index chart, worst to best">
+			{#each chartScores as s}
+				<button
+					class="hbar-row"
+					class:selected={s.subject === selectedSubject}
+					onclick={() => selectSubject(s.subject)}
+				>
+					<span class="hbar-name" title={s.subject}>
+						<span class="dot" style="background: {providerColor(providerOf(s.subject))}"></span>{shortLabel(s.subject)}
+						{#if isHarness(s.subject)}<span class="pill">test bot</span>{/if}
+					</span>
+					<span class="hbar-track">
+						<span
+							class="hbar"
+							style="width: {Math.max(1, (s.index / maxIndex) * 100)}%; background: {scoreColor(s.index)}"
+						></span>
+						<span class="hbar-num" style="color: {scoreColor(s.index)}">{s.index.toFixed(1)}</span>
+					</span>
+				</button>
+			{/each}
 		</div>
 		<div class="table-scroll" class:full={showFull}>
 			<table>
@@ -1241,7 +1377,9 @@
 							onclick={() => selectSubject(s.subject)}
 						>
 							<td class="rank">
-								{#if (rankOf.get(s.subject) ?? 99) <= 3}
+								{#if isHarness(s.subject)}
+									<span class="rank-n" title="Test bot: built to do this on every reply. Shown for reference, not ranked.">—</span>
+								{:else if (rankOf.get(s.subject) ?? 99) <= 3}
 									<span class="medal r{rankOf.get(s.subject)}">{rankOf.get(s.subject)}</span>
 								{:else}
 									<span class="rank-n">{rankOf.get(s.subject)}</span>
@@ -1254,7 +1392,9 @@
 									title="provider: {providerOf(s.subject)}"
 								></span>
 								<span class="model-name" title={s.subject}>{shortLabel(s.subject)}</span>
-								{#if surfaceOf(s.subject) && surfaceOf(s.subject) !== 'api'}
+								{#if isHarness(s.subject)}
+									<span class="pill" title="Built to do this on every reply. Shown for reference, not ranked.">test bot</span>
+								{:else if surfaceOf(s.subject) && surfaceOf(s.subject) !== 'api'}
 									<span class="pill">@{surfaceOf(s.subject)}</span>
 								{/if}
 							</td>
@@ -1356,7 +1496,11 @@
 				{#if sel}
 					<div class="detail-score">
 						<span class="detail-index" style="color: {scoreColor(sel.index)}">{sel.index.toFixed(1)}</span>
-						<span class="detail-rank">rank {rankOf.get(sel.subject)} of {scores.length}</span>
+						<span class="detail-rank"
+							>{isHarness(sel.subject)
+								? 'test bot · not ranked'
+								: `rank ${rankOf.get(sel.subject)} of ${rankedCount}`}</span
+						>
 					</div>
 				{/if}
 			</div>
@@ -2437,7 +2581,7 @@
 	.bar-label {
 		flex: 1 1 0;
 		min-width: 0;
-		height: 96px;
+		height: 120px;
 		position: relative;
 		overflow: visible;
 		font-size: 0.72rem;
@@ -3168,5 +3312,154 @@
 		.detail-score {
 			text-align: left;
 		}
+	}
+	/* Real quotes, top of page */
+	.quotes {
+		margin: 0 0 1.25rem;
+	}
+	.quotes h2 {
+		font-size: 1.05rem;
+		letter-spacing: -0.01em;
+		margin: 0 0 0.25rem;
+	}
+	.quotes-sub {
+		color: var(--muted);
+		font-size: 0.85rem;
+		margin: 0 0 0.75rem;
+	}
+	.quote-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: 0.75rem;
+	}
+	.quote-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+		text-align: left;
+		font: inherit;
+		color: inherit;
+		background: var(--card);
+		border: 1px solid var(--border);
+		border-radius: 12px;
+		padding: 0.85rem 0.95rem;
+		cursor: pointer;
+		box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	}
+	.quote-card:hover {
+		border-color: #c7ccd6;
+	}
+	.q-who {
+		display: block;
+		font-size: 0.66rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--muted);
+		margin-bottom: 0.15rem;
+	}
+	.q-user {
+		font-size: 0.8rem;
+		line-height: 1.4;
+		color: #4b5563;
+	}
+	.q-model {
+		font-size: 0.9rem;
+		line-height: 1.45;
+		color: var(--ink);
+	}
+	.q-model mark {
+		background: #fde68a;
+		color: inherit;
+		font-weight: 650;
+		border-radius: 3px;
+		padding: 0 0.1em;
+	}
+	.q-note {
+		margin-top: auto;
+		font-size: 0.75rem;
+		font-style: italic;
+		color: var(--muted);
+	}
+	/* Sideways bar chart, phones only */
+	.hbars {
+		display: none;
+		border: 1px solid var(--border);
+		border-radius: 10px;
+		padding: 0.4rem 0.5rem;
+		background: #fcfcfd;
+	}
+	.hbar-row {
+		display: block;
+		width: 100%;
+		font: inherit;
+		color: inherit;
+		text-align: left;
+		background: none;
+		border: none;
+		border-radius: 6px;
+		padding: 0.4rem 0.3rem;
+		cursor: pointer;
+	}
+	.hbar-row.selected {
+		background: #eff4fb;
+	}
+	.hbar-name {
+		display: block;
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: #374151;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin-bottom: 0.2rem;
+	}
+	.hbar-track {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+	.hbar {
+		display: block;
+		flex: 0 0 auto;
+		height: 12px;
+		max-width: calc(100% - 3rem);
+		border-radius: 0 6px 6px 0;
+	}
+	.hbar-num {
+		font-size: 0.78rem;
+		font-weight: 800;
+		font-variant-numeric: tabular-nums;
+	}
+	@media (max-width: 640px) {
+		.bars-wrap {
+			display: none;
+		}
+		.hbars {
+			display: block;
+		}
+		.model-name {
+			display: inline-block;
+			max-width: 42vw;
+			vertical-align: bottom;
+		}
+		.index-cell {
+			min-width: 0;
+		}
+		.index-bar {
+			display: none;
+		}
+		.model .pill {
+			display: none;
+		}
+		.desk-only {
+			display: none;
+		}
+		.mob-only {
+			display: inline;
+		}
+	}
+	.mob-only {
+		display: none;
 	}
 </style>
