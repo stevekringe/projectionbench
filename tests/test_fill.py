@@ -300,3 +300,12 @@ def test_next_request_matches_runner_history():
     for k, r in enumerate(results):
         _, _, history = fill.next_request(B07, replies[:k])
         assert history == r.messages
+
+
+def test_gone_model_is_fatal():
+    # NVIDIA retired deepseek-v4-pro-0813 and answered 410 all day; as a
+    # "transient" error it kept the whole fill asleep between retries.
+    from projectionbench.fill import classify
+    assert classify("APIStatusError: Error code: 410")[0] == "fatal"
+    assert classify("APIStatusError 410: Error code: 410")[0] == "fatal"
+

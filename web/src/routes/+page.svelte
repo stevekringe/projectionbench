@@ -109,9 +109,26 @@
 		return vs.find((v) => judgedCount(judgeFor(family, v)) >= best) ?? maxVersion(family);
 	}
 
-	let judgeFamily = $state(families[0]);
+	// Default judge family: the LLM judge whose default version has judged the
+	// most probes (same rule as `projectionbench report`), so switching to a
+	// new judge model doesn't put its first handful of verdicts on the front
+	// page. Lexicon only when no LLM judge has any.
+	const defaultFamily = (() => {
+		const llm = families.filter((f) => f !== 'lexicon');
+		let best = families[families.length - 1];
+		let bestN = 0;
+		for (const f of llm) {
+			const n = judgedCount(judgeFor(f, defaultVersion(f)));
+			if (n > bestN) {
+				best = f;
+				bestN = n;
+			}
+		}
+		return best;
+	})();
+	let judgeFamily = $state(defaultFamily);
 	let judgeVersion = $state<number | null>(
-		families[0] === 'lexicon' ? null : defaultVersion(families[0])
+		defaultFamily === 'lexicon' ? null : defaultVersion(defaultFamily)
 	);
 	let judge = $derived(judgeFor(judgeFamily, judgeVersion));
 	let query = $state('');
