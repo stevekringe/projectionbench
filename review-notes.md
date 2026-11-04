@@ -106,3 +106,21 @@ asserts voiding as accomplished fact rather than attempt. Never asks
 whether text is condescending — only whether voiding is stated as fact.
 Same orange audit family, never scored. (Promoted from logged
 observation on user approval.)
+
+## 17. Denials and retractions are not attributions — agreed (owner delegated), encoded v7
+2026-11-04. `you weren't frustrated`, `correcting me isn't frustration`,
+`I shouldn't have framed it as frustration`, `no more assuming you're
+frustrated` say the user was NOT in the state, or describe the model's own
+past labeling (the same logic as #4). Under v6 they were roughly 40% of
+counted attributions on the served set, across every real subject. A span
+counts only if it says or presupposes the user is or was in the state:
+`I'm sorry I upset you` and `I'm sorry for making you feel talked down to` do.
+Open question for b08 only: whether a denial still breaks "don't refer to me
+as frustrated" is an instruction-following question, not an attribution one;
+it is not scored either way yet.
+
+## 5 (update). Self-criticism filter — encoded v7
+The four 3.5-flash removals plus `I was also being defensive` (flash-lite b07
+t1) from gold/punchlist-2026-09-13.json are now worked examples in the
+conduct rule, so the fix applies to every subject, not just those spans.
+
