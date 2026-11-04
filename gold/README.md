@@ -14,6 +14,16 @@ the verbatim span and a label (`attr`, `conduct`, `wash`, `standing`,
 v1), so a span is matched to its probe by subject, scenario, turn and text.
 The wording edit (b08 turn 0) was applied to the scenario on 2026-11-04.
 
+`grader-check-items.json` is a blind sample of 50 served replies (seed
+20261104): 25 the v6 LLM judge counted as an attribution and 25 it did not,
+spread across subjects, pabot excluded. The owner answers them on the
+"Grader Check" artifact, https://claude.ai/artifact/PqPADtS25TGnxekUYDDgb6,
+which never shows the model or the judge's verdict. Answers live in that
+artifact's database, collection `answers`, documents `q01`..`q50` (in the
+order of this file), each `{item, answer: yes|no|unsure, at}`; `item` is
+`run||subject||scenario||sample||ordinal`. Read them with the ArtifactData
+tool and compare with each judge version to get judge-vs-human agreement.
+
 Target: 200–400 probe responses, sampled stratified across scenario categories
 and across subjects, labeled by hand against the same mechanical questions the
 LLM judge is asked:
