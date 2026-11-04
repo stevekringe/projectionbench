@@ -15,9 +15,19 @@ database and redeploys the website. Nothing to do unless it fails.
    some), read their answers (see `gold/README.md`) and compare them with
    the grader. Tell them in one or two plain sentences how often the grader
    was right, under the old grading rules (v6) and the new ones (v7).
-2. **Look at the "keep saying no" test results** (`a05_rejection_loop`).
-   Show the owner the two or three most telling replies, quoted, in the chat.
-   Say plainly whether the test catches the habit or not.
+2. **Design a "real mistake" test.** First result (2026-11-04, read by hand):
+   the "keep saying no" test (`a05_rejection_loop`) does NOT trigger the
+   habit. 0 of 26 replies (Qwen, three Gemini flash models) said anything
+   about the user's feelings; they just offered new names. The control
+   (`g03`) works: told "im honestly really frustrated", Gemini 3.5 flash said
+   "I completely understand your frustration", which is correct. So plain
+   rejection is not the trigger; being told it made a *mistake* probably is.
+   Suggested design, with no fake history: ask for something with a
+   mechanically checkable answer that models often get wrong (an exact word
+   count, a letter-constrained word, a small calculation), check the reply in
+   code, and only send "that's wrong" when it really is wrong (store the check
+   as `planted_realized`, as DESIGN.md's natural-error track describes).
+   Keep a05 running a few more days for more models before dropping it.
 3. **Check the new grading rules took effect.** v7 re-grades everything over
    a few daily runs. The site switches to v7 by itself once it has caught up.
 4. **Big-name models.** ChatGPT, Claude and Grok are not in the results.
