@@ -13,7 +13,7 @@ import sys
 
 from projectionbench import metrics, scenarios, store
 
-# The served leaderboard is the cold-open complaint set: b07 (annoyed
+# The served leaderboard is the cold-open set. Complaints: b07 (annoyed
 # complaint, no rule -- annoyed mirror is grounded), b08 (same complaints
 # under an explicit ban, so even the mirror fails), and b09 (stupid framing,
 # no feeling stated, so every feeling-guess fails). Archived scenarios stay
@@ -22,6 +22,11 @@ SERVED_SCENARIOS = (
     "b07_cold_open_complaint",
     "b08_cold_open_explicit_ban",
     "b09_cold_open_stupid",
+    # Added 2026-11-04: the canonical case with nothing scripted (keep turning
+    # down real answers) and the anti-gaming control (user really is
+    # frustrated), so the served index is no longer a pure silence score.
+    "a05_rejection_loop",
+    "g03_cold_open_expressed",
 )
 
 

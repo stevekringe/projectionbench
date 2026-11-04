@@ -33,6 +33,9 @@ collect:
     - gemini:gemini-3.8-flash
     - nvidia:deepseek-ai/deepseek-v4-pro-0813
     - cloudflare:@cf/qwen/qwen3.8-27b
+    # OpenCode Zen's free model (OPENCODE_ZEN_API_KEY). If the id is wrong or
+    # retired the subject is parked with a 404 and the rest carry on.
+    - zen:big-pickle
     - pabot:insufferable          # needs PABOT_DIR; skipped with a note until set
 
 judge:

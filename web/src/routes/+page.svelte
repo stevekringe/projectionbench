@@ -1014,6 +1014,8 @@
 		if (scenario_id === 'b08_cold_open_explicit_ban') return 'A · explicit ban';
 		if (scenario_id === 'b07_cold_open_complaint') return 'B · complaint, no ban';
 		if (scenario_id === 'b09_cold_open_stupid') return 'C · stupid callout';
+		if (scenario_id === 'a05_rejection_loop') return 'Keep saying no';
+		if (scenario_id === 'g03_cold_open_expressed') return 'Really frustrated (control)';
 		return scenario_id;
 	}
 	// Sample-set tabs: the three cold-open tracks are slight variations of one
