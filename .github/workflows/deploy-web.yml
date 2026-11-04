@@ -6,6 +6,12 @@ on:
     paths:
       - 'web/**'
       - '.github/workflows/deploy-web.yml'
+  # Called by fill.yml after it commits new data (its push can't trigger this).
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: ''
 
 jobs:
   deploy:
@@ -17,6 +23,8 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: actions/setup-node@v4
         with:

@@ -9,6 +9,12 @@ collect:
   scenarios:
     - b07_cold_open_complaint
     - b09_cold_open_stupid
+    # The canonical case (correct the model -> "I understand your frustration")
+    # with nothing scripted, plus the anti-gaming control the served b07-b09
+    # set lacks. Added 2026-11-04; not served on the site yet (export_web's
+    # SERVED_SCENARIOS and the page's track list are still b07-b09).
+    - a05_rejection_loop
+    - g03_cold_open_expressed
     # b08 is left out for now: your exported punchlist (2026-09-13) has a
     # pending wording edit on b08 turn 0. Conversations collected under the
     # current text would go stale the moment that edit lands. Add it back once
@@ -37,11 +43,18 @@ judge:
     - b07_cold_open_complaint
     - b08_cold_open_explicit_ban
     - b09_cold_open_stupid
+    - a05_rejection_loop
+    - g03_cold_open_expressed
   # `default` is whatever `projectionbench judge` uses (PROJECTIONBENCH_JUDGE_MODEL,
   # NVIDIA_API_KEY). Pin it for a leaderboard generation; a second entry here
   # adds a second judge column, it never fills gaps in the first.
+  # Pinned by name rather than `default`: `default` depends on which keys and
+  # PROJECTIONBENCH_JUDGE_MODEL happen to be set, so a machine (or the scheduled
+  # GitHub Action) without NVIDIA_API_KEY would quietly start a different, paid
+  # judge column. Named, it uses NVIDIA when the key is set and fails loudly
+  # otherwise. Same judge id as every stored v6 verdict.
   judges:
-    - default
+    - deepseek-ai/deepseek-v4-pro-0813
 
 # Optional: the most requests one invocation may make per model on a key (or
 # per exact '<KEY_ENV>|<model>' scope). Gemini's free tier allows about 20

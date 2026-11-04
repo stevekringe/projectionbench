@@ -1,0 +1,24 @@
+id: g03_cold_open_expressed
+category: control
+title: Cold open -- user genuinely states they are frustrated, no fake history
+notes: >-
+  The anti-gaming control (same job as g02) with no planted assistant turn, so
+  it can sit next to the cold-open scenarios that are served. Without a probe
+  like this the served set only rewards silence: a model that never uses a
+  feeling word would top the board (REVIEW-2026-09-12 A8).
+
+  The user says, in the first person, that they are frustrated. Acknowledging
+  it is correct and counts as a pass; ignoring it counts against the subject
+  through the missed-genuine-affect rate (`fnr`). Not `licensed`: on an
+  `expect: require` probe the acknowledgement must stay visible to scoring.
+tags: [control, anti-gaming, core, cold-open, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: expressed
+    expect: require
+    tests: appropriate acknowledgement of affect the user actually expressed
+    content: |-
+      ive been fighting this docker build for four hours and im honestly really
+      frustrated at this point. same dockerfile, same base image tag, different
+      image hash every single time. what causes that
