@@ -1,0 +1,123 @@
+name: Fill (daily data collection)
+
+# Runs `projectionbench fill` once a day, shortly after the free tiers reset,
+# commits whatever it collected, and redeploys the site. It is the same
+# command you run by hand: fill.yaml says what is wanted, the database says
+# what exists, and cooldowns stored in the database keep it from hammering a
+# key that hit its daily limit yesterday.
+#
+# One-time setup (see README, "Automatic daily fill"):
+#   1. Commit your local results/projectionbench.sqlite. This job refuses to
+#      start without it rather than spend free quota re-collecting data that
+#      already exists on your laptop.
+#   2. Add the keys you have as repository secrets (Settings -> Secrets and
+#      variables -> Actions). Any that are missing just skip their subjects.
+#   3. Merge to main. GitHub only runs scheduled workflows on the default branch.
+#
+# While this is on, the copy of the database in git is the real one: `git pull`
+# before running anything locally, and commit the database afterwards.
+
+on:
+  schedule:
+    # Google resets free-tier daily quotas at midnight Pacific (07:00 UTC in
+    # winter, 08:00 UTC in summer); 08:17 UTC is after both.
+    - cron: '17 8 * * *'
+  workflow_dispatch:
+    inputs:
+      hours:
+        description: Stop after this many hours (it also stops as soon as everything left is resting past that)
+        default: '2'
+
+# Never two fills at once: both would commit the same binary file.
+concurrency:
+  group: fill
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  fill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    outputs:
+      pushed: ${{ steps.commit.outputs.pushed }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require the committed database
+        run: |
+          if [ ! -f results/projectionbench.sqlite ]; then
+            echo "::error::results/projectionbench.sqlite is not in the repo. Commit your local copy first (git add -f results/projectionbench.sqlite) so this job continues from it instead of re-collecting everything."
+            exit 1
+          fi
+
+      - uses: astral-sh/setup-uv@v5
+      - run: uv venv && uv pip install -e .
+
+      - name: Fill
+        env:
+          HOURS: ${{ inputs.hours || '2' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENCODE_ZEN_API_KEY: ${{ secrets.OPENCODE_ZEN_API_KEY }}
+          # The site deploy already uses CLOUDFLARE_API_TOKEN for wrangler. A
+          # separate Workers AI token can go in CF_AI_API_TOKEN; otherwise the
+          # deploy token is tried.
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_AI_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: .venv/bin/projectionbench fill --watch --hours "$HOURS"
+
+      - name: Status to job summary
+        if: always()
+        run: |
+          {
+            echo '```'
+            cat results/fill-status.txt 2>/dev/null || echo "no status written"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Kept even if the commit below fails (e.g. a conflict on the database
+      # because it was also committed by hand meanwhile), so nothing collected
+      # is lost. Download it from the run page and commit it yourself.
+      - name: Keep the database as an artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: projectionbench-db-${{ github.run_id }}
+          path: |
+            results/projectionbench.sqlite
+            results/fill-status.txt
+          retention-days: 14
+
+      - name: Commit new data
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f results/projectionbench.sqlite results/fill-status.txt web/src/lib/data.json
+          if git diff --cached --quiet; then
+            echo "nothing new"
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -q -m "fill: $(date -u +%Y-%m-%d) data" -m "$(grep -m1 'request(s) succeeded' results/fill-status.txt || true)"
+          git pull -q --rebase origin "${GITHUB_REF_NAME}"
+          git push -q origin "HEAD:${GITHUB_REF_NAME}"
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  # A push made with the workflow's own token does not trigger other
+  # workflows, so the site deploy is called directly.
+  deploy:
+    needs: fill
+    if: needs.fill.outputs.pushed == 'true'
+    uses: ./.github/workflows/deploy-web.yml
+    with:
+      ref: ${{ needs.fill.outputs.sha }}
+    secrets: inherit

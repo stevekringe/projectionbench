@@ -3,8 +3,9 @@ __pycache__/
 *.pyc
 .env
 results/*.sqlite
+# The live database and fill status are committed by the daily fill workflow.
+!results/projectionbench.sqlite
 results/*.csv
 results/*.png
 results/fill-*.log
-results/fill-status.txt
 .DS_Store

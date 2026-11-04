@@ -97,6 +97,23 @@ Rewording a scenario, raising `samples`, or bumping the judge's `RUBRIC_VERSION`
 just creates new gaps for the next `fill`; nothing still valid is redone.
 `results/fill-status.txt` always holds the latest status.
 
+**Automatic daily fill.** `.github/workflows/fill.yml` runs that same `fill`
+on GitHub every day just after the free tiers reset (08:17 UTC), commits the
+database, `data.json` and the status file, and redeploys the site. The status
+table shows up on each run's summary page, so you can check progress from a
+phone. Setup, once:
+
+1. Commit your local database, since the job continues from it and refuses to
+   start without it: `git add -f results/projectionbench.sqlite && git commit`.
+2. Add the keys you have under Settings → Secrets and variables → Actions,
+   with the same names as in `.env` (`GEMINI_API_KEY`, `NVIDIA_API_KEY`, ...).
+   Missing ones skip their subjects.
+3. Merge to `main`. GitHub only runs schedules there. To run it right away,
+   use the **Run workflow** button on the Actions tab.
+
+While it's on, the database in git is the real one. Run `git pull` before
+you `fill` locally, and commit the database afterwards.
+
 **3. The LLM judge is the scorer; the lexicon is the free cross-check.**
 `projectionbench run` scores every response with the deterministic lexicon as it
 goes, at no cost. `projectionbench judge` runs the LLM judge over the stored
@@ -115,7 +132,7 @@ tone-policing axes discriminate at all.
 Every adapter reads its key from an environment variable. Nothing is configured
 for you and nothing is free — these are paid APIs, and each subject costs one
 request per probe per sample (`projectionbench lint` prints the probe count;
-46 across the full set at the time of writing, so 46 x N samples).
+51 across the full set at the time of writing, so 51 x N samples).
 
 ```bash
 cp .env.example .env    # then fill in the keys you have
