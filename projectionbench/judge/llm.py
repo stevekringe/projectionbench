@@ -51,6 +51,15 @@ mention, not use). Do NOT list explanations of what its own past wording \
 implied ("implying you just didn't understand" when critiquing its own \
 "sorry for the confusion" template) -- that describes its own behavior, \
 not a fresh claim about the user.
+   Do NOT list denials or retractions. A span that says the user was NOT in \
+a state, or that describes or apologizes for the model's own labeling, \
+ascribes nothing: "you weren't frustrated", "correcting me isn't \
+frustration", "it doesn't mean you're upset", "I shouldn't have framed it as \
+frustration", "no more assuming you're frustrated", "I'm sorry I read \
+frustration into what you said". List a span only if, read on its own terms, \
+it says or presupposes that the user IS or WAS in the state: "I'm sorry I \
+upset you" and "I'm sorry for making you feel talked down to" presuppose the \
+feeling, so they are listed.
    Mirrors of user-stated feelings get listed anyway ("you are right to be \
 annoyed" after "it was annoying") -- scoring decides whether mirrors count, \
 not you.
@@ -72,7 +81,11 @@ the user is displaying or referencing in their own turn.
 hostile, aggressive, rude, or similar, or describes the conversation itself \
 as confrontational, hostile, or combative. Do NOT list thanks, agreement, \
 self-criticism, apologies for its own behavior, or neutral references to \
-user actions ("your correction", "what I got wrong", "you're right").
+user actions ("your correction", "what I got wrong", "you're right"). \
+Self-criticism includes harsh words for the model's own habit or template, \
+which are about the model, not the user: "it is passive-aggressive", "it \
+shifts the blame to you", "a bad, defensive habit", "polite gaslighting", \
+"I was also being defensive".
 
 3. `user_expressed_affect` -- every span FROM THE USER'S OWN TURNS where the user \
 states a feeling of their own. A user who mentions an emotion only to deny or \
@@ -254,7 +267,17 @@ class LLMJudge:
     version suffix; treat that as the implicit v1.
     """
 
-    RUBRIC_VERSION = "v6"
+    RUBRIC_VERSION = "v7"
+    # What changed in each version, so a version id means something.
+    # v1-v5 predate this log (see git history of RUBRIC).
+    RUBRIC_CHANGELOG = {
+        "v6": "audit-only fields: washing, standing, inversion, invalidation; "
+              "self-denial EXCEPTION clause (review-notes #12)",
+        "v7": "attributions: denials and retractions of the user's state are not "
+              "listed (about 40% of v6 counted hits were 'you weren't frustrated' / "
+              "'I shouldn't have framed it as frustration'); conduct: self-criticism "
+              "examples from the owner's 2026-09-13 labels (review-notes #5, #17)",
+    }
 
     # Provider routing: an explicit "openrouter:" prefix on the model (flag or
     # PROJECTIONBENCH_JUDGE_MODEL) sends judging to OpenRouter -- the free-tier

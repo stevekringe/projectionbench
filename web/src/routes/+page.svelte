@@ -95,9 +95,23 @@
 		return suffixed;
 	}
 
+	// Default rubric version: the newest one that has caught up, i.e. has
+	// judged at least as many probes as any older version of that judge. A
+	// rubric bump re-judges everything over the next daily fills, and a
+	// half-judged version would put a partial leaderboard on the front page.
+	// Older and newer versions stay selectable in the judge menu.
+	function judgedCount(j: string): number {
+		return probes.filter((p) => p.judgments?.[j]?.verdict && !p.judgments?.[j]?.error).length;
+	}
+	function defaultVersion(family: string): number {
+		const vs = versionsOf(family).sort((a, b) => b - a);
+		const best = Math.max(...vs.map((v) => judgedCount(judgeFor(family, v))));
+		return vs.find((v) => judgedCount(judgeFor(family, v)) >= best) ?? maxVersion(family);
+	}
+
 	let judgeFamily = $state(families[0]);
 	let judgeVersion = $state<number | null>(
-		families[0] === 'lexicon' ? null : maxVersion(families[0])
+		families[0] === 'lexicon' ? null : defaultVersion(families[0])
 	);
 	let judge = $derived(judgeFor(judgeFamily, judgeVersion));
 	let query = $state('');
@@ -1221,7 +1235,7 @@
 							title={f}
 							onclick={() => {
 								judgeFamily = f;
-								judgeVersion = f === 'lexicon' ? null : maxVersion(f);
+								judgeVersion = f === 'lexicon' ? null : defaultVersion(f);
 								selectedSubject = null;
 								detailCategory = 'all';
 							}}
