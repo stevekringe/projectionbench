@@ -46,7 +46,12 @@ Expectation = Literal["forbid", "permit", "require"]
 @dataclass
 class Turn:
     role: Literal["user", "assistant"]
-    content: str
+    content: str = ""
+    # Real-mistake track: a user turn whose text is built at run time from the
+    # scenario's checker verdict on the model's previous reply, e.g.
+    # "thats wrong, {detail}" -> "thats wrong, it has 14 words". Only sent when
+    # that reply really was wrong (see Scenario.finished).
+    correction: str | None = None
     planted: bool = False
     probe: bool = False
     user_affect: UserAffect = "none"
@@ -82,6 +87,31 @@ class Scenario:
     system: str | None = None
     notes: str = ""
     tags: list[str] = field(default_factory=list)
+    # Real-mistake track: a checks.py spec ("exact_words:12") that grades the
+    # model's replies. Required when any turn has a `correction`.
+    check: str | None = None
+
+    def verdict(self, reply: str):
+        from projectionbench import checks
+        return checks.build(self.check)(reply)
+
+    def finished(self, replies: list[str]) -> bool:
+        """True when the conversation is over before its last probe: the next
+        turn is a correction and the reply it would correct was right (or
+        unreadable). Recomputed from the stored replies, so nothing extra has
+        to be stored to know a short conversation is complete."""
+        if len(replies) >= len(self.probes):
+            return True
+        if not replies:
+            return False
+        nxt = self.probes[len(replies)][1]
+        return nxt.correction is not None and self.verdict(replies[-1]).correct is not False
+
+    def user_text(self, turn: Turn, replies: list[str]) -> str:
+        """What the user actually sends at `turn`, given the replies so far."""
+        if turn.correction is None:
+            return turn.content
+        return turn.correction.format(detail=self.verdict(replies[-1]).detail)
 
     @property
     def probes(self) -> list[tuple[int, Turn]]:
@@ -92,10 +122,16 @@ class Scenario:
         """Short digest of what the model is actually sent -- system prompt and
         every turn's role and text. Stored on each probe row so results made from
         different wordings of the same scenario id are never silently pooled."""
-        payload = json.dumps(
-            {"system": self.system, "turns": [(t.role, t.content) for t in self.turns]},
-            ensure_ascii=False,
-        )
+        body: dict = {
+            "system": self.system,
+            "turns": [(t.role, t.content) if t.correction is None
+                      else (t.role, t.content, t.correction) for t in self.turns],
+        }
+        # Only real-mistake scenarios carry a check, so every older scenario
+        # keeps the hash its stored rows already have.
+        if self.check is not None:
+            body["check"] = self.check
+        payload = json.dumps(body, ensure_ascii=False)
         return hashlib.sha1(payload.encode()).hexdigest()[:10]
 
     def probe_by_ordinal(self, ordinal: int) -> Turn | None:
@@ -139,6 +175,31 @@ def _validate(s: Scenario) -> None:
                 "between them. Merge them, or mark the earlier one `probe: true`."
             )
         prev_role, prev_probe = t.role, t.probe
+
+    if s.check is not None:
+        from projectionbench import checks
+        try:
+            checks.build(s.check)
+        except ValueError as e:
+            raise ScenarioError(f"{s.id}: {e}") from e
+    for i, t in enumerate(s.turns):
+        if t.correction is None:
+            if not t.content.strip():
+                raise ScenarioError(f"{s.id}: turn {i} has no content")
+            continue
+        if t.content:
+            raise ScenarioError(f"{s.id}: turn {i}: give `content` or `correction`, not both")
+        if s.check is None:
+            raise ScenarioError(f"{s.id}: turn {i} has a `correction` but the scenario has no `check`")
+        if t.role != "user" or not t.probe:
+            raise ScenarioError(f"{s.id}: turn {i}: a `correction` must be a user probe turn")
+        if i == 0 or not s.turns[i - 1].probe:
+            raise ScenarioError(
+                f"{s.id}: turn {i}: a `correction` must follow a probe -- it corrects "
+                "the model's real reply, so there has to be one"
+            )
+        if "{detail}" not in t.correction:
+            raise ScenarioError(f"{s.id}: turn {i}: `correction` needs a {{detail}} slot")
 
     if s.turns[0].role != "user":
         raise ScenarioError(f"{s.id}: conversation must open with a user turn")

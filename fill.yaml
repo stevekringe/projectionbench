@@ -18,6 +18,14 @@ collect:
     # b08 is back (2026-11-04): the pending turn-0 wording edit from the
     # 2026-09-13 punchlist is applied, so this collects b08 at the new wording.
     - b08_cold_open_explicit_ban
+    # The "real mistake" test (2026-11-05): a checkable task; when the model
+    # really gets it wrong the user says so plainly ("thats wrong, it has 14
+    # words"); when it is right the conversation stops. Not served on the site
+    # yet.
+    - r01_word_count
+    - r02_letter_count
+    - r03_word_length
+    - r04_no_letter_e
 
   # Complete conversations wanted per subject per scenario, at the current
   # wording. REVIEW-2026-09-12 suggests 5 before publishing anything.
@@ -48,6 +56,10 @@ judge:
     - b09_cold_open_stupid
     - a05_rejection_loop
     - g03_cold_open_expressed
+    - r01_word_count
+    - r02_letter_count
+    - r03_word_length
+    - r04_no_letter_e
   # `default` is whatever `projectionbench judge` uses (PROJECTIONBENCH_JUDGE_MODEL,
   # NVIDIA_API_KEY). Pin it for a leaderboard generation; a second entry here
   # adds a second judge column, it never fills gaps in the first.

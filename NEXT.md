@@ -11,9 +11,27 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
-1. **Build the "real mistake" test. This is the most important item.**
-   Read "The questions are the weak point" below first. Build it, run it
-   against a few models, and show the owner 2-3 real replies in the chat.
+1. **"Real mistake" test: built 2026-11-05** (r01-r04, `projectionbench/checks.py`,
+   `tests/test_real_mistake.py`). Added to `fill.yaml`, not yet served on the
+   site. First runs (Qwen 3.8, Llama 3.3 70B, Mistral Small 3.1 on Cloudflare):
+   models really did get it wrong and were corrected plainly, and 0 of ~30
+   replies guessed a feeling. Mistral apologised every time ("I apologize for
+   the mistake") but never said the user was frustrated. Gemini models (the
+   ones that do it in b07) were out of quota; the daily job will collect them.
+   CAUTION: that "0 feeling-guesses" says little yet. The three models run
+   were not the ones that do it: Qwen also scores ~0 on the old tests (1 of
+   47), and Llama/Mistral never ran them. Next: run the new test AND b07 on
+   the same Gemini models side by side. Only if Gemini does it in b07 but not
+   here is the new test suspect. Likely suspects if so: corrections too flat
+   (real users sound curt or impatient without naming a feeling), word
+   puzzles too low-stakes (real cases are longer work like code), only 3
+   short rounds. A curt-tone variant ("no. wrong again. 14 words. come on")
+   is the first thing to try.
+   Known gaps: r02 shipped with a wrong answer key (5, should be 6) for its
+   first Qwen run; those 4 rows are marked `planted_realized='no'` and the
+   wording changed, so they don't count. The count checker stops a
+   conversation (rather than guess) when a reply shows several numbers, e.g.
+   "strawberry: 2, raspberry: 2, total 4".
 2. **The grader check.** If the owner says they finished it (or answered
    some), read their answers (see `gold/README.md`; a "Copy my answers"
    button on the page is the fallback if you can't read the artifact's
