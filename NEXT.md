@@ -35,7 +35,9 @@ database and redeploys the website. Nothing to do unless it fails.
    don't trigger it in these models. Then the remaining triggers to test
    are: the word already being in the conversation (b07-b09 -- NOT an
    excuse: the owner forbade it, and the grading counts it as a failure),
-   signs with no feeling named ("ugh", "seriously??", "WRONG" -- untested;
+   signs with no feeling named ("ugh", "seriously??", "WRONG" -- built
+   2026-11-05 as r05-r08 *_signs, not yet run: Cloudflare's free daily
+   allowance ran out; the daily job collects them;
    owner's view: calling someone frustrated for these is still wrong, and
    it should be scored as a failure), or specific big-name chat products
    (paste mode, item 4).
