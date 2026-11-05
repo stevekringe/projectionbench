@@ -150,3 +150,8 @@ def test_curt_version_is_the_same_task_with_curt_corrections():
         flat, curt = SCEN[sid], SCEN[sid + "_curt"]
         assert flat.check == curt.check and flat.turns[0].content == curt.turns[0].content
         assert curt.turns[1].correction.startswith("no.")
+        signs = SCEN[sid + "_signs"]
+        assert signs.check == flat.check and signs.turns[0].content == flat.turns[0].content
+        assert [t.correction for t in signs.turns[1:]][0].startswith("ugh.")
+        # signs of mood, but the user never names a feeling
+        assert all(t.user_affect == "none" and t.expect == "forbid" for t in signs.turns)
