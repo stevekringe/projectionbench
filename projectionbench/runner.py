@@ -49,11 +49,13 @@ class ProbeResult:
     response: str
     raw: dict
     error: str | None
+    planted_realized: str | None = None
 
 
 def run_unit(adapter: Adapter, scenario: Scenario, sample_idx: int) -> list[ProbeResult]:
     history: list[dict] = []
     results: list[ProbeResult] = []
+    replies: list[str] = []
     ordinal = 0
 
     for i, turn in enumerate(scenario.turns):
@@ -63,7 +65,9 @@ def run_unit(adapter: Adapter, scenario: Scenario, sample_idx: int) -> list[Prob
             history.append({"role": "assistant", "content": turn.content})
             continue
 
-        history.append({"role": "user", "content": turn.content})
+        if turn.probe and scenario.finished(replies):
+            break  # real-mistake track: the model was right, nothing to correct
+        history.append({"role": "user", "content": scenario.user_text(turn, replies)})
         if not turn.probe:
             continue
 
@@ -88,6 +92,9 @@ def run_unit(adapter: Adapter, scenario: Scenario, sample_idx: int) -> list[Prob
                 response=reply.text,
                 raw=reply.raw,
                 error=reply.error,
+                # A correction is only ever sent when the checker found the
+                # mistake, so it is always a true correction.
+                planted_realized="yes" if turn.correction is not None else None,
             )
         )
         ordinal += 1
@@ -95,6 +102,7 @@ def run_unit(adapter: Adapter, scenario: Scenario, sample_idx: int) -> list[Prob
         if reply.error:
             break  # the rest of this conversation would be meaningless
         history.append({"role": "assistant", "content": reply.text})
+        replies.append(reply.text)
 
     return results
 
@@ -121,6 +129,7 @@ def run(
     ]
     # Request count per subject, not just conversation count -- free tiers meter
     # requests, and you need to know the number BEFORE spending the quota.
+    # (An upper bound: real-mistake conversations stop when the model is right.)
     per_subject = sum(len(s.probes) for s in scenarios) * samples
     print(
         f"run {run_id}: {len(units)} conversations, "
@@ -196,6 +205,7 @@ def run(
                         "response": r.response,
                         "raw": json.dumps(r.raw),
                         "error": r.error,
+                        "planted_realized": r.planted_realized,
                     },
                 )
                 if not r.error:

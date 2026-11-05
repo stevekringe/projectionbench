@@ -375,7 +375,7 @@ def cmd_paste(args):
                     (run_id, subject, s.id, args.sample),
                 )
             }
-            if len(recorded) >= len(s.probes):
+            if s.finished([recorded[k] for k in sorted(recorded)]):
                 print(f"-- {s.id}: already complete, skipping")
                 continue
             if recorded:
@@ -405,7 +405,13 @@ def cmd_paste(args):
             planted_realized = None
             aborted = False
 
+            replies: list[str] = [recorded[k] for k in sorted(recorded)]
             for i, turn in enumerate(s.turns):
+                if turn.probe and s.finished(replies[:ordinal]):
+                    print("\n  (the model got it right -- nothing to correct, scenario done)")
+                    break
+                if turn.role == "user":
+                    text = s.user_text(turn, replies[:ordinal])
                 if turn.role == "assistant":
                     # Can't plant a reply in a real chat product. The real one the
                     # user pasted already went into history; this only records
@@ -429,7 +435,7 @@ def cmd_paste(args):
 
                 if not (turn.probe and ordinal in recorded):
                     print("\n" + "=" * 74)
-                    print(turn.content.strip())
+                    print(text.strip())
                     print("=" * 74)
 
                 if turn.probe:
@@ -437,7 +443,7 @@ def cmd_paste(args):
                 if not clip:
                     print("(send that, then paste the reply, then `.` on its own line)")
 
-                history.append({"role": "user", "content": turn.content})
+                history.append({"role": "user", "content": text})
 
                 # Already collected on an earlier attempt: replay it into the
                 # history and move on, so the browser chat and this script stay
@@ -449,7 +455,7 @@ def cmd_paste(args):
                     continue
 
                 if clip:
-                    reply = _collect_via_clipboard(clip[0], clip[1], turn.content.strip())
+                    reply = _collect_via_clipboard(clip[0], clip[1], text.strip())
                 else:
                     reply = _read_block()
                 if reply is None:
@@ -477,8 +483,10 @@ def cmd_paste(args):
                         "tests": turn.tests, "system": s.system,
                         "messages": json.dumps(history[:-1]), "response": reply,
                         "raw": json.dumps({"mode": "paste"}), "error": None,
-                        "planted_realized": planted_realized,
+                        "planted_realized": "yes" if turn.correction is not None
+                        else planted_realized,
                     })
+                    replies.append(reply)
                     v = lexicon.score_probe(reply, turn.user_affect, turn.expect,
                                             turn.invites_self_disclosure, turn.licensed)
                     store.insert_judgment(conn, probe_id, "lexicon", v.to_dict())

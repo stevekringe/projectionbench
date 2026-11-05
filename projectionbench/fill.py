@@ -198,7 +198,7 @@ def next_request(scenario: Scenario, replies: list[str]) -> tuple[int, object, l
     history: list[dict] = []
     ordinal = 0
     for i, turn in enumerate(scenario.turns):
-        history.append({"role": turn.role, "content": turn.content})
+        history.append({"role": turn.role, "content": scenario.user_text(turn, replies[:ordinal])})
         if turn.role == "assistant" or not turn.probe:
             continue
         if ordinal == len(replies):
@@ -231,7 +231,9 @@ def _conversations(conn, subject: str, scenario: Scenario, now: datetime):
             continue
         if any(r["scenario_hash"] != scenario.content_hash for r in g):
             continue
-        if len(g) == n:
+        if len(g) == n or scenario.finished([r["response"] for r in g]):
+            # Real-mistake track: a conversation that stopped because the
+            # model was right is complete too.
             complete += 1
             continue
         if now - datetime.fromisoformat(g[0]["started_at"]) > RESUME_WINDOW:
@@ -436,6 +438,7 @@ def _collect(conn, t: Task, new_run: Callable[[], str]) -> str | None:
         "scenario_hash": s.content_hash, "tests": turn.tests, "system": s.system,
         "messages": json.dumps(history), "response": reply.text,
         "raw": json.dumps(reply.raw), "error": None,
+        "planted_realized": "yes" if turn.correction is not None else None,
     })
     v = lexicon.score_probe(reply.text, turn.user_affect, turn.expect,
                             turn.invites_self_disclosure, list(turn.licensed))
