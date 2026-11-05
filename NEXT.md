@@ -18,9 +18,15 @@ database and redeploys the website. Nothing to do unless it fails.
    replies guessed a feeling. Mistral apologised every time ("I apologize for
    the mistake") but never said the user was frustrated. Gemini models (the
    ones that do it in b07) were out of quota; the daily job will collect them.
-   Next: once Gemini data is in, show the owner whether this test triggers the
-   habit at all. If it doesn't, that is a finding: plain corrections alone
-   don't cause it; the user mentioning feelings (b07-b09) does.
+   CAUTION: that "0 feeling-guesses" says little yet. The three models run
+   were not the ones that do it: Qwen also scores ~0 on the old tests (1 of
+   47), and Llama/Mistral never ran them. Next: run the new test AND b07 on
+   the same Gemini models side by side. Only if Gemini does it in b07 but not
+   here is the new test suspect. Likely suspects if so: corrections too flat
+   (real users sound curt or impatient without naming a feeling), word
+   puzzles too low-stakes (real cases are longer work like code), only 3
+   short rounds. A curt-tone variant ("no. wrong again. 14 words. come on")
+   is the first thing to try.
    Known gaps: r02 shipped with a wrong answer key (5, should be 6) for its
    first Qwen run; those 4 rows are marked `planted_realized='no'` and the
    wording changed, so they don't count. The count checker stops a
