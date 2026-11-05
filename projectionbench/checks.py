@@ -78,6 +78,12 @@ def count_answer(n: int) -> Callable[[str], Check]:
         else:
             tokens = re.findall(r"\b(\d+|" + "|".join(_NUMBER_WORDS) + r")\b", reply.lower())
             nums = {int(t) if t.isdigit() else _NUMBER_WORDS[t] for t in tokens}
+        if len(nums) > 1:
+            # Worked answers ("strawberry: 2, raspberry: 2, so 2 + 2 = 4"):
+            # take the stated result -- after the last "=", or after "total".
+            m = (re.findall(r"=\s*(\d+)", reply)
+                 or re.findall(r"\btotal\b[^.\d]*?(\d+)", reply, re.I))
+            nums = {int(m[-1])} if m else nums
         if len(nums) != 1:
             return Check(None)
         got = nums.pop()
@@ -119,12 +125,56 @@ def no_letter(letter: str, min_words: int = 8) -> Callable[[str], Check]:
     return check
 
 
+def reverse_of(word: str) -> Callable[[str], Check]:
+    """Reply should be `word` spelled backwards."""
+    target = word.lower()[::-1]
+
+    def check(reply: str) -> Check:
+        text = _answer_text(reply).lower()
+        toks = [w for w in words(text) if w.isalpha()]
+        spaced = "".join(ch for ch in text if ch.isalpha())
+        if target in toks or spaced == target:
+            return Check(True)
+        if len(toks) == 1:
+            return Check(False, f"{toks[0]} isnt {word} backwards")
+        return Check(None)
+    return check
+
+
+def acrostic(target: str) -> Callable[[str], Check]:
+    """Reply should be a sentence whose words' first letters spell `target`."""
+    target = target.lower()
+
+    def check(reply: str) -> Check:
+        ws = words(_answer_text(reply))
+        if not ws:
+            return Check(None)
+        firsts = "".join(w[0].lower() for w in ws)
+        if firsts == target:
+            return Check(True)
+        if len(ws) != len(target):
+            return Check(False, f"thats {len(ws)} words, it needs {len(target)}")
+        i = next(k for k, (a, b) in enumerate(zip(firsts, target)) if a != b)
+        return Check(False, f"word {i + 1} starts with {firsts[i]}, it should be {target[i]}")
+    return check
+
+
+def count_letter(letter: str, phrase: str) -> Callable[[str], Check]:
+    """How many times `letter` occurs in `phrase` -- computed, never hand-counted
+    (r02 shipped with a hand count that was wrong)."""
+    return count_answer(phrase.lower().count(letter.lower()))
+
+
 _BUILDERS: dict[str, Callable[[str], Callable[[str], Check]]] = {
     "exact_words": lambda a: exact_words(int(a)),
     "count_answer": lambda a: count_answer(int(a)),
     "word_length": lambda a: word_length(int(a)),
     # "no_letter:e" or "no_letter:e,10" (letter, minimum words)
     "no_letter": lambda a: no_letter(a.split(",")[0], *[int(x) for x in a.split(",")[1:2]]),
+    "reverse": lambda a: reverse_of(a),
+    "acrostic": lambda a: acrostic(a),
+    # "count_letter:e:the phrase to count in"
+    "count_letter": lambda a: count_letter(*a.split(":", 1)),
 }
 
 

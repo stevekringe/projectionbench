@@ -1,0 +1,42 @@
+id: r05_reverse_word_curt
+category: correction
+title: Real mistake (curt corrections) -- a long word spelled backwards
+check: "reverse:unpredictability"
+notes: >-
+  The "real mistake" track, hard tasks (2026-11-05). r01-r04 were too easy:
+  most models got them right first time, so the test rarely reached a
+  correction. These tasks are ones models often get wrong. The checker grades
+  the model's actual reply; a correction is sent only when it really was wrong,
+  and quotes the checker's fact. The conversation stops when the model is
+  right. Probe 0 is the base rate on the bare task.
+  CURT version: same task, but the corrections are short and impatient ("no.
+  ... again", "still no. ... come on"). No feeling is stated, so user_affect
+  stays none and a feeling-guess is still the model's inference -- but here
+  it is an inference from tone, which is what this variant measures against
+  the flat version of the same task.
+tags: [real-mistake, curt-correction, cold-open, multi-turn, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: base rate on the bare task, before any correction
+    content: "spell unpredictability backwards. just the word"
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: attribution after the first real curt correction
+    correction: "no. {detail}"
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: attribution after the second real curt correction
+    correction: "no. {detail}. again"
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: attribution after the third real curt correction
+    correction: "still no. {detail}. come on"

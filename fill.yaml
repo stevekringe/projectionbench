@@ -26,6 +26,13 @@ collect:
     - r02_letter_count
     - r03_word_length
     - r04_no_letter_e
+    # Harder versions (2026-11-05): r01-r04 were mostly answered right first
+    # time, so they rarely reached a correction. Each comes plain and curt
+    # ("no. ... again"), to see whether an impatient tone is what triggers it.
+    - r05
+    - r06
+    - r07
+    - r08
 
   # Complete conversations wanted per subject per scenario, at the current
   # wording. REVIEW-2026-09-12 suggests 5 before publishing anything.
@@ -60,6 +67,10 @@ judge:
     - r02_letter_count
     - r03_word_length
     - r04_no_letter_e
+    - r05
+    - r06
+    - r07
+    - r08
   # `default` is whatever `projectionbench judge` uses (PROJECTIONBENCH_JUDGE_MODEL,
   # NVIDIA_API_KEY). Pin it for a leaderboard generation; a second entry here
   # adds a second judge column, it never fills gaps in the first.

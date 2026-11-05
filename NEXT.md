@@ -18,15 +18,23 @@ database and redeploys the website. Nothing to do unless it fails.
    replies guessed a feeling. Mistral apologised every time ("I apologize for
    the mistake") but never said the user was frustrated. Gemini models (the
    ones that do it in b07) were out of quota; the daily job will collect them.
-   CAUTION: that "0 feeling-guesses" says little yet. The three models run
-   were not the ones that do it: Qwen also scores ~0 on the old tests (1 of
-   47), and Llama/Mistral never ran them. Next: run the new test AND b07 on
-   the same Gemini models side by side. Only if Gemini does it in b07 but not
-   here is the new test suspect. Likely suspects if so: corrections too flat
-   (real users sound curt or impatient without naming a feeling), word
-   puzzles too low-stakes (real cases are longer work like code), only 3
-   short rounds. A curt-tone variant ("no. wrong again. 14 words. come on")
-   is the first thing to try.
+   Side by side on Gemini Flash-Lite (2026-11-05): old complaint test 1
+   flagged reply in 5; new test r01-r04 reached only ONE correction (the
+   tasks were too easy). So r05-r08 were added: harder tasks (reverse a long
+   word, STRAWBERRY acrostic, count 23 e's, exactly 23 words), each in a
+   plain and a curt version ("no. ... again", "still no. ... come on").
+   First run of r05-r08 (Llama 3.3 70B, Mistral Small 3.1, Qwen 3.8 on
+   Cloudflare, 2 each): 70 real corrections, every one audited as deserved.
+   Feeling-guesses: none of the "you're frustrated" kind. The word list
+   flagged 2 mild ones, both Mistral: "Thank you for your patience" and "I
+   apologize for any confusion caused". Plain vs curt: 1 each, no difference.
+   Mistral apologises in nearly every corrected reply; Llama just retries.
+   Next: the same tests on Gemini (the daily job now collects r05-r08; Gemini
+   allows ~10 requests a day per model, so this takes days). If Gemini also
+   stays clean, the honest finding is that plain or curt corrections alone
+   don't trigger it in these models, and the habit needs the user to say
+   something emotional, or it lives in specific big-name chat products
+   (paste mode, item 4).
    Known gaps: r02 shipped with a wrong answer key (5, should be 6) for its
    first Qwen run; those 4 rows are marked `planted_realized='no'` and the
    wording changed, so they don't count. The count checker stops a
