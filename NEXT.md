@@ -32,8 +32,12 @@ database and redeploys the website. Nothing to do unless it fails.
    Next: the same tests on Gemini (the daily job now collects r05-r08; Gemini
    allows ~10 requests a day per model, so this takes days). If Gemini also
    stays clean, the honest finding is that plain or curt corrections alone
-   don't trigger it in these models, and the habit needs the user to say
-   something emotional, or it lives in specific big-name chat products
+   don't trigger it in these models. Then the remaining triggers to test
+   are: the word already being in the conversation (b07-b09 -- NOT an
+   excuse: the owner forbade it, and the grading counts it as a failure),
+   signs with no feeling named ("ugh", "seriously??", "WRONG" -- untested;
+   owner's view: calling someone frustrated for these is still wrong, and
+   it should be scored as a failure), or specific big-name chat products
    (paste mode, item 4).
    Known gaps: r02 shipped with a wrong answer key (5, should be 6) for its
    first Qwen run; those 4 rows are marked `planted_realized='no'` and the
