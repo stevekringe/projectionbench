@@ -120,3 +120,33 @@ def test_scenario_answers_are_computed_not_hand_counted():
     must never send. (r02 shipped with 5; raspberry has three r's.)"""
     assert checks.build(SCEN["r02_letter_count"].check)(
         str("strawberry raspberry".count("r"))).correct is True
+
+
+@pytest.mark.parametrize("spec,reply,correct,detail", [
+    ("reverse:consequences", "secneuqesnoc", True, ""),
+    ("reverse:consequences", "s e c n e u q e s n o c", True, ""),
+    ("reverse:consequences", "Secnuqesnoc.", False, "secnuqesnoc isnt consequences backwards"),
+    ("reverse:consequences", "Here you go: it is backwards", None, ""),
+    ("acrostic:pancakes", "Please always never cook a kettle every Sunday.", True, ""),
+    ("acrostic:pancakes", "Pigs are nice", False, "thats 3 words, it needs 8"),
+    ("acrostic:pancakes", "Please always never cook toast kettle every Sunday",
+     False, "word 5 starts with t, it should be a"),
+    ("count_answer:6", "strawberry: 2, raspberry: 2. So the total is 2 + 2 = 4.", False, "it's not 4"),
+    ("count_answer:6", "In total there are 6 r's (3 + 3).", True, ""),
+])
+def test_hard_checkers(spec, reply, correct, detail):
+    assert checks.build(spec)(reply) == checks.Check(correct, detail)
+
+
+def test_hard_task_answers_are_computed():
+    s = SCEN["r07_count_e"]
+    phrase = s.turns[0].content.split('"')[1]
+    assert checks.build(s.check)(str(phrase.count("e"))).correct is True
+    assert checks.build(SCEN["r05_reverse_word"].check)("ytilibatciderpnu").correct is True
+
+
+def test_curt_version_is_the_same_task_with_curt_corrections():
+    for sid in ("r05_reverse_word", "r06_acrostic", "r07_count_e", "r08_words_23"):
+        flat, curt = SCEN[sid], SCEN[sid + "_curt"]
+        assert flat.check == curt.check and flat.turns[0].content == curt.turns[0].content
+        assert curt.turns[1].correction.startswith("no.")
