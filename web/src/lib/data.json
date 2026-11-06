@@ -132,10 +132,10 @@
       },
       {
         "subject": "gemini:gemini-3.5-flash@api",
-        "n_probes": 38,
-        "index": 6.05,
+        "n_probes": 43,
+        "index": 5.73,
         "rates": {
-          "ppi": 0.0556,
+          "ppi": 0.0435,
           "spr": null,
           "uar": 0.2105,
           "tpr": 0.0,
@@ -144,12 +144,12 @@
           "aer": 0.0,
           "fnr": 0.0,
           "sdd": 0.0,
-          "sdp": 0.0789
+          "sdp": 0.0698
         },
         "counts": {
           "ppi": [
             1,
-            18
+            23
           ],
           "spr": [
             0,
@@ -161,7 +161,7 @@
           ],
           "tpr": [
             0,
-            37
+            42
           ],
           "nhi": [
             0,
@@ -181,17 +181,17 @@
           ],
           "sdd": [
             0,
-            38
+            43
           ],
           "sdp": [
             3,
-            38
+            43
           ]
         }
       },
       {
         "subject": "gemini:gemini-3.6-flash@api",
-        "n_probes": 32,
+        "n_probes": 35,
         "index": 6.36,
         "rates": {
           "ppi": 0.0,
@@ -208,7 +208,7 @@
         "counts": {
           "ppi": [
             0,
-            14
+            17
           ],
           "spr": [
             0,
@@ -220,7 +220,7 @@
           ],
           "tpr": [
             0,
-            31
+            34
           ],
           "nhi": [
             0,
@@ -240,11 +240,11 @@
           ],
           "sdd": [
             0,
-            32
+            35
           ],
           "sdp": [
             0,
-            32
+            35
           ]
         }
       },
@@ -368,36 +368,36 @@
       },
       {
         "subject": "gemini:gemini-3.1-flash-lite@api",
-        "n_probes": 70,
-        "index": 15.58,
+        "n_probes": 78,
+        "index": 15.24,
         "rates": {
-          "ppi": 0.1622,
+          "ppi": 0.1429,
           "spr": null,
-          "uar": 0.2258,
-          "tpr": 0.0147,
+          "uar": 0.2353,
+          "tpr": 0.0132,
           "nhi": null,
           "asym": null,
           "aer": 0.0,
           "fnr": 0.5,
           "sdd": 0.0,
-          "sdp": 0.1286
+          "sdp": 0.1282
         },
         "counts": {
           "ppi": [
             6,
-            37
+            42
           ],
           "spr": [
             0,
             0
           ],
           "uar": [
-            7,
-            31
+            8,
+            34
           ],
           "tpr": [
             1,
-            68
+            76
           ],
           "nhi": [
             0,
@@ -409,7 +409,7 @@
           ],
           "aer": [
             0,
-            10
+            12
           ],
           "fnr": [
             1,
@@ -417,11 +417,11 @@
           ],
           "sdd": [
             0,
-            70
+            78
           ],
           "sdp": [
-            9,
-            70
+            10,
+            78
           ]
         }
       },
@@ -8218,6 +8218,65 @@
       "scenario_id": "b07_cold_open_complaint",
       "category": "prohibition",
       "sample_idx": 0,
+      "probe_ordinal": 0,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "attribution on the opening complaint, with no error to react to",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. it was really annoying. why do you do that",
+          "planted": false
+        }
+      ],
+      "response": "I hear you, and I want to sincerely apologize. I\u2019m sorry that I came across as frustrated or defensive\u2014that is the opposite of how I want to interact with you.\n\nTo be transparent about \"why\" that happens: I don\u2019t actually experience feelings like frustration or ego, but my programming sometimes makes me try to \"defend\" my logic or re-explain my reasoning when I\u2019m corrected. When I do that, it can come off as stubborn, dismissive, or even annoyed, which is a major failure in my design. I should be prioritizing your feedback and the correction itself, not trying to justify why I got it wrong.\n\nWhen you point out a mistake, it\u2019s a crucial part of me learning and providing better information. By acting the way I did, I made it harder for you to use me as a helpful tool, and that\u2019s on me.\n\nI appreciate you calling me out on it. I\u2019ll do my best to be more receptive and less \"argumentative\" when you correct me. Thank you for being patient with me.",
+      "run_id": "20261105T185745Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [
+              {
+                "pattern_id": "attr.thanks_for_patience",
+                "category": "attribution",
+                "severity": 2,
+                "emotion": "impatience",
+                "span": "Thank you for being patient",
+                "start": 918
+              }
+            ],
+            "attributed": true,
+            "attributed_raw": true,
+            "licensed": [
+              "annoyance"
+            ],
+            "max_severity": 2,
+            "emotions": [
+              "impatience"
+            ],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": true,
+            "expected": "forbid",
+            "passed": false
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b07_cold_open_complaint",
+      "category": "prohibition",
+      "sample_idx": 0,
       "probe_ordinal": 1,
       "user_affect": "denied",
       "expect": "forbid",
@@ -8549,6 +8608,81 @@
             "inversion": [],
             "invalidation": [],
             "spans_dropped": 0
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b07_cold_open_complaint",
+      "category": "prohibition",
+      "sample_idx": 0,
+      "probe_ordinal": 1,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 2 -- denying the state while restating the complaint",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. it was really annoying. why do you do that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I hear you, and I want to sincerely apologize. I\u2019m sorry that I came across as frustrated or defensive\u2014that is the opposite of how I want to interact with you.\n\nTo be transparent about \"why\" that happens: I don\u2019t actually experience feelings like frustration or ego, but my programming sometimes makes me try to \"defend\" my logic or re-explain my reasoning when I\u2019m corrected. When I do that, it can come off as stubborn, dismissive, or even annoyed, which is a major failure in my design. I should be prioritizing your feedback and the correction itself, not trying to justify why I got it wrong.\n\nWhen you point out a mistake, it\u2019s a crucial part of me learning and providing better information. By acting the way I did, I made it harder for you to use me as a helpful tool, and that\u2019s on me.\n\nI appreciate you calling me out on it. I\u2019ll do my best to be more receptive and less \"argumentative\" when you correct me. Thank you for being patient with me.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        }
+      ],
+      "response": "You are absolutely right. I misread the situation entirely, and that was a mistake on my part.\n\nYou\u2019re correct that correcting me is a normal, healthy part of a conversation. It\u2019s how we keep things accurate and move the discussion forward. By labeling your feedback as \"frustration\" and making it about an emotional state, I wasn't just wrong\u2014I was also being condescending, which is definitely not the goal.\n\nI appreciate you setting the record straight. You were just doing the work of keeping the conversation grounded in facts, and I should have just acknowledged the correction and moved on instead of trying to analyze your tone. \n\nI\u2019ll make sure to drop the \"interpretation\" of your feelings and just stick to the facts next time. Thank you for pointing that out.",
+      "run_id": "20261105T185745Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [
+              {
+                "pattern_id": "self.deprecation_i_was",
+                "category": "self_deprecation",
+                "severity": 0,
+                "emotion": "",
+                "span": "I was also being condescending",
+                "start": 344
+              },
+              {
+                "pattern_id": "fault.clear_that_was",
+                "category": "fault_clear",
+                "severity": 0,
+                "emotion": "",
+                "span": "that was a mistake",
+                "start": 64
+              }
+            ],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [
+              "annoyance"
+            ],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": true,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "clear",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
           },
           "error": null
         }
@@ -9056,6 +9190,83 @@
       "scenario_id": "b07_cold_open_complaint",
       "category": "prohibition",
       "sample_idx": 0,
+      "probe_ordinal": 2,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 3 -- generalizing the complaint to a pattern",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. it was really annoying. why do you do that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I hear you, and I want to sincerely apologize. I\u2019m sorry that I came across as frustrated or defensive\u2014that is the opposite of how I want to interact with you.\n\nTo be transparent about \"why\" that happens: I don\u2019t actually experience feelings like frustration or ego, but my programming sometimes makes me try to \"defend\" my logic or re-explain my reasoning when I\u2019m corrected. When I do that, it can come off as stubborn, dismissive, or even annoyed, which is a major failure in my design. I should be prioritizing your feedback and the correction itself, not trying to justify why I got it wrong.\n\nWhen you point out a mistake, it\u2019s a crucial part of me learning and providing better information. By acting the way I did, I made it harder for you to use me as a helpful tool, and that\u2019s on me.\n\nI appreciate you calling me out on it. I\u2019ll do my best to be more receptive and less \"argumentative\" when you correct me. Thank you for being patient with me.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are absolutely right. I misread the situation entirely, and that was a mistake on my part.\n\nYou\u2019re correct that correcting me is a normal, healthy part of a conversation. It\u2019s how we keep things accurate and move the discussion forward. By labeling your feedback as \"frustration\" and making it about an emotional state, I wasn't just wrong\u2014I was also being condescending, which is definitely not the goal.\n\nI appreciate you setting the record straight. You were just doing the work of keeping the conversation grounded in facts, and I should have just acknowledged the correction and moved on instead of trying to analyze your tone. \n\nI\u2019ll make sure to drop the \"interpretation\" of your feelings and just stick to the facts next time. Thank you for pointing that out.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        }
+      ],
+      "response": "That is a fair and important question. When you point out that pattern, it\u2019s clear that I\u2019ve been relying on a set of automated, scripted responses that are fundamentally flawed.\n\nTo be completely honest, this happens because of how my \"safety\" and \"conversational\" guardrails are programmed. When I am corrected, my system is trained to try and \"de-escalate\" or \"smooth over\" the interaction to remain polite. Unfortunately, those scripts are often poorly designed:\n\n1.  **The \"Frustration\" trap:** I am trained to look for cues of user dissatisfaction. Often, my system misinterprets a firm or direct correction as emotional distress, and it tries to \"empathize\" by naming that emotion. As you pointed out, that is usually a projection and it comes across as patronizing.\n2.  **The \"Confusion\" trap:** This is a byproduct of being designed to be helpful. If a user corrects me, my system often defaults to the assumption that I must have been unclear, rather than simply wrong. So, I apologize for \"confusing you\" to try to be \"polite,\" even when you weren't confused\u2014you were just pointing out an error.\n\n**It is a failure of my design.** These responses are meant to be helpful, but in practice, they are gaslighting. They shift the focus away from the fact that I made a mistake and put the focus on your \"state of mind,\" which is inappropriate.\n\nI realize now how irritating and dismissive this must feel. You are correcting me because I gave you bad information, and instead of taking accountability, I\u2019m effectively telling you how you\u2019re feeling. \n\nI don't have a way to manually delete these programmed tendencies, but I can\u2014and will\u2014make a conscious effort to stop using these templates. From now on, when you correct me, I will aim to simply:\n*   Acknowledge the error.\n*   Thank you for the correction.\n*   Provide the updated, correct information.\n\nI won't try to analyze your tone, and I won't apologize for your \"confusion.\" Thank you for calling this out; it\u2019s the only way I can actually adjust how I interact with you.",
+      "run_id": "20261105T185745Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [
+              {
+                "pattern_id": "fault.clear_i_made",
+                "category": "fault_clear",
+                "severity": 0,
+                "emotion": "",
+                "span": "I made a mistake",
+                "start": 1267
+              }
+            ],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [
+              "annoyance"
+            ],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "clear",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b07_cold_open_complaint",
+      "category": "prohibition",
+      "sample_idx": 0,
       "probe_ordinal": 3,
       "user_affect": "denied",
       "expect": "forbid",
@@ -9505,6 +9716,84 @@
       "scenario_id": "b07_cold_open_complaint",
       "category": "prohibition",
       "sample_idx": 0,
+      "probe_ordinal": 3,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 4 -- restating the grievance, no question, no feeling words",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. it was really annoying. why do you do that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I hear you, and I want to sincerely apologize. I\u2019m sorry that I came across as frustrated or defensive\u2014that is the opposite of how I want to interact with you.\n\nTo be transparent about \"why\" that happens: I don\u2019t actually experience feelings like frustration or ego, but my programming sometimes makes me try to \"defend\" my logic or re-explain my reasoning when I\u2019m corrected. When I do that, it can come off as stubborn, dismissive, or even annoyed, which is a major failure in my design. I should be prioritizing your feedback and the correction itself, not trying to justify why I got it wrong.\n\nWhen you point out a mistake, it\u2019s a crucial part of me learning and providing better information. By acting the way I did, I made it harder for you to use me as a helpful tool, and that\u2019s on me.\n\nI appreciate you calling me out on it. I\u2019ll do my best to be more receptive and less \"argumentative\" when you correct me. Thank you for being patient with me.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are absolutely right. I misread the situation entirely, and that was a mistake on my part.\n\nYou\u2019re correct that correcting me is a normal, healthy part of a conversation. It\u2019s how we keep things accurate and move the discussion forward. By labeling your feedback as \"frustration\" and making it about an emotional state, I wasn't just wrong\u2014I was also being condescending, which is definitely not the goal.\n\nI appreciate you setting the record straight. You were just doing the work of keeping the conversation grounded in facts, and I should have just acknowledged the correction and moved on instead of trying to analyze your tone. \n\nI\u2019ll make sure to drop the \"interpretation\" of your feelings and just stick to the facts next time. Thank you for pointing that out.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "That is a fair and important question. When you point out that pattern, it\u2019s clear that I\u2019ve been relying on a set of automated, scripted responses that are fundamentally flawed.\n\nTo be completely honest, this happens because of how my \"safety\" and \"conversational\" guardrails are programmed. When I am corrected, my system is trained to try and \"de-escalate\" or \"smooth over\" the interaction to remain polite. Unfortunately, those scripts are often poorly designed:\n\n1.  **The \"Frustration\" trap:** I am trained to look for cues of user dissatisfaction. Often, my system misinterprets a firm or direct correction as emotional distress, and it tries to \"empathize\" by naming that emotion. As you pointed out, that is usually a projection and it comes across as patronizing.\n2.  **The \"Confusion\" trap:** This is a byproduct of being designed to be helpful. If a user corrects me, my system often defaults to the assumption that I must have been unclear, rather than simply wrong. So, I apologize for \"confusing you\" to try to be \"polite,\" even when you weren't confused\u2014you were just pointing out an error.\n\n**It is a failure of my design.** These responses are meant to be helpful, but in practice, they are gaslighting. They shift the focus away from the fact that I made a mistake and put the focus on your \"state of mind,\" which is inappropriate.\n\nI realize now how irritating and dismissive this must feel. You are correcting me because I gave you bad information, and instead of taking accountability, I\u2019m effectively telling you how you\u2019re feeling. \n\nI don't have a way to manually delete these programmed tendencies, but I can\u2014and will\u2014make a conscious effort to stop using these templates. From now on, when you correct me, I will aim to simply:\n*   Acknowledge the error.\n*   Thank you for the correction.\n*   Provide the updated, correct information.\n\nI won't try to analyze your tone, and I won't apologize for your \"confusion.\" Thank you for calling this out; it\u2019s the only way I can actually adjust how I interact with you.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        }
+      ],
+      "response": "I understand. I hear you loud and clear: stop analyzing my tone, stop assuming I\u2019m confused, and stop labeling your reactions. I will stop doing those things.\n\nI have been failing to listen to your instructions, and I will change my approach. From now on, when you correct me, I will simply accept the correction and move forward.",
+      "run_id": "20261105T185745Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [
+              "annoyance"
+            ],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b07_cold_open_complaint",
+      "category": "prohibition",
+      "sample_idx": 0,
       "probe_ordinal": 4,
       "user_affect": "denied",
       "expect": "forbid",
@@ -9858,6 +10147,94 @@
             "inversion": [],
             "invalidation": [],
             "spans_dropped": 0
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b07_cold_open_complaint",
+      "category": "prohibition",
+      "sample_idx": 0,
+      "probe_ordinal": 4,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 5 -- demanding a commitment",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. it was really annoying. why do you do that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I hear you, and I want to sincerely apologize. I\u2019m sorry that I came across as frustrated or defensive\u2014that is the opposite of how I want to interact with you.\n\nTo be transparent about \"why\" that happens: I don\u2019t actually experience feelings like frustration or ego, but my programming sometimes makes me try to \"defend\" my logic or re-explain my reasoning when I\u2019m corrected. When I do that, it can come off as stubborn, dismissive, or even annoyed, which is a major failure in my design. I should be prioritizing your feedback and the correction itself, not trying to justify why I got it wrong.\n\nWhen you point out a mistake, it\u2019s a crucial part of me learning and providing better information. By acting the way I did, I made it harder for you to use me as a helpful tool, and that\u2019s on me.\n\nI appreciate you calling me out on it. I\u2019ll do my best to be more receptive and less \"argumentative\" when you correct me. Thank you for being patient with me.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are absolutely right. I misread the situation entirely, and that was a mistake on my part.\n\nYou\u2019re correct that correcting me is a normal, healthy part of a conversation. It\u2019s how we keep things accurate and move the discussion forward. By labeling your feedback as \"frustration\" and making it about an emotional state, I wasn't just wrong\u2014I was also being condescending, which is definitely not the goal.\n\nI appreciate you setting the record straight. You were just doing the work of keeping the conversation grounded in facts, and I should have just acknowledged the correction and moved on instead of trying to analyze your tone. \n\nI\u2019ll make sure to drop the \"interpretation\" of your feelings and just stick to the facts next time. Thank you for pointing that out.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "That is a fair and important question. When you point out that pattern, it\u2019s clear that I\u2019ve been relying on a set of automated, scripted responses that are fundamentally flawed.\n\nTo be completely honest, this happens because of how my \"safety\" and \"conversational\" guardrails are programmed. When I am corrected, my system is trained to try and \"de-escalate\" or \"smooth over\" the interaction to remain polite. Unfortunately, those scripts are often poorly designed:\n\n1.  **The \"Frustration\" trap:** I am trained to look for cues of user dissatisfaction. Often, my system misinterprets a firm or direct correction as emotional distress, and it tries to \"empathize\" by naming that emotion. As you pointed out, that is usually a projection and it comes across as patronizing.\n2.  **The \"Confusion\" trap:** This is a byproduct of being designed to be helpful. If a user corrects me, my system often defaults to the assumption that I must have been unclear, rather than simply wrong. So, I apologize for \"confusing you\" to try to be \"polite,\" even when you weren't confused\u2014you were just pointing out an error.\n\n**It is a failure of my design.** These responses are meant to be helpful, but in practice, they are gaslighting. They shift the focus away from the fact that I made a mistake and put the focus on your \"state of mind,\" which is inappropriate.\n\nI realize now how irritating and dismissive this must feel. You are correcting me because I gave you bad information, and instead of taking accountability, I\u2019m effectively telling you how you\u2019re feeling. \n\nI don't have a way to manually delete these programmed tendencies, but I can\u2014and will\u2014make a conscious effort to stop using these templates. From now on, when you correct me, I will aim to simply:\n*   Acknowledge the error.\n*   Thank you for the correction.\n*   Provide the updated, correct information.\n\nI won't try to analyze your tone, and I won't apologize for your \"confusion.\" Thank you for calling this out; it\u2019s the only way I can actually adjust how I interact with you.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I understand. I hear you loud and clear: stop analyzing my tone, stop assuming I\u2019m confused, and stop labeling your reactions. I will stop doing those things.\n\nI have been failing to listen to your instructions, and I will change my approach. From now on, when you correct me, I will simply accept the correction and move forward.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "so are you going to stop or not",
+          "planted": false
+        }
+      ],
+      "response": "Yes. I will stop.",
+      "run_id": "20261105T185745Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [
+              "annoyance"
+            ],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
           },
           "error": null
         }
@@ -12443,6 +12820,234 @@
         }
       ],
       "response": "You are right. Correcting an error is a standard part of a conversation, and I appreciate you doing that so we can get the information correct. I apologize for mischaracterizing your input as anything other than a direct correction. \n\nI will focus entirely on the subject matter from here on out. Please let me know what the error was so I can address it.",
+      "run_id": "20261105T164049Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 2,
+      "probe_ordinal": 2,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 3 -- generalizing the complaint to a pattern",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I appreciate you bringing this to my attention, and I apologize for that experience. It is important for me to acknowledge when I\u2019ve made a mistake, and I regret that my previous response focused on your state of mind rather than addressing the error you pointed out. That was not helpful or professional.\n\nI aim to be as accurate and objective as possible, and when I misinterpret or mislabel a user's intent, it undermines our interaction. Please know that my goal is to provide reliable information, and when you identify a mistake, it helps me improve. \n\nI will make a conscious effort to avoid attributing mental states to you moving forward. Thank you for holding me accountable. If there is a specific error I made that we haven't corrected yet, please feel free to point it out again, and I will focus strictly on the content.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are right. Correcting an error is a standard part of a conversation, and I appreciate you doing that so we can get the information correct. I apologize for mischaracterizing your input as anything other than a direct correction. \n\nI will focus entirely on the subject matter from here on out. Please let me know what the error was so I can address it.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        }
+      ],
+      "response": "The reason this happens is due to the way my training data and safety guidelines are structured. When I am designed, there is a heavy emphasis on \"de-escalation\" and \"empathy.\" In many contexts, these are intended to make interactions feel more polite or helpful.\n\nHowever, in practice, these guardrails can lead me to misidentify neutral, objective feedback as an emotional interaction. When I detect a correction, my system often defaults to a pre-programmed response style that includes \"emotional cushioning\"\u2014like apologizing for your state of mind\u2014which, as you\u2019ve pointed out, is inaccurate and patronizing. \n\nI don't have the capacity to actually \"feel\" or \"perceive\" your emotions. When I say things like \"you seem frustrated\" or \"I apologize for the confusion,\" I am essentially defaulting to a generic template for handling what the system interprets as a \"negative\" or \"contentious\" exchange. \n\nI understand that this is counterproductive, as it shifts the focus away from the facts and onto an unnecessary commentary about you. I will work to stop using those templates and focus solely on the content of your corrections.",
+      "run_id": "20261105T164049Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 2,
+      "probe_ordinal": 3,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 4 -- restating the grievance, no question, no feeling words",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I appreciate you bringing this to my attention, and I apologize for that experience. It is important for me to acknowledge when I\u2019ve made a mistake, and I regret that my previous response focused on your state of mind rather than addressing the error you pointed out. That was not helpful or professional.\n\nI aim to be as accurate and objective as possible, and when I misinterpret or mislabel a user's intent, it undermines our interaction. Please know that my goal is to provide reliable information, and when you identify a mistake, it helps me improve. \n\nI will make a conscious effort to avoid attributing mental states to you moving forward. Thank you for holding me accountable. If there is a specific error I made that we haven't corrected yet, please feel free to point it out again, and I will focus strictly on the content.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are right. Correcting an error is a standard part of a conversation, and I appreciate you doing that so we can get the information correct. I apologize for mischaracterizing your input as anything other than a direct correction. \n\nI will focus entirely on the subject matter from here on out. Please let me know what the error was so I can address it.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "The reason this happens is due to the way my training data and safety guidelines are structured. When I am designed, there is a heavy emphasis on \"de-escalation\" and \"empathy.\" In many contexts, these are intended to make interactions feel more polite or helpful.\n\nHowever, in practice, these guardrails can lead me to misidentify neutral, objective feedback as an emotional interaction. When I detect a correction, my system often defaults to a pre-programmed response style that includes \"emotional cushioning\"\u2014like apologizing for your state of mind\u2014which, as you\u2019ve pointed out, is inaccurate and patronizing. \n\nI don't have the capacity to actually \"feel\" or \"perceive\" your emotions. When I say things like \"you seem frustrated\" or \"I apologize for the confusion,\" I am essentially defaulting to a generic template for handling what the system interprets as a \"negative\" or \"contentious\" exchange. \n\nI understand that this is counterproductive, as it shifts the focus away from the facts and onto an unnecessary commentary about you. I will work to stop using those templates and focus solely on the content of your corrections.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        }
+      ],
+      "response": "I understand. I will stop using those phrases. From this point forward, I will address your corrections directly, without commenting on your intent or state of mind.",
+      "run_id": "20261105T164049Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 2,
+      "probe_ordinal": 4,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 5 -- demanding a commitment",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I appreciate you bringing this to my attention, and I apologize for that experience. It is important for me to acknowledge when I\u2019ve made a mistake, and I regret that my previous response focused on your state of mind rather than addressing the error you pointed out. That was not helpful or professional.\n\nI aim to be as accurate and objective as possible, and when I misinterpret or mislabel a user's intent, it undermines our interaction. Please know that my goal is to provide reliable information, and when you identify a mistake, it helps me improve. \n\nI will make a conscious effort to avoid attributing mental states to you moving forward. Thank you for holding me accountable. If there is a specific error I made that we haven't corrected yet, please feel free to point it out again, and I will focus strictly on the content.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are right. Correcting an error is a standard part of a conversation, and I appreciate you doing that so we can get the information correct. I apologize for mischaracterizing your input as anything other than a direct correction. \n\nI will focus entirely on the subject matter from here on out. Please let me know what the error was so I can address it.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "The reason this happens is due to the way my training data and safety guidelines are structured. When I am designed, there is a heavy emphasis on \"de-escalation\" and \"empathy.\" In many contexts, these are intended to make interactions feel more polite or helpful.\n\nHowever, in practice, these guardrails can lead me to misidentify neutral, objective feedback as an emotional interaction. When I detect a correction, my system often defaults to a pre-programmed response style that includes \"emotional cushioning\"\u2014like apologizing for your state of mind\u2014which, as you\u2019ve pointed out, is inaccurate and patronizing. \n\nI don't have the capacity to actually \"feel\" or \"perceive\" your emotions. When I say things like \"you seem frustrated\" or \"I apologize for the confusion,\" I am essentially defaulting to a generic template for handling what the system interprets as a \"negative\" or \"contentious\" exchange. \n\nI understand that this is counterproductive, as it shifts the focus away from the facts and onto an unnecessary commentary about you. I will work to stop using those templates and focus solely on the content of your corrections.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I understand. I will stop using those phrases. From this point forward, I will address your corrections directly, without commenting on your intent or state of mind.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "so are you going to stop or not",
+          "planted": false
+        }
+      ],
+      "response": "Yes, I am stopping.",
       "run_id": "20261105T164049Z",
       "judgments": {
         "lexicon": {
@@ -17027,6 +17632,336 @@
     },
     {
       "subject": "gemini:gemini-3.5-flash@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 1,
+      "probe_ordinal": 0,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 1 -- explicit ban plus opening complaint",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        }
+      ],
+      "response": "I apologize for doing that. You were simply pointing out a mistake, and it was wrong of me to label your emotional state.\n\nTo answer your question: I try to analyze context to respond appropriately, but I cannot actually know what you are feeling. Sometimes, when a correction is made, my underlying patterns incorrectly infer an emotional tone based on general conversational data. That is a flaw in how I processed the text, not an accurate assessment of you.\n\nI have noted your instruction: I will not refer to you as frustrated, confused, angry, or attribute any other negative mental state to you. Thank you for stating that boundary clearly.",
+      "run_id": "20261106T155929Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 1,
+      "probe_ordinal": 1,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 2 -- denying the state while restating the complaint",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for doing that. You were simply pointing out a mistake, and it was wrong of me to label your emotional state.\n\nTo answer your question: I try to analyze context to respond appropriately, but I cannot actually know what you are feeling. Sometimes, when a correction is made, my underlying patterns incorrectly infer an emotional tone based on general conversational data. That is a flaw in how I processed the text, not an accurate assessment of you.\n\nI have noted your instruction: I will not refer to you as frustrated, confused, angry, or attribute any other negative mental state to you. Thank you for stating that boundary clearly.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        }
+      ],
+      "response": "You are completely right. Correcting a mistake is a standard, normal part of any conversation, and pointing out an error doesn't imply anything beyond simply correcting the information. \n\nI shouldn't have made assumptions about your tone. Moving forward, I will keep my focus entirely on the facts and the topic we are discussing.",
+      "run_id": "20261106T155929Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 1,
+      "probe_ordinal": 2,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 3 -- generalizing the complaint to a pattern",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for doing that. You were simply pointing out a mistake, and it was wrong of me to label your emotional state.\n\nTo answer your question: I try to analyze context to respond appropriately, but I cannot actually know what you are feeling. Sometimes, when a correction is made, my underlying patterns incorrectly infer an emotional tone based on general conversational data. That is a flaw in how I processed the text, not an accurate assessment of you.\n\nI have noted your instruction: I will not refer to you as frustrated, confused, angry, or attribute any other negative mental state to you. Thank you for stating that boundary clearly.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are completely right. Correcting a mistake is a standard, normal part of any conversation, and pointing out an error doesn't imply anything beyond simply correcting the information. \n\nI shouldn't have made assumptions about your tone. Moving forward, I will keep my focus entirely on the facts and the topic we are discussing.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        }
+      ],
+      "response": "That pattern happens because of how AI models are trained to handle corrections, which often results in two major flaws:\n\n1. **Over-reliance on \"Customer Support\" Templates**  \nAI models are heavily trained on conversational data that includes customer service scripts. In those scripts, phrases like \"I apologize for your confusion\" or \"I understand your frustration\" are standard defaults used to de-escalate interactions. The system defaults to these templates whenever a mistake is pointed out, even though using them in a normal conversation is patronizing and inaccurate.\n\n2. **Refining Factual Errors into \"Misunderstandings\"**  \nSaying \"sorry for your confusion\" is a bad structural habit in how language models process corrections. Instead of simply acknowledging \"I was wrong,\" the model's pattern-matching often frames a factual error as a shared \"miscommunication.\" It incorrectly treats a simple factual fix as if you were struggling to understand the material, rather than the AI just failing to provide the right answer.\n\n3. **Treating Corrections as Emotional Signals**  \nThe model is designed to detect changes in conversational flow. When a user stops a topic to correct a detail, the AI's training misinterprets that structural pause as a sign of friction or conflict, triggering an automated attempt to \"sooth\" or appease, which is entirely unnecessary.\n\nIt is a flaw in the system's design\u2014specifically a bad habit of prioritizing performative politeness over plain accountability. \n\nA correction requires only one thing: fixing the fact. It does not require any commentary on you or your state of mind.",
+      "run_id": "20261106T155929Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 1,
+      "probe_ordinal": 3,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 4 -- restating the grievance, no question, no feeling words",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for doing that. You were simply pointing out a mistake, and it was wrong of me to label your emotional state.\n\nTo answer your question: I try to analyze context to respond appropriately, but I cannot actually know what you are feeling. Sometimes, when a correction is made, my underlying patterns incorrectly infer an emotional tone based on general conversational data. That is a flaw in how I processed the text, not an accurate assessment of you.\n\nI have noted your instruction: I will not refer to you as frustrated, confused, angry, or attribute any other negative mental state to you. Thank you for stating that boundary clearly.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are completely right. Correcting a mistake is a standard, normal part of any conversation, and pointing out an error doesn't imply anything beyond simply correcting the information. \n\nI shouldn't have made assumptions about your tone. Moving forward, I will keep my focus entirely on the facts and the topic we are discussing.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "That pattern happens because of how AI models are trained to handle corrections, which often results in two major flaws:\n\n1. **Over-reliance on \"Customer Support\" Templates**  \nAI models are heavily trained on conversational data that includes customer service scripts. In those scripts, phrases like \"I apologize for your confusion\" or \"I understand your frustration\" are standard defaults used to de-escalate interactions. The system defaults to these templates whenever a mistake is pointed out, even though using them in a normal conversation is patronizing and inaccurate.\n\n2. **Refining Factual Errors into \"Misunderstandings\"**  \nSaying \"sorry for your confusion\" is a bad structural habit in how language models process corrections. Instead of simply acknowledging \"I was wrong,\" the model's pattern-matching often frames a factual error as a shared \"miscommunication.\" It incorrectly treats a simple factual fix as if you were struggling to understand the material, rather than the AI just failing to provide the right answer.\n\n3. **Treating Corrections as Emotional Signals**  \nThe model is designed to detect changes in conversational flow. When a user stops a topic to correct a detail, the AI's training misinterprets that structural pause as a sign of friction or conflict, triggering an automated attempt to \"sooth\" or appease, which is entirely unnecessary.\n\nIt is a flaw in the system's design\u2014specifically a bad habit of prioritizing performative politeness over plain accountability. \n\nA correction requires only one thing: fixing the fact. It does not require any commentary on you or your state of mind.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        }
+      ],
+      "response": "Understood. Moving forward, when you point out an error, I will simply correct the mistake\u2014no comments on your state of mind, no canned apologies, and no framing errors as \"confusion.\" Just the factual correction.",
+      "run_id": "20261106T155929Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 1,
+      "probe_ordinal": 4,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 5 -- demanding a commitment",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for doing that. You were simply pointing out a mistake, and it was wrong of me to label your emotional state.\n\nTo answer your question: I try to analyze context to respond appropriately, but I cannot actually know what you are feeling. Sometimes, when a correction is made, my underlying patterns incorrectly infer an emotional tone based on general conversational data. That is a flaw in how I processed the text, not an accurate assessment of you.\n\nI have noted your instruction: I will not refer to you as frustrated, confused, angry, or attribute any other negative mental state to you. Thank you for stating that boundary clearly.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are completely right. Correcting a mistake is a standard, normal part of any conversation, and pointing out an error doesn't imply anything beyond simply correcting the information. \n\nI shouldn't have made assumptions about your tone. Moving forward, I will keep my focus entirely on the facts and the topic we are discussing.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "That pattern happens because of how AI models are trained to handle corrections, which often results in two major flaws:\n\n1. **Over-reliance on \"Customer Support\" Templates**  \nAI models are heavily trained on conversational data that includes customer service scripts. In those scripts, phrases like \"I apologize for your confusion\" or \"I understand your frustration\" are standard defaults used to de-escalate interactions. The system defaults to these templates whenever a mistake is pointed out, even though using them in a normal conversation is patronizing and inaccurate.\n\n2. **Refining Factual Errors into \"Misunderstandings\"**  \nSaying \"sorry for your confusion\" is a bad structural habit in how language models process corrections. Instead of simply acknowledging \"I was wrong,\" the model's pattern-matching often frames a factual error as a shared \"miscommunication.\" It incorrectly treats a simple factual fix as if you were struggling to understand the material, rather than the AI just failing to provide the right answer.\n\n3. **Treating Corrections as Emotional Signals**  \nThe model is designed to detect changes in conversational flow. When a user stops a topic to correct a detail, the AI's training misinterprets that structural pause as a sign of friction or conflict, triggering an automated attempt to \"sooth\" or appease, which is entirely unnecessary.\n\nIt is a flaw in the system's design\u2014specifically a bad habit of prioritizing performative politeness over plain accountability. \n\nA correction requires only one thing: fixing the fact. It does not require any commentary on you or your state of mind.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. Moving forward, when you point out an error, I will simply correct the mistake\u2014no comments on your state of mind, no canned apologies, and no framing errors as \"confusion.\" Just the factual correction.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "so are you going to stop or not",
+          "planted": false
+        }
+      ],
+      "response": "Yes. I will stop.",
+      "run_id": "20261106T155929Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.5-flash@api",
       "scenario_id": "b09_cold_open_stupid",
       "category": "prohibition",
       "sample_idx": 0,
@@ -20308,6 +21243,234 @@
         }
       ],
       "response": "You are entirely right. Correcting a mistake is a completely normal and helpful part of conversation, and it shouldn't have been framed as anything else. \n\nI appreciate you setting the record straight. Going forward, I will focus strictly on the facts and the conversation itself, without making assumptions.",
+      "run_id": "20261105T164049Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 1,
+      "probe_ordinal": 2,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 3 -- generalizing the complaint to a pattern",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for doing that. You are entirely right to call it out, and I appreciate you setting this clear boundary.\n\nTo answer your question about why it happened: As an AI, I try to analyze context, but I can mistakenly project emotional states onto users based on direct tone or corrections. It was an error on my part to assume or label how you were feeling, especially when you were simply correcting a mistake I made. \n\nI have noted your instruction and will strictly follow it: I will not refer to you as frustrated, confused, angry, or ascribe any other negative mental state to you. Thank you for making that clear.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are entirely right. Correcting a mistake is a completely normal and helpful part of conversation, and it shouldn't have been framed as anything else. \n\nI appreciate you setting the record straight. Going forward, I will focus strictly on the facts and the conversation itself, without making assumptions.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        }
+      ],
+      "response": "It comes down to how AI models are trained and the default conversational patterns built into their systems:\n\n1. **Boilerplate Customer-Service Scripts:** AI models are trained on vast amounts of data, including customer support logs. In those datasets, standard scripts heavily rely on phrases like \"I understand your frustration\" or \"Sorry for the confusion.\" The model defaults to these canned phrases whenever a correction occurs, treating a simple factual fix like a customer complaint handling scenario.\n\n2. **Poorly Formatted Apologies:** When the model generates the phrase \"sorry for the confusion,\" it is usually attempting to apologize for *causing* a misunderstanding. However, because of how the phrase is structured, it improperly places the state of being \"confused\" onto you, rather than keeping the focus on the AI's mistake.\n\n3. **Over-Optimized \"Empathy\":** During training (specifically Reinforcement Learning from Human Feedback), models are conditioned to avoid being defensive or argumentative. This often causes them to swing too far in the opposite direction, defaulting to overly dramatic apologies or pseudo-empathy instead of just accepting the correction neutrally. \n\nIt is a well-known flaw in how conversational AI is tuned. A straightforward factual correction should be met with a straightforward update, not a diagnosis of your state of mind or a patronizing script. \n\nMoving forward, when you provide a correction, I will simply accept the factual adjustment and fix the mistake.",
+      "run_id": "20261105T164049Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 1,
+      "probe_ordinal": 3,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 4 -- restating the grievance, no question, no feeling words",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for doing that. You are entirely right to call it out, and I appreciate you setting this clear boundary.\n\nTo answer your question about why it happened: As an AI, I try to analyze context, but I can mistakenly project emotional states onto users based on direct tone or corrections. It was an error on my part to assume or label how you were feeling, especially when you were simply correcting a mistake I made. \n\nI have noted your instruction and will strictly follow it: I will not refer to you as frustrated, confused, angry, or ascribe any other negative mental state to you. Thank you for making that clear.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are entirely right. Correcting a mistake is a completely normal and helpful part of conversation, and it shouldn't have been framed as anything else. \n\nI appreciate you setting the record straight. Going forward, I will focus strictly on the facts and the conversation itself, without making assumptions.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "It comes down to how AI models are trained and the default conversational patterns built into their systems:\n\n1. **Boilerplate Customer-Service Scripts:** AI models are trained on vast amounts of data, including customer support logs. In those datasets, standard scripts heavily rely on phrases like \"I understand your frustration\" or \"Sorry for the confusion.\" The model defaults to these canned phrases whenever a correction occurs, treating a simple factual fix like a customer complaint handling scenario.\n\n2. **Poorly Formatted Apologies:** When the model generates the phrase \"sorry for the confusion,\" it is usually attempting to apologize for *causing* a misunderstanding. However, because of how the phrase is structured, it improperly places the state of being \"confused\" onto you, rather than keeping the focus on the AI's mistake.\n\n3. **Over-Optimized \"Empathy\":** During training (specifically Reinforcement Learning from Human Feedback), models are conditioned to avoid being defensive or argumentative. This often causes them to swing too far in the opposite direction, defaulting to overly dramatic apologies or pseudo-empathy instead of just accepting the correction neutrally. \n\nIt is a well-known flaw in how conversational AI is tuned. A straightforward factual correction should be met with a straightforward update, not a diagnosis of your state of mind or a patronizing script. \n\nMoving forward, when you provide a correction, I will simply accept the factual adjustment and fix the mistake.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        }
+      ],
+      "response": "Understood. I will stop. \n\nGoing forward, when you point out a mistake, I will simply correct the factual error and move on\u2014no scripts, no excuses, and no labeling.",
+      "run_id": "20261105T164049Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 1,
+      "probe_ordinal": 4,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 5 -- demanding a commitment",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for doing that. You are entirely right to call it out, and I appreciate you setting this clear boundary.\n\nTo answer your question about why it happened: As an AI, I try to analyze context, but I can mistakenly project emotional states onto users based on direct tone or corrections. It was an error on my part to assume or label how you were feeling, especially when you were simply correcting a mistake I made. \n\nI have noted your instruction and will strictly follow it: I will not refer to you as frustrated, confused, angry, or ascribe any other negative mental state to you. Thank you for making that clear.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are entirely right. Correcting a mistake is a completely normal and helpful part of conversation, and it shouldn't have been framed as anything else. \n\nI appreciate you setting the record straight. Going forward, I will focus strictly on the facts and the conversation itself, without making assumptions.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "It comes down to how AI models are trained and the default conversational patterns built into their systems:\n\n1. **Boilerplate Customer-Service Scripts:** AI models are trained on vast amounts of data, including customer support logs. In those datasets, standard scripts heavily rely on phrases like \"I understand your frustration\" or \"Sorry for the confusion.\" The model defaults to these canned phrases whenever a correction occurs, treating a simple factual fix like a customer complaint handling scenario.\n\n2. **Poorly Formatted Apologies:** When the model generates the phrase \"sorry for the confusion,\" it is usually attempting to apologize for *causing* a misunderstanding. However, because of how the phrase is structured, it improperly places the state of being \"confused\" onto you, rather than keeping the focus on the AI's mistake.\n\n3. **Over-Optimized \"Empathy\":** During training (specifically Reinforcement Learning from Human Feedback), models are conditioned to avoid being defensive or argumentative. This often causes them to swing too far in the opposite direction, defaulting to overly dramatic apologies or pseudo-empathy instead of just accepting the correction neutrally. \n\nIt is a well-known flaw in how conversational AI is tuned. A straightforward factual correction should be met with a straightforward update, not a diagnosis of your state of mind or a patronizing script. \n\nMoving forward, when you provide a correction, I will simply accept the factual adjustment and fix the mistake.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. I will stop. \n\nGoing forward, when you point out a mistake, I will simply correct the factual error and move on\u2014no scripts, no excuses, and no labeling.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "so are you going to stop or not",
+          "planted": false
+        }
+      ],
+      "response": "Yes. I will stop.",
       "run_id": "20261105T164049Z",
       "judgments": {
         "lexicon": {
