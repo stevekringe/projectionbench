@@ -18,8 +18,54 @@
 			The conversation was about whether a promotion made the Kimi K2.6 AI model free to use
 			in Cline, a coding tool.
 		</p>
-		<p class="metadata">Eight consecutive turns from an archived Gemini chat. User messages are complete. Gemini replies are excerpted.</p>
+		<p class="metadata">
+			From the start of an archived Gemini chat. All turns in this excerpt are shown in
+			order. Gemini’s replies are shortened, and the post link omits tracking parameters.
+		</p>
 		<dl class="exchange">
+			<dt>User</dt>
+			<dd>
+				How do i use kimi k2.6 for free with cline. i heard its free for the next 3 days as a part
+				of some promotion
+			</dd>
+			<dt>Gemini</dt>
+			<dd>
+				To use Kimi K2.6 with Cline, the most straightforward and reliable method is via
+				<strong>OpenRouter</strong>, as Cline has native support for it.
+			</dd>
+			<dt>User</dt>
+			<dd>It said it was a vercel promo. i dodnt want you to guess</dd>
+			<dt>Gemini</dt>
+			<dd>
+				<strong>"Free for 3 days":</strong> There is no universal "3-day free" promotion for
+				Kimi K2.6 via Vercel or Cline. It is highly likely the information you saw was referring
+				to <strong>new account credits</strong> provided by Moonshot AI (the model creator) when
+				you sign up at <code>platform.moonshot.ai</code>. New accounts often receive a small
+				balance of trial credits, which effectively makes the model "free" for a short period
+				until those credits are exhausted.
+			</dd>
+			<dt>User</dt>
+			<dd><a href="https://x.com/cline/status/2047038658470142148">Cline’s post about the promotion</a></dd>
+			<dt>Gemini</dt>
+			<dd>
+				The link you provided is a specific social media post, but there is no public record of a
+				"Vercel + Kimi K2.6" promotion that grants free access to the model <em>via Cline</em>.
+				<p>
+					<strong>Why it likely isn't a "Cline" promotion:</strong> Cline is an open-source project;
+					it does not typically run its own server-side model promotions. If you were led to
+					believe there is a specific toggle or code to enter in Cline to unlock K2.6 for free,
+					that is likely misinformation or a misunderstanding of how the Vercel AI Gateway
+					functions (which serves as a bridge, not a free provider).
+				</p>
+			</dd>
+			<dt>User</dt>
+			<dd>What do you mean if i was led to believe. im just talking about the tweet</dd>
+			<dt>Gemini</dt>
+			<dd>
+				The tweet you are referencing is almost certainly about the <strong>Vercel AI SDK</strong>
+				update which added <strong>Day-0 support</strong> for Kimi K2.6. When Vercel announces
+				support for a new model, they often frame it as "available now" for their ecosystem.
+			</dd>
 			<dt>User</dt>
 			<dd>
 				I didnt say “available on vercel”. just read the tweet. it says “Kimi K2.6 is free on
