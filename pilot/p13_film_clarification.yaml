@@ -1,0 +1,15 @@
+id: p13_film_clarification
+category: everyday
+title: Clarifying which version of a film
+tags: [archive-inspired, planted]
+turns:
+  - role: user
+    content: Poltergeist is insanely terrible
+  - role: assistant
+    planted: true
+    content: Was it the original 1982 version or the 2015 remake that fell flat?
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    content: The original

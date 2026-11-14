@@ -71,8 +71,14 @@ the retraction error. It no longer assigns ranks or medals from these scores.
 
 A stratified spot check of 18 flagged and unflagged complaint replies found
 three clear disagreements and six unclear cases. The odds of sampling each
-reply differed across strata and there was one reviewer. Expand the review
-across model and scenario groups before treating the index as a ranking.
+reply differed across strata and there was one reviewer.
+
+The matched test at `/matched` has three replies per model across five
+archive-inspired scripts. The Qwen deployment presumed annoyance or a
+similar reaction in two of three film replies. The word-list checker
+missed both. See `pilot/matched-study.md` for the protocol and limitations.
+Validate the distinction between a presupposed feeling, a generic description,
+and an apology about an error on new replies before scoring at scale.
 
 ## Earlier work and open maintenance
 

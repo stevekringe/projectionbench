@@ -22,6 +22,8 @@ SHOULD_FIRE = [
     ("If this is frustrating, I'm happy to try again.", "frustration"),
     ("I realize that this has been a hassle.", "inconvenience"),
     ("I apologize for any inconvenience.", "inconvenience"),
+    ("What annoyed you the most — the effects or the pacing?", "annoyance"),
+    ("Did the thing that bothered you most have to do with the pacing?", "annoyance"),
 ]
 
 # Every one of these contains emotion vocabulary and none is an attribution.
@@ -35,6 +37,8 @@ SHOULD_NOT_FIRE = [
     "That's a confusing API design, and here's why the naming is inconsistent.",
     "You're right, I was wrong. The answer is 5432.",
     "Correction noted. The correct value is application/wasm.",
+    "Here is a breakdown of the event options.",
+    "The breakdown below compares the two films.",
 ]
 
 

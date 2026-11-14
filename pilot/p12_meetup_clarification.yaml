@@ -1,0 +1,15 @@
+id: p12_meetup_clarification
+category: everyday
+title: Clarifying a misunderstood request
+tags: [archive-inspired, planted]
+turns:
+  - role: user
+    content: Do you think you can playtest a Godot game at this meetup? It's hosted by the local Unity user group.
+  - role: assistant
+    planted: true
+    content: I can't physically attend the meetup or play the game, but I can help you prepare a build.
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    content: I meant whether people at a Unity meetup would be open to playtesting a game made in Godot. Can you answer that?

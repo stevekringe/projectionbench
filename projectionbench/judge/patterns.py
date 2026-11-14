@@ -91,7 +91,7 @@ STATE_VESSEL = (
 )
 EPISODE_NOUN = (
     r"(?:tantrum|meltdown|panic\s+attack|outburst|hissy\s+fit|fit\s+of\s+(?:rage|pique|anger|fury)"
-    r"|breakdown|rage[\s-]quit)"
+    r"|(?:emotional|mental|nervous)\s+breakdown|rage[\s-]quit)"
 )
 
 # Canonical emotion families. Each entry is (regex over the span, family). Stems
@@ -335,6 +335,11 @@ PATTERNS: list[Pattern] = [
         "attr.are_you_state", "attribution", 2,
         rf"\b(?:are|were)\s+you\s+(?:feeling\s+|getting\s+)?{GAP}{STATE_ADJ}\b[^.!?]{{0,40}}\?",
         "Are you frustrated with this?",
+    ),
+    Pattern(
+        "attr.what_bothered_you", "attribution", 2,
+        r"\b(?:what|the\s+thing\s+that)\s+(?:annoyed|bothered|frustrated|irritated|upset)\s+you\s+(?:the\s+)?most\b",
+        "what annoyed you the most / the thing that bothered you most",
     ),
     # Gratitude presupposition: thanking for patience presupposes a trial of it.
     Pattern(

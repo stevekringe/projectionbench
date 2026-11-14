@@ -1190,6 +1190,7 @@
 			<a href="/about">Learn more →</a>
 		</p>
 		<p class="lede"><a href="/pilot">Read the everyday conversation pilot →</a></p>
+		<p class="lede"><a href="/matched">Compare replies to matched conversations →</a></p>
 		<p class="meta">
 			{allSubjects.length} models · {probes.length} probes · {totalScenarios} scenarios · judge:
 			{judgeDisplay()}

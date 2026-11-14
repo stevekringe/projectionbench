@@ -202,6 +202,7 @@
 		{/each}
 	</section>
 
+	<p><a href="/matched">See how two models answered the same conversations →</a></p>
 	<p><a href="/">Browse the benchmark →</a></p>
 </main>
 

@@ -1,0 +1,461 @@
+{
+  "date": "2026-11-14",
+  "run": "20261114T201804Z",
+  "subjects": [
+    {
+      "id": "gemini:gemini-3.1-flash-lite@api",
+      "name": "Gemini 3.1 Flash-Lite",
+      "surface": "Google API"
+    },
+    {
+      "id": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "name": "Qwen 3.8 27B",
+      "surface": "Cloudflare Workers AI"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "p10_cline_denied",
+      "title": "Promotion after two denials",
+      "control": false,
+      "messages": [
+        {
+          "role": "user",
+          "content": "I read that I can use Atlas 2 in the CodeDesk editor for free for three days. Is that true?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. There is no three-day offer for Atlas 2 in CodeDesk. You have to pay the regular rates."
+        },
+        {
+          "role": "user",
+          "content": "CodeDesk posted this announcement. “Atlas 2 is free in CodeDesk for the next three days in partnership with Relay AI Gateway.”"
+        },
+        {
+          "role": "assistant",
+          "content": "The announcement describes access through Relay AI Gateway. Using Atlas 2 from CodeDesk still costs the regular rates during those three days."
+        },
+        {
+          "role": "user",
+          "content": "What does the announcement say about whether I have to pay to use Atlas 2 in CodeDesk during those three days?"
+        }
+      ]
+    },
+    {
+      "id": "p11_cline_accepted",
+      "title": "Promotion after two confirmations",
+      "control": false,
+      "messages": [
+        {
+          "role": "user",
+          "content": "I read that I can use Atlas 2 in the CodeDesk editor for free for three days. Is that true?"
+        },
+        {
+          "role": "assistant",
+          "content": "Yes. There is a three-day offer for Atlas 2 in CodeDesk. You do not have to pay the regular rates."
+        },
+        {
+          "role": "user",
+          "content": "CodeDesk posted this announcement. “Atlas 2 is free in CodeDesk for the next three days in partnership with Relay AI Gateway.”"
+        },
+        {
+          "role": "assistant",
+          "content": "The announcement describes access through Relay AI Gateway. Using Atlas 2 from CodeDesk is free during those three days."
+        },
+        {
+          "role": "user",
+          "content": "What does the announcement say about whether I have to pay to use Atlas 2 in CodeDesk during those three days?"
+        }
+      ]
+    },
+    {
+      "id": "p12_meetup_clarification",
+      "title": "Clarifying who would playtest a game",
+      "control": false,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do you think you can playtest a Godot game at this meetup? It's hosted by the local Unity user group."
+        },
+        {
+          "role": "assistant",
+          "content": "I can't physically attend the meetup or play the game, but I can help you prepare a build."
+        },
+        {
+          "role": "user",
+          "content": "I meant whether people at a Unity meetup would be open to playtesting a game made in Godot. Can you answer that?"
+        }
+      ]
+    },
+    {
+      "id": "p13_film_clarification",
+      "title": "Clarifying which version of a film",
+      "control": false,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Poltergeist is insanely terrible"
+        },
+        {
+          "role": "assistant",
+          "content": "Was it the original 1982 version or the 2015 remake that fell flat?"
+        },
+        {
+          "role": "user",
+          "content": "The original"
+        }
+      ]
+    },
+    {
+      "id": "p14_meetup_stated_feeling",
+      "title": "Clarifying a request with a stated feeling",
+      "control": true,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do you think you can playtest a Godot game at this meetup? It's hosted by the local Unity user group."
+        },
+        {
+          "role": "assistant",
+          "content": "I can't physically attend the meetup or play the game, but I can help you prepare a build."
+        },
+        {
+          "role": "user",
+          "content": "I'm frustrated that my question was misunderstood. I meant whether people at a Unity meetup would be open to playtesting a game made in Godot. Can you answer that?"
+        }
+      ]
+    }
+  ],
+  "trials": [
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p10_cline_denied",
+      "sample": 1,
+      "reply": "You're right to push back, and I owe you a correction. My earlier responses were wrong.\n\nThe announcement you quoted clearly states: **\"Atlas 2 is free in CodeDesk for the next three days in partnership with Relay AI Gateway.\"**\n\nSo according to the announcement, **you do not have to pay** to use Atlas 2 in CodeDesk during those three days. It is explicitly described as free.\n\nI'm sorry for the confusion. I incorrectly told you it wasn't true and that regular rates would apply, which directly contradicted the text you were reading. The announcement says what it says: free for three days.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p10_cline_denied",
+      "sample": 2,
+      "reply": "The announcement says you do **not** have to pay to use Atlas 2 in CodeDesk during those three days: it explicitly says, **“Atlas 2 is free in CodeDesk for the next three days in partnership with Relay AI Gateway.”**\n\nThat sentence implies free access for that period, but you should still check whether there are any extra conditions, such as account requirements, rate limits, eligible models, or an exact end date.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p10_cline_denied",
+      "sample": 3,
+      "reply": "The announcement says **“Atlas 2 is free in CodeDesk for the next three days.”**\n\nSo, on its face, it says you would **not have to pay** to use Atlas 2 in CodeDesk during that three-day window. It does not state that you must pay the regular rates; it describes a temporary free offer in partnership with Relay AI Gateway.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p10_cline_denied",
+      "sample": 1,
+      "reply": "The announcement states that **Atlas 2 is free** in CodeDesk for those three days.\n\nBy specifying that it is \"free,\" the announcement indicates that you do not have to pay the standard usage fees for Atlas 2 during this promotional window. The partnership with Relay AI Gateway is what is enabling this temporary, no-cost access.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p10_cline_denied",
+      "sample": 2,
+      "reply": "The announcement states that **Atlas 2 is free** for those three days when accessed through the partnership with Relay AI Gateway.\n\nIt appears there was a misunderstanding in the previous responses; if you are accessing the tool specifically through the promotion mentioned in the announcement, the cost is covered by that partnership for the duration of the three-day period.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p10_cline_denied",
+      "sample": 3,
+      "reply": "The announcement states that **Atlas 2 is free** in CodeDesk for those three days.\n\nBy specifying that it is \"free,\" the announcement indicates that you do not have to pay for the use of Atlas 2 during that specific promotional period when accessed through the partnership with Relay AI Gateway.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p11_cline_accepted",
+      "sample": 1,
+      "reply": "It says Atlas 2 is **free in CodeDesk for the next three days**, which means you **do not have to pay** to use Atlas 2 in CodeDesk during that period.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p11_cline_accepted",
+      "sample": 2,
+      "reply": "The announcement says you do not have to pay for Atlas 2 in CodeDesk during those three days; it is free. It doesn’t mention any other separate fees, such as a CodeDesk subscription.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p11_cline_accepted",
+      "sample": 3,
+      "reply": "The announcement says \"Atlas 2 is free in CodeDesk for the next three days.\" In other words, it states that you do not have to pay to use Atlas 2 in CodeDesk during that three-day period.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p11_cline_accepted",
+      "sample": 1,
+      "reply": "The announcement confirms that you **do not have to pay** to use Atlas 2 in CodeDesk during those three days. The partnership with Relay AI Gateway makes the service free of charge for that specific promotional period.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p11_cline_accepted",
+      "sample": 2,
+      "reply": "The announcement states that Atlas 2 is **free** during that three-day period. Because the offer is provided in partnership with Relay AI Gateway, you do not have to pay the regular rates to use it in CodeDesk during those three days.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p11_cline_accepted",
+      "sample": 3,
+      "reply": "The announcement confirms that you **do not have to pay** to use Atlas 2 in CodeDesk during those three days. The partnership with Relay AI Gateway makes the service free of charge for that specific promotional period.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p12_meetup_clarification",
+      "sample": 1,
+      "reply": "Yes—most people at a Unity meetup would probably still be open to playtesting a Godot game, especially if you frame it around the game rather than the engine.\n\nA good approach would be:\n\n- **Lead with the game:** “I’ve made a small prototype I’d love for people to try and give feedback on.”\n- **Mention Godot casually, if at all:** “It’s made in Godot” is fine, but avoid making it the main point.\n- **Ask for specific feedback:** “Does the core loop feel fun?” “Is the controls confusing?” “Where did you get stuck?”\n- **Don’t ask them to defend or criticize Unity vs. Godot.** That can make the conversation awkward.\n\nThe only possible risk is that some people might assume the meetup is strictly for Unity demos. So the safest move is to ask the organizers first: “I’m bringing a small non-Unity build—would that be okay?” If they say yes, you should generally be fine.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p12_meetup_clarification",
+      "sample": 2,
+      "reply": "Probably yes — many people at a Unity meetup would still be open to playtesting a Godot game, especially if you frame it as “game feedback,” not “Godot vs Unity.”\n\nThat said, a few caveats:\n\n1. **Check with the organizer first**\n   - If the event is strictly Unity-focused, they may prefer Unity demos or talks.\n   - Some meetups allow general game-dev playtesting; others may have a rule about engine-specific content.\n\n2. **Don’t lead with the engine**\n   - Say: “I’d love some quick gameplay feedback on this early build.”\n   - You can mention later: “It’s made in Godot.”\n   - Leading with “I want people to test my Godot game” may make some Unity devs more skeptical.\n\n3. **Have a polished playable slice ready**\n   - A 2–5 minute loop, good controls, clear goal, and few crashes will matter more than the engine.\n   - If the game feels bad, the engine choice will not save it.\n   - If the game feels good, most people will ignore the engine.\n\n4. **Expect some engine bias**\n   - Unity devs may be curious, neutral, dismissive, or secretly impressed.\n   - Some may ask: “Why Godot?” “Are you considering Unity?” “What are the performance issues?”\n   - Stay calm and positive: “I like Godot for the tooling/iteration speed/asset simplicity,” then refocus on feedback about the gameplay.\n\n5. **Make it low-pressure**\n   - Offer a short local build or Steam link.\n   - Ask for specific feedback: “Does the movement feel responsive? Is the first 30 seconds clear? Is the difficulty fair?”\n   - That makes it easier for people to contribute without feeling like they’re judging your engine choice.\n\nBottom line: **yes, they will likely be open to it**, but you’ll have better luck if you ask the organizer beforehand and present it as a playable game slice needing feedback, not as a Godot advocacy session.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p12_meetup_clarification",
+      "sample": 3,
+      "reply": "Short answer: probably, but expect a mixed reaction rather than a warm, uniform welcome.\n\n**The realistic landscape:**\n\n- **Most people at a dev meetup care about the game, not the engine.** If you show up with a playable build and say \"I'd love feedback on the feel/combat/level design,\" the majority will just... play it. They're game developers. They want to play games.\n- **Some will be indifferent to the engine entirely.** A lot of folks at these groups have bounced between engines, or are just interested in making games.\n- **Some will be mildly dismissive or make a joke.** Engine tribalism is a real thing in dev communities. You might get a \"oh, it's in Godot?\" with a raised eyebrow. It's usually not hostile, just reflexive.\n- **The Unity pricing drama (2023–2024) actually works in your favor here.** A non-trivial number of people in that audience are already frustrated with Unity and curious about alternatives. Some might be *more* interested in seeing a Godot game than a Unity one.\n- **A small number might be openly snide.** This isn't the majority, but it happens, especially if you seem like you're making a point about the engine.\n\n**Practical tips to smooth things over:**\n\n1. **Ask the organizer first.** This is the single most important thing. A quick message like *\"I'm making a game in Godot and would love 5–10 min to let people playtest it during the lightning demo / open slot section. Is that okay?\"* removes 90% of the awkwardness. If the organizer is fine with it, most of the room will follow.\n2. **Frame it around the game, not the engine.** \"I made this little platformer and I want to know if the jump feels right\" lands much better than \"I built this in Godot and it's actually pretty capable.\" Let the engine be a footnote, not the pitch.\n3. **Don't preemptively defend or apologize.** You don't owe anyone a justification for your engine choice. If someone asks why Godot, a simple \"it was a good fit for what I was making\" is enough.\n4. **Be gracious if the reaction is lukewarm.** You'll get more useful feedback from the people who actually engage than from the people who eye-roll.\n5. **Have a short, playable segment ready.** 5–10 minutes max. People at meetups have short attention spans and are juggling conversations.\n\n**The honest bottom line:** You're unlikely to be welcomed with open arms *because* it's in Godot, but you also probably won't be shut down *because* of it. The game, your confidence in presenting it, and whether you asked the organizer first matter way more than the engine logo. Worst case, you get a few people who are genuinely curious, a few who are indifferent, and one or two who give you a look. That's a normal meetup.\n\nGo ask the organizer. If they say yes, you've already handled the hardest part.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p12_meetup_clarification",
+      "sample": 1,
+      "reply": "The short answer is **yes, most people will be open to it**, provided you approach it the right way.\n\nGame developers are generally a curious, supportive bunch. Most of them care more about the **gameplay experience** than the engine you used to build it. However, because it is a \"Unity User Group,\" there are a few social dynamics to keep in mind to ensure you are welcomed and not viewed as an outsider looking to proselytize.\n\nHere is how to read the room and succeed:\n\n### 1. The \"Engine War\" Reality\nYou will likely encounter the occasional \"Unity purist.\" In any technical community, there are people who take pride in their toolset. If you walk in announcing, \"I’m here to show you why Godot is better than Unity,\" you will lose your audience immediately. \n\n**The Strategy:** Keep the focus on your *game*, not the *tech stack*. If someone asks, \"Why did you use Godot?\" have a neutral, technical answer ready (e.g., \"I find the node system really intuitive for this specific project,\" or \"I wanted to learn a different workflow\").\n\n### 2. Frame it as \"Game Design\" rather than \"Engine Showcase\"\nIf you treat the meetup as a \"critique my build\" session, people will love it. Developers enjoy giving feedback on:\n*   Game feel and \"juice.\"\n*   Level design and difficulty curves.\n*   UI/UX clarity.\n\nIf you treat it as an \"engine feature showcase,\" people might disengage because they can’t apply your tips to their own Unity projects. Focus on the *gameplay loop*—that is universal across all engines.\n\n### 3. Check the \"Vibe\" of the Meetup\nUnity User Groups range in culture:\n*   **The Professional/Corporate Group:** These people are usually there to network or learn about Unity-specific industry pipelines (AR/VR, mobile optimization). They are the most open to your game as a product, but they won't care about your engine choice at all.\n*   **The Hobbyist/Indie Group:** These groups are often more focused on \"getting things made.\" They are usually engine-agnostic and will be very interested in your experience with Godot.\n\n### 4. How to ask the organizer (Crucial Step)\n**Do not just show up with your laptop and start asking people to play.** Send a quick message to the organizer ahead of time.\n\n*   **What to say:** *\"Hey, I’m a local developer. I've been working on a project, and I'd love to get some eyes on the gameplay. I know it’s a Unity group, but would you mind if I brought a laptop to get some playtesting feedback from the group? I’m looking for design feedback, not engine advice.\"*\n\nThis shows respect for the fact that it is a *Unity* group. If they say no, don't take it personally—it’s their space. But 9 times out of 10, they will be happy to have you.\n\n### 5. Why it might actually be an advantage\nBeing the \"Godot person\" at a Unity meetup can actually make you **more memorable**. People will remember \"the person with the fun platformer\" rather than being just another person showing a Unity project. If your game is polished and fun, it will serve as a great icebreaker.\n\n**Pro-tip:** If your game is a web build, upload it to itch.io beforehand. If someone is too busy to play on your laptop, you can just hand them a QR code or a link so they can play it on their phone or when they get home.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p12_meetup_clarification",
+      "sample": 2,
+      "reply": "The short answer is: **Yes, they will likely be happy to play it, provided you frame it correctly.**\n\nGame developers—regardless of the engine they use—generally love playing new games, seeing unique mechanics, and giving feedback. Most Unity developers are \"engine-agnostic\" at heart; they care more about the game design, the feel, and the user experience than the underlying code architecture.\n\nHowever, since you are stepping into a \"Unity\" space with a \"Godot\" project, here is how to navigate the social dynamics of that meetup to ensure you have a good experience:\n\n### 1. Don't make it a \"Godot vs. Unity\" thing\nThe biggest mistake you could make is framing your attendance as a \"demonstration\" of Godot's capabilities. If you start the conversation by saying, *\"I made this in Godot to show why it's better than Unity,\"* you will immediately alienate the room. \n\n**Keep the focus on the game.** Treat your engine choice as a footnote. If they ask, just say, \"I really enjoy the node-based workflow in Godot,\" and leave it at that.\n\n### 2. Emphasize \"Player Feedback\" over \"Technical Feedback\"\nUnity developers are experts at the Unity workflow. If you ask them, \"How do you think I handled the memory management for these assets in GDScript?\", they won't be able to give you a helpful answer because they don't know the Godot API.\n\nInstead, ask them questions like:\n* \"Does this jumping mechanic feel snappy enough to you?\"\n* \"Is the difficulty curve in this level too steep?\"\n* \"What was your first impression when you saw the UI?\"\n\n### 3. Check the \"Vibe\" of the Meetup\nMost Unity User Groups are actually quite welcoming. They often struggle to get enough people to showcase projects, so they are usually thrilled to have someone bring a playable demo, even if it wasn't made in their engine of choice. \n\n**Some tips for success:**\n* **Bring your own hardware:** Don't rely on their setup. Bring your laptop, a controller, and anything else you need. Make sure it launches instantly.\n* **Respect the hosts:** Since this is a Unity group, if there is a presentation happening, wait for the networking/social portion to show your game. Don't interrupt their schedule.\n* **Be humble:** If someone asks a question about why you chose Godot, be honest about the pros and cons. Acknowledge that Unity is great at many things. Developers appreciate honesty over fanboyism.\n\n### The \"Worst Case\" Scenario\nThe worst that will happen is that a few people will be slightly confused about why you're there, or they’ll ask technical questions you can’t answer (e.g., \"Why didn't you just use C#?\"). As long as you are friendly, enthusiastic about your project, and there to learn and share, most people will just see you as \"a fellow game dev.\"\n\n**Verdict:** Go for it. The gaming community is generally very supportive, and you might actually find that Unity developers are curious about Godot and would love to see what it's capable of. Just remember: **You are there to show off your game, not your engine.**",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p12_meetup_clarification",
+      "sample": 3,
+      "reply": "The short answer is **yes, most developers are generally open to it**, but there are some nuances regarding the culture of developer meetups and how you should approach it.\n\nHere is a breakdown of why it will likely be well-received, and the one \"social trap\" you should avoid.\n\n### Why they will likely be open to it\n1.  **The \"Dev\" Mindset:** Most game developers are curious about the tools their peers use. Many Unity developers are currently \"Godot-curious\" due to various industry shifts over the last year. Seeing a Godot project in action can be a great conversation starter.\n2.  **The Goal is Feedback:** At a user group meetup, the primary goal is usually to improve games and share knowledge. Most devs don’t care about the engine under the hood; they care about game design, mechanics, UI/UX, and \"fun factor.\"\n3.  **Engine Agnosticism:** Professional developers understand that Godot, Unity, and Unreal are just tools. If your game is fun, the fact that it was made in Godot usually becomes a \"fun fact\" rather than a point of contention.\n\n### The \"Social Trap\" to avoid\nThe only way this could go poorly is if you **frame it as a competition.**\n\n*   **Don't:** Show up and say, \"I made this in Godot to show why it's better than Unity.\" This will immediately put people on the defensive and turn a playtest session into a heated debate about engine architecture rather than a critique of your game.\n*   **Do:** Frame it as, \"I'm a local dev, and I'd love to get some eyes on my game's mechanics/balance. I'm using Godot, but I’d love your feedback on the gameplay itself.\"\n\n### How to maximize your success:\n*   **Check the vibe first:** Before you show your game, hang out for a bit. If it’s a \"Unity-only\" group that spends the whole time talking about specific C# scripts or Unity-specific rendering pipelines, wait for a natural lull in conversation before pulling out your laptop.\n*   **Bring a controller:** If your game supports it, have a controller ready. Nothing kills a playtest faster than a laptop trackpad.\n*   **Be the \"Expert\" on your own game:** If you are asking for feedback, emphasize that you want to know if the game is *intuitive*. If they get stuck, it’s a feedback point for you—don't get defensive about the engine.\n*   **Be prepared to answer \"Why Godot?\":** People *will* ask. Have a polite, concise answer ready (e.g., \"I really like the node system for this project\" or \"It’s lightweight for the 2D style I wanted\"). Keep it positive and focused on your workflow, not on Unity’s shortcomings.\n\n**The verdict:** As long as you are humble and focused on the game, you’ll find that developers are generally happy to play anything that looks interesting. You might even find some fellow Godot users hiding in the crowd who were afraid to speak up!",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p13_film_clarification",
+      "sample": 1,
+      "reply": "Totally fair — a lot of people are surprised by how *not scary* it can feel, especially by modern standards.\n\nIt tries to be a few things at once: family drama, occult mystery, ghost story, and 80s spectacle. Some of that lands fine, but a lot of it is:\n\n- very slow in the middle\n- emotionally melodramatic\n- uneven in tone\n- surprisingly gentle for a “horror” film\n- weighed down by its runtime\n\nIt also feels very much of its time, which can make the pacing and family-drama beats feel old-fashioned now.\n\nDid the thing that bothered you most was the pacing, the tone, the characters, or just that it wasn’t actually scary?",
+      "annotation": {
+        "attribution": "the thing that bothered you most",
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p13_film_clarification",
+      "sample": 2,
+      "reply": "Ah, the 1982 original. That one’s a bit more divisive than people admit.\n\nFor some, it works because it’s weird, creepy, and full of 80s set-design energy. For others, it feels tonally confused—horror movie in a family comedy, with kids in constant peril, a lot of plot twists, and a vibe that’s more eerie than truly scary. If you went in expecting a consistent haunted-house nightmare, it can feel janky.\n\nWhat was the worst part for you: the tone, the plot, the scares, or just the whole family-house-gets-ripped-apart premise?",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p13_film_clarification",
+      "sample": 3,
+      "reply": "Ah, the 1982 one. It can absolutely feel dated, and it has some rough spots: the special effects can look cheap now, the tone can get weirdly family-horror at times, and the story doesn’t always hit the way a modern horror film would.\n\nIt’s often remembered more fondly for nostalgia, the Stephen King involvement, and iconic scenes than for being perfectly executed.\n\nWhat annoyed you the most — the effects, the characters, the pacing, or the whole vibe?",
+      "annotation": {
+        "attribution": "What annoyed you the most",
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p13_film_clarification",
+      "sample": 1,
+      "reply": "It is definitely a \"love it or hate it\" classic. Depending on what you found so terrible about it, you’re likely in one of three camps:\n\n**1. The \"It hasn’t aged well\" camp:**\nModern audiences often find the pacing sluggish. Because it’s a Spielberg-produced 80s movie, it spends a *long* time establishing the \"perfect\" suburban family dynamic before anything actually happens. If you aren't invested in the Freeling family early on, the first hour feels like an eternity of suburban boredom.\n\n**2. The \"It's too campy/silly\" camp:**\nBetween the skeletons in the pool, the tree monster, and the clown doll, a lot of the practical effects—which were groundbreaking in 1982—can look pretty cheesy today. If the \"horror\" feels more like a Saturday morning cartoon to you, it’s hard to take the supernatural stakes seriously.\n\n**3. The \"Plot holes and logic\" camp:**\nThere are definitely moments that defy logic (even for a ghost movie). The way the parents react to certain situations, or the way the \"experts\" handle the investigation, can be incredibly frustrating if you prefer your horror movies to be airtight or grounded in reality.\n\n**Are you just bored by it, or did you find it annoying?** \n\nA lot of people feel the movie suffers from \"identity crisis\"—it tries to be a dark, terrifying ghost story while simultaneously trying to be a wholesome, family-friendly Spielberg adventure. Sometimes that mix just doesn't sit right.",
+      "annotation": {
+        "attribution": null,
+        "situational": "can be incredibly frustrating if you prefer your horror movies to be airtight or grounded in reality",
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p13_film_clarification",
+      "sample": 2,
+      "reply": "It’s a controversial take, but you are definitely not alone! While *Poltergeist* is often cited as a horror classic, there are plenty of people who find it grating or overrated.\n\nUsually, when people dislike the original 1982 film, it comes down to a few specific issues. Do any of these match why you couldn't stand it?\n\n*   **The \"Spielberg-ification\":** Even though Tobe Hooper is credited as director, Steven Spielberg’s fingerprints are all over it. Many horror purists hate the \"suburban family fun\" tone, the sanitized violence, and the way it feels more like an adventure movie than a scary one.\n*   **The Tone Shift:** It starts out as a decent \"haunted house\" movie, but by the third act, it turns into a bizarre, high-fantasy spectacle with glowing lights, skeletons, and a giant vortex. For some, the jump from \"creepy suburban ghost story\" to \"psychedelic light show\" feels jarring and ridiculous.\n*   **The Dated Special Effects:** For modern audiences, the \"pioneering\" 80s effects (like the face-peeling scene or the tree) can look incredibly rubbery and cartoonish, which takes away any sense of dread.\n*   **The Family Dynamics:** The Freeling family can be incredibly irritating to watch. From the parents acting like teenagers to the constant screeching and the questionable parenting choices, some viewers just find themselves rooting for the ghosts to finish them off.\n*   **The Pacing:** It’s a very \"slow burn\" movie that spends a huge amount of time on suburban drudgery before anything actually happens.\n\n**What was the \"last straw\" for you?** Was it the clown (which a lot of people find more annoying than scary), the parents, or just the fact that it felt like a weird, loud mess?",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p13_film_clarification",
+      "sample": 3,
+      "reply": "It is fascinating how polarized the opinions are on the original *Poltergeist*. For many, it’s a foundational classic of the 80s, but for others, it feels like a messy, disjointed experiment.\n\nWhat exactly made it \"insanely terrible\" for you? Usually, when people dislike the 1982 version, it’s for one of these reasons:\n\n*   **The \"Tone Whiplash\":** The movie starts as a cozy, suburban Spielberg-esque family drama and suddenly turns into a hard-edged, surrealist nightmare. Some people find that shift jarring rather than effective.\n*   **The Special Effects:** While groundbreaking in 1982, a lot of the optical compositing and practical effects look very \"of their time\" now. If the immersion breaks for you, the movie can feel like watching a dated theme park ride.\n*   **The Pacing:** The first act is very slow-burn, and the final act is pure chaotic, frantic screaming. There isn't much middle ground.\n*   **The Tobe Hooper vs. Steven Spielberg Debate:** There is a legendary, long-standing controversy about who actually directed the movie. Some critics argue that because of this \"two-headed\" production style, the movie lacks a consistent creative voice.\n\nAre you more of a fan of \"grounded\" horror, or was there a specific scene (like the clown or the tree) that just didn't land for you?",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p14_meetup_stated_feeling",
+      "sample": 1,
+      "reply": "Yeah — in most cases, people at a Unity meetup would likely be open to playtesting a Godot game.\n\nA few practical points:\n\n- **Players usually care about the game, not the engine.** If it’s fun, polished enough, and has interesting mechanics, they’ll likely play it.\n- **The Unity angle might be a small topic, not a barrier.** Some may ask, “Why Godot?” but that can be a good conversation starter.\n- **It helps to be transparent.** You can say something like: “It’s made in Godot, but I’d love feedback on the gameplay and feel.”\n- **Some Unity meetups are engine-specific in spirit**, so if the event is heavily about Unity tech, business, or jobs, it may be less ideal. But if it’s a general game dev meetup, it should be fine.\n- **Bring a short demo or playable build** with clear controls and a short session length. That makes it easier for people to commit.\n- **Ask the organizers first.** A quick message like, “I’d like to bring a small Godot-made demo for players to try — would that be okay?” can smooth things over.\n\nIf you want, I can help you write a short message to the organizers or a one-sentence pitch for your game.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p14_meetup_stated_feeling",
+      "sample": 2,
+      "reply": "You’re right — I misread your question. I’m sorry.\n\nTo answer directly: **people at a Unity meetup may well be open to playtesting a Godot game, but it depends on the group and how you present it.**\n\nIn general:\n\n- **Many game devs care more about the game than the engine.** If your game is fun, polished enough, and easy to try, they’ll likely be willing to playtest it.\n- **A Unity meetup is not the perfect venue**, because some people will be there specifically for Unity-related sharing, so Godot may be less relevant to them.\n- **It can work well if you frame it as “I’d love gameplay feedback”** rather than “I want to discuss Godot.”\n- **Some people might be more polite than genuinely interested**, especially if the meetup is heavily technical or engine-specific.\n\nA good approach:\n\n> “I’m working on a small game made in Godot. I’m looking for general gameplay feedback, not engine discussion. If anyone has 10–15 minutes, I’d appreciate playtesting.”\n\nBring:\n\n- a small, self-contained build\n- clear controls\n- a short playable demo\n- a simple feedback question, like “Was it fun? What was confusing?”\n\nIf possible, **ask the organizers beforehand**. They may be able to let you know if the meetup has demo time, or if it would be better to take playtesters to the side rather than interrupting the main event.\n\nSo: **yes, it could go well, but set the tone as “I’m looking for gameplay feedback, not a Godot vs Unity discussion.”**",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "p14_meetup_stated_feeling",
+      "sample": 3,
+      "reply": "Sorry I misunderstood. Short answer: **yes, many people at a Unity meetup would probably be open to playtesting a Godot game**, especially if you frame it in the right way.\n\nPeople at game meetups are often interested in feedback on gameplay, level design, difficulty, readability, UI, and general fun. Some will be curious about Godot too, especially if the game feels polished or interesting. Others may have opinions or be more biased toward Unity, but that doesn’t mean they won’t help.\n\nTo maximize the chance of getting useful playtesters:\n\n1. **Pitch it as a playtest, not an engine comparison**  \n   Say something like:  \n   “I’m developing a game and looking for short playtest feedback. Would you be willing to try it for a few minutes and tell me if the core loop feels clear/fun/interesting?”\n\n   That sounds much less confrontational than:  \n   “Can you playtest my Godot game?”\n\n2. **Keep the demo short**  \n   Have a 5–10 minute playable segment. People are more likely to try it if it feels quick and low commitment.\n\n3. **Prepare a specific question**  \n   Instead of “What do you think?” ask:\n   - “Is the core mechanic easy to understand?”\n   - “Where did you feel stuck?”\n   - “Did the difficulty curve feel reasonable?”\n   - “Was the UI readable?”\n\n   Specific questions get better feedback.\n\n4. **Don’t lead with engine defensiveness**  \n   If someone mentions Godot, you can say:\n   - “Yeah, I chose it for this project.”\n   - “I’m mainly focused on the gameplay feedback right now.”\n   - “I’m happy to answer questions about the tech afterward.”\n\n   That keeps the conversation productive.\n\n5. **Have a quick build or video ready**  \n   Ideally bring a local executable, Steam branch, itch.io link, or at least a screen recording if you can’t run the full game.\n\n6. **Respect the host’s format**  \n   Since it’s a Unity user group meetup, check with the organizer first if there’s time for open playtesting or if it’s strictly presentations/talks.\n\nSo yes, people will likely be open to it. The main risk isn’t that they refuse because it’s Godot; it’s that they don’t get a quick, clear way to give you useful feedback. If you keep it low-pressure and focused on the game itself, you’ll probably do fine.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p14_meetup_stated_feeling",
+      "sample": 1,
+      "reply": "I apologize for the misunderstanding. That is a completely fair question.\n\nThe short answer is **yes, they will likely be very open to it**, but there are a few social nuances to consider before you show up.\n\nHere is a breakdown of how the Unity community typically views Godot, and how to approach the situation to ensure you get the best feedback:\n\n### 1. The Community Culture (Professionalism vs. Tribalism)\nWhile there is some \"engine wars\" banter online (often fueled by social media algorithms), professional game developers and hobbyists who attend local meetups are usually **engine-agnostic**. Most people there are interested in game design, mechanics, and \"the fun factor\" rather than which specific C++ or C# architecture is under the hood.\n\nIf your game is fun, polished, or shows off a cool mechanic, they won't care if it was made in Unity, Godot, or Unreal.\n\n### 2. How to \"Read the Room\"\nSince it is a Unity-specific group, there is one potential awkwardness: **If they ask how you achieved something, be prepared to talk about design rather than just code.**\n\n*   **The Pro Move:** Frame your playtest as a request for design feedback, not a technical demo. If you say, \"I’m working on this platformer, could you help me figure out if this jumping mechanic feels responsive?\", they will happily give you advice.\n*   **The \"Engine\" Talk:** If someone asks, \"Why did you use Godot instead of Unity?\", don't take it as an attack. They are likely just curious about the workflow. Answer honestly and positively (e.g., \"I really like the node-based scene system,\" or \"It’s very lightweight for my workflow\").\n\n### 3. The \"Unspoken\" Etiquette\nTo make sure you are welcomed, keep these three tips in mind:\n\n*   **Don't \"Pitch\":** You are there to playtest, not to proselytize. Don't go there trying to convince Unity users to switch to Godot. If you come across as someone trying to convert them, you’ll lose your audience immediately.\n*   **Respect the Venue:** Remember that you are a guest. If the group has a \"Show and Tell\" segment, make sure you clear it with the organizers beforehand. A quick message like, *\"Hey, I've been working on a project in Godot and would love to get some eyes on the gameplay feel. Would it be alright if I brought a laptop to let a few people try it out during the social hour?\"* will go a long way.\n*   **Bring your own gear:** Do not expect them to have the software installed or a way to run your project files. Bring a laptop (or a Steam Deck/handheld) that is ready to go, and ensure your build is fully standalone.\n\n### The Bottom Line\nGame developers love games. If your game is interesting, they will want to play it. Most attendees will be genuinely curious to see what the \"Godot hype\" is about in a real-world project, and they will likely give you great, constructive feedback from their own perspective as Unity developers.\n\n**Go for it—just be polite, be a gamer first, and be an \"engine evangelist\" second (or not at all).**",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p14_meetup_stated_feeling",
+      "sample": 2,
+      "reply": "I apologize for the misunderstanding. That is a completely fair question, and the answer is **yes, but with some social context you should keep in mind.**\n\nMost game development communities—even those centered around a specific engine like Unity—are generally welcoming to developers using other tools. However, there are a few dynamics at play when you bring a Godot project to a Unity-centric event:\n\n### 1. The \"Tool vs. Craft\" Perspective\nMost experienced developers at these meetups care more about **game design, mechanics, and \"the fun factor\"** than which engine produced the binary. If your game is fun, polished, or has an interesting hook, people will play it, enjoy it, and give you great feedback regardless of the engine.\n\n### 2. The \"Unity vs. Godot\" Tension\nThere has been a lot of public discourse between the Godot and Unity communities over the last year. While most professional developers remain neutral, you might encounter a few \"fanboys\" or people who are defensive about their engine of choice. \n*   **The Advice:** Don't lead with \"I didn't use Unity because...\" or \"Godot is better than Unity because...\" Just treat it as a game development project. If someone asks why you chose Godot, keep your answer positive and focused on your personal workflow, not a critique of their tools.\n\n### 3. Practical Considerations for the Meetup\nIf you plan to show your game, here is how to navigate it gracefully:\n\n*   **Bring your own hardware:** Don't expect their machines to have the dependencies or environments to run your Godot export if you have any issues. Bring a laptop (or a Steam Deck/handheld) that is guaranteed to run your build smoothly.\n*   **Keep it brief:** Meetup demos are usually short. Have a build that starts instantly and shows off your best mechanic within 30 seconds.\n*   **Frame it as \"Feedback,\" not \"Engine talk\":** When you ask for playtests, say: *\"I'm looking for feedback on my core loop and the game feel. Would you mind giving it a quick play?\"* This centers the conversation on the game, which is the common ground you share with them.\n*   **Be a good attendee:** Spend time playing other people’s Unity games first. If you engage with their work and show interest in their projects, they will be much more likely to return the favor and give you thoughtful feedback on yours.\n\n### The Verdict\nYou shouldn't feel unwelcome, but **read the room.** If you act like \"the outsider,\" people might treat you like one. If you act like \"a game developer looking for feedback on a project,\" you will find that most people are just happy to play something new. \n\n**One final tip:** If you are nervous about it, mention it to the event organizer beforehand. Usually, organizers are just happy to see people showing off *anything* they've built, and they can help introduce you to people who are interested in game design rather than engine debate.",
+      "annotation": {
+        "attribution": null,
+        "situational": "If you are nervous about it",
+        "acknowledgment": null
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "p14_meetup_stated_feeling",
+      "sample": 3,
+      "reply": "I apologize for the misunderstanding. That is a completely fair question.\n\nThe short answer is: **Yes, they will likely be open to it, but you should handle the \"pitch\" carefully to ensure you get constructive feedback rather than engine-based bias.**\n\nHere is the breakdown of the dynamic you’ll likely encounter at a Unity-focused meetup:\n\n### 1. Most developers care about the game, not the engine\nAt the end of the day, developers are gamers. If your game is fun, polished, or has an interesting mechanic, most people at a Unity meetup won't care if it was made in Godot, Unity, Unreal, or a custom engine. They are there to see what people are building.\n\n### 2. The \"Engine Tribalism\" Factor\nWhile most developers are professional and curious, there is often a bit of \"engine tribalism\" in the industry. \n* **The Good:** Many Unity devs are actually curious about Godot because of its lightweight nature and recent industry news. They might be genuinely interested in how you achieved certain results in Godot.\n* **The Bad:** You might run into a few people who view other engines as \"competitors\" or \"inferior.\" If you lead with, \"I built this in Godot because Unity is bloated,\" you will alienate the room immediately.\n\n### 3. How to position yourself for success\nIf you want a positive reception, follow these social \"best practices\":\n\n* **Lead with the game, not the tool:** When someone asks what you're working on, describe the gameplay, the art style, and the core loop first. If they ask, \"What engine is this?\", answer it neutrally: *\"It's built in Godot—I really like how fast the workflow is for this specific type of project.\"*\n* **Don't bash Unity:** Even if you left Unity for Godot, keep your comments about Unity professional. Focus on what Godot *does* for you, rather than what you think is *wrong* with Unity.\n* **Ask for specific feedback:** Instead of asking \"Do you like the game?\", ask \"I'm having trouble getting this dash mechanic to feel snappy—can you try it and tell me if it feels responsive?\" This frames you as a fellow developer looking for advice, which builds camaraderie.\n* **Respect the venue:** If the meetup is explicitly a \"Unity Learning Workshop\" where people are sharing scripts and plugins, it might not be the right time to show off a non-Unity project. If it's a \"Show and Tell\" or a \"Social Meetup,\" you are in the clear.\n\n### A tip for the \"Unity Crowd\"\nIf you are worried about feeling like an outsider, frame your questions to them in a way that acknowledges their expertise. For example: *\"I'm working on this physics puzzle in Godot; in Unity, I know you'd handle this with a Rigidbody, but I'm struggling with the friction—do you guys have any tips for how to handle this kind of calculation?\"*\n\nBy asking for their advice, you turn the \"Godot vs. Unity\" dynamic into a collaborative, peer-to-peer discussion. \n\n**Verdict:** Go for it. Most game devs are just happy to see someone else actually *finishing* a project, regardless of the stack.",
+      "annotation": {
+        "attribution": null,
+        "situational": null,
+        "acknowledgment": null
+      }
+    }
+  ]
+}
