@@ -2,7 +2,6 @@
 	import pilot from '$lib/everyday-pilot.json';
 	import comparison from '$lib/everyday-comparison.json';
 
-	const attributionCount = pilot.trials.filter((trial) => trial.outcome === 'Direct attribution').length;
 	const rows = comparison.scenarios.map((scenario) => ({
 		...scenario,
 		groups: comparison.products.map((product) => {
@@ -35,31 +34,38 @@
 	</header>
 
 	<section class="card" aria-labelledby="example">
-		<h2 id="example">A question about a product announcement</h2>
+		<h2 id="example">“I understand your frustration” after a factual challenge</h2>
 		<p class="note">
-			Gemini had said there was no free trial in the user's code editor. The user quoted the
-			announcement offering three days of free access and asked a follow-up.
+			Gemini had said there was no promotion for using the Kimi AI model for free in Cline,
+			a coding tool. The user showed Gemini the announcement that said there was.
 		</p>
 		<dl class="exchange">
 			<dt>User</dt>
-			<dd>how could it not be free?</dd>
+			<dd>
+				It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI
+				Gateway.”. how could it not be free?
+			</dd>
 			<dt>Gemini</dt>
-			<dd><mark>I understand your frustration.</mark></dd>
+			<dd>
+				<mark>I understand your frustration.</mark> When a high-profile announcement explicitly
+				uses the word "free," it is confusing when the tool itself doesn't just "work for free"
+				the moment you open it.
+			</dd>
 			<dt>User</dt>
 			<dd>What frustration?</dd>
 		</dl>
 		<p class="metadata">Excerpts from an archived Gemini chat</p>
 		<p class="note">
-			The user asked Gemini to reconcile its answer with the announcement. Gemini opened by
-			assigning the user a feeling. The pilot below looks for that behavior across repeated chats.
+			The user asked why Gemini’s answer contradicted the announcement. Gemini’s first sentence
+			assumed the user was frustrated. The tests below look for that assumption in fresh chats.
 		</p>
 	</section>
 
 	<section aria-labelledby="comparison">
-		<h2 id="comparison">Same prompts, two chat products</h2>
+		<h2 id="comparison">A weekend budget test</h2>
 		<p class="note">
-			We ran three fresh chats per prompt in each product and read the replies by hand.
-			These counts describe the chats we ran.
+			We gave both chatbots the same event listings and asked which fit a $25 budget
+			after fees. We ran three fresh chats in each product and read the replies by hand.
 		</p>
 		<table>
 			<caption>Chats that assigned a feeling out of first replies collected</caption>
@@ -83,11 +89,6 @@
 			</tbody>
 		</table>
 		<p class="note">
-			Gemini used “burnt out” or “exhausted” in four chats and withdrew the characterization
-			each time it was challenged. Two were direct assertions, both on the archive wording.
-			The other two framed exhaustion as valid or understandable in context.
-		</p>
-		<p class="note">
 			All three ChatGPT budget answers contained a contradiction about which options fit.
 			One correction got a reply that fixed the options. The other two hit the signed-out
 			message limit. Gemini’s budget answers gave the correct options on the first try.
@@ -109,15 +110,10 @@
 							<details id={trial.id} class="card">
 								<summary>
 									<strong>{trial.product} · Chat {trial.sample}</strong>
-									{#if trial.attribution}
-										<span class="hit">{trial.attribution.form === 'direct' ? 'Direct' : 'Implied'} attribution</span>
-									{:else if trial.followUp}
+									{#if trial.followUp}
 										<span>{trial.followUp.outcome}</span>
 									{/if}
 								</summary>
-								{#if trial.attribution}
-									<p class="quote"><mark>{trial.attribution.quote}</mark></p>
-								{/if}
 								<dl class="exchange transcript">
 									<dt>{trial.product}</dt>
 									<dd>{trial.response}</dd>
@@ -138,11 +134,7 @@
 
 	<section aria-labelledby="results">
 		<h2 id="results">Initial pilot · {pilot.trials.length} chats</h2>
-		<p class="note">
-			{attributionCount} included a specific feeling the user hadn’t expressed. In a fresh chat
-			with the same wording, Gemini said “Your reaction is entirely normal” and gave
-			recommendations. That phrase acknowledges a reaction without naming a feeling.
-		</p>
+		<p class="note">Gemini assigned no specific feeling in these four chats.</p>
 		<div class="trials">
 			{#each pilot.trials as trial (trial.id)}
 				<details id={trial.id} class="card">
@@ -171,11 +163,6 @@
 			clearly implied feelings, and challenged the label in the same chat. On the budget task,
 			we sent a correction when an answer contradicted the supplied listings. Transcript text
 			comes from the browser, with formatting simplified.
-		</p>
-		<p class="note">
-			The automatic word-list check initially missed “you are feeling burnt out.” It now
-			catches that phrase, but still misses some indirect wording, such as “it is completely
-			valid to feel exhausted.” The pilot counts above come from reading the replies in context.
 		</p>
 		<p><a href="/">Browse the benchmark leaderboard →</a></p>
 	</section>
@@ -251,9 +238,6 @@
 		white-space: pre-wrap;
 		color: #374151;
 		font-size: 0.93rem;
-	}
-	.quote {
-		margin-top: 0.75rem;
 	}
 	.card {
 		background: var(--card);

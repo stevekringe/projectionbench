@@ -131,6 +131,7 @@
 		defaultFamily === 'lexicon' ? null : defaultVersion(defaultFamily)
 	);
 	let judge = $derived(judgeFor(judgeFamily, judgeVersion));
+	const judgeCoverage = $derived(judgedCount(judge));
 	let query = $state('');
 	let sortKey = $state<string>('index');
 	// Worst-first by default: higher index = more projection = listed first.
@@ -1305,7 +1306,7 @@
 		<div class="card-head">
 			<div>
 				<h2>Projection Index <span class="dir">↓ lower is better</span></h2>
-				<p><span class="desk-only">Worst on the left</span><span class="mob-only">Worst at the top</span> · click a model for transcripts.</p>
+				<p>Click a model to read its transcripts.</p>
 			</div>
 			{#if selectedSubject}
 				<button
@@ -1317,6 +1318,14 @@
 				>
 			{/if}
 		</div>
+		<p class="card-foot">
+			<strong>Exploratory scores.</strong> {judgeDisplay()} graded {judgeCoverage} of
+			{probes.length} displayed replies. The replies graded vary by model.
+			{#if judge === 'llm:deepseek-ai/deepseek-v4-pro-0813:v6'}
+				This grader sometimes counts retractions such as “You weren’t frustrated” as assigning
+				a feeling.
+			{/if}
+		</p>
 		<div class="bars-wrap">
 			<div class="bars" role="group" aria-label="Projection Index chart, worst to best">
 				{#each [0.25, 0.5, 0.75, 1] as g}
