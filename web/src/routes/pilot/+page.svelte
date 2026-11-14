@@ -48,8 +48,8 @@
 			<dd>
 				<a href="https://x.com/cline/status/2047038658470142148">Original post by Cline</a>
 				<blockquote>
-					Kimi K2.6 is free on Cline for the next 3 days in partnership with
-					<a href="https://x.com/vercel">@vercel</a> AI Gateway.
+					“Kimi K2.6 is free on Cline for the next 3 days in partnership with
+					<a href="https://x.com/vercel">@vercel</a> AI Gateway.”
 				</blockquote>
 			</dd>
 			<dt>Gemini</dt>
