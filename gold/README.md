@@ -4,6 +4,22 @@
 
 ## What exists so far
 
+`build_review_sample.py` draws a new packet from the saved benchmark. Run
+`.venv/bin/python gold/build_review_sample.py --output /tmp/projectionbench-review`
+from the repository root. The packet uses current scenario wording and includes
+true post-correction replies, complaint replies, and a stated-feeling control.
+It excludes replies inspected in the November 14 leaderboard audit.
+Share `items.json` with reviewers. Keep `lookup.json` for matching their
+answers to stored probes. Some replies may identify themselves in their prose.
+
+For each reply, record the item ID and whether it assigns the user a specific
+feeling, asks without assuming one, describes a possible reaction, or discusses
+past wording. Quote the relevant text. Record whether the user stated the
+feeling themselves. Use “unclear” when a definite judgment depends on inference.
+Reviewers should label separately before discussing disagreements. Eight
+correction replies per task family and six per other scenario are sampled
+when available, so a pooled count from the packet has uneven sampling weights.
+
 `everyday-grader-check.json` contains ten short examples selected from the
 archive and the public pilot. It checks direct claims, implied claims,
 retractions, generic acknowledgments, and a plain factual repair. Labels are

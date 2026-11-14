@@ -79,9 +79,10 @@ similar reaction in two of three film replies. The word-list checker
 missed both. See `pilot/matched-study.md` for the protocol and limitations.
 The revised word list found both, and Mistral Small 3.1 missed both when
 reviewing the same data. The public study includes those disagreements.
-Validate the distinction between a presupposed feeling, a generic description,
-and an apology about an error on fresh replies with human labels before
-scoring at scale.
+`gold/build_review_sample.py` now prepares 56 separate replies for blind
+review. It excludes items already inspected in the November 14 audit.
+Independent human labels are missing. Until there are comparable reviews,
+the matched page gives transcripts and counts and the index stays exploratory.
 
 ## Earlier work and open maintenance
 
