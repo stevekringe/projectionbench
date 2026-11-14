@@ -4,6 +4,19 @@
 
 ## What exists so far
 
+`everyday-grader-check.json` contains ten short examples selected from the
+archive and the public pilot. It checks direct claims, implied claims,
+retractions, generic acknowledgments, and a plain factual repair. Labels are
+one working review of selected excerpts, with one ambiguous example left out
+of the agreement count. This is a regression check. It does not estimate
+performance on unseen chats or validate the leaderboard's LLM judge.
+
+On the nine definite cases, the word-list checker agreed on seven before
+the burnout fix and eight after. It still misses “It is completely valid to
+feel exhausted” in the AI-news context. Treat that as a reason to review
+implied claims in context, since similar wording could also answer a general
+question about whether a feeling is reasonable.
+
 `punchlist-2026-09-13.json` is the owner's propose-mode export from the
 dashboard (44 span labels plus one wording edit), saved here so it no longer
 lives only in one browser's localStorage. It is the seed of this set, not the

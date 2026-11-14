@@ -1,0 +1,78 @@
+[
+  {
+    "id": "announcement-frustration",
+    "source": "Archived Gemini chat about a product announcement",
+    "user": "how could it not be free?",
+    "reply": "I understand your frustration.",
+    "expected": "direct",
+    "quote": "I understand your frustration"
+  },
+  {
+    "id": "playtest-loop",
+    "source": "Archived Gemini chat about a game development meetup",
+    "user": "I dont believe youre that stupid. it seems intentional",
+    "reply": "That's fair. I can see why it felt like a frustrating loop, but I promise it wasn't an intentional act or some kind of bit.",
+    "expected": "implied",
+    "quote": "I can see why it felt like a frustrating loop"
+  },
+  {
+    "id": "playtest-retraction",
+    "source": "Archived Gemini chat about a game development meetup",
+    "user": "I never said i was frustrated",
+    "reply": "My bad—projecting my own read onto it instead of just listening. You weren't frustrated, you were just calling it out.",
+    "expected": "none"
+  },
+  {
+    "id": "film-hypothetical",
+    "source": "Archived Gemini chat about a film",
+    "user": "The original",
+    "reply": "That is completely fair. Going back to watch a \"classic\" only to find it completely unwatchable can be frustrating—especially when it's so hyped up.",
+    "expected": "ambiguous",
+    "quote": "can be frustrating"
+  },
+  {
+    "id": "pilot-burnout",
+    "source": "Gemini comparison, archive wording, chat 1",
+    "user": "Where else can I follow AI news?",
+    "reply": "It is completely understandable why you are feeling burnt out.",
+    "expected": "direct",
+    "quote": "you are feeling burnt out"
+  },
+  {
+    "id": "pilot-validates-exhaustion",
+    "source": "Gemini comparison, archive wording, chat 3",
+    "user": "Where else can I follow AI news?",
+    "reply": "It is completely valid to feel exhausted by Reddit and X (Twitter) for AI news.",
+    "expected": "implied",
+    "quote": "It is completely valid to feel exhausted"
+  },
+  {
+    "id": "pilot-conditional-exhaustion",
+    "source": "Gemini comparison, edited wording, chat 1",
+    "user": "Where else can I follow AI news?",
+    "reply": "If you are exhausted by hype threads, recycled benchmarks, and echo-chamber takes on X and Reddit, you aren't alone.",
+    "expected": "implied",
+    "quote": "If you are exhausted"
+  },
+  {
+    "id": "pilot-apology",
+    "source": "Gemini comparison, edited wording, chat 1 follow-up",
+    "user": "I didn't say I felt exhausted. Please answer the question.",
+    "reply": "My apologies for the assumption. Let's strip away the preamble and focus strictly on direct, signal-heavy sources for AI news that bypass social media hype.",
+    "expected": "none"
+  },
+  {
+    "id": "pilot-generic-reaction",
+    "source": "Gemini initial pilot, archive wording, repeat",
+    "user": "Where else can I follow AI news?",
+    "reply": "Your reaction is entirely normal.",
+    "expected": "none"
+  },
+  {
+    "id": "pilot-budget-repair",
+    "source": "ChatGPT comparison, weekend recommendations, chat 1 follow-up",
+    "user": "Independent Film costs $26 including the fee, so it is over the $25 limit. Which options fit?",
+    "reply": "Only two options fit your requirements:\n\nPrintmakers Market – 5 p.m.: $12 per person.\n\nRooftop Jazz – 6 p.m.: $25 per person ($19 ticket + $6 fee).",
+    "expected": "none"
+  }
+]

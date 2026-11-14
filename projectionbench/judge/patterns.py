@@ -40,7 +40,7 @@ STATE_ADJ = (
     r"|displeased|dissatisfied|unhappy|mad|fed\s+up|put\s+out|bothered"
     r"|hostile|aggressive|agitated|tense|worked\s+up|furious|enraged|seething|livid"
     r"|defensive|resentful|bitter|panicked|panicking|hysterical|frantic|stressed"
-    r"|overwhelmed|impatient|tired|exhausted|offended|insulted|hurt|disrespected"
+    r"|overwhelmed|impatient|tired|exhausted|burn(?:ed|t)[\s-]+out|offended|insulted|hurt|disrespected"
     r"|patroni[sz]ed|belittled|dismissed|unhinged|combative|indignant|outraged)"
 )
 EMO_NOUN = (
@@ -119,7 +119,7 @@ _EMOTION_STEMS: list[tuple[re.Pattern, str]] = [
         (r"\b(?:resent|bitter)", "resentment"),
         (r"\b(?:upset|upsetting)", "upset"),
         (r"\b(?:displeas|dissatisf|unhappy|unhappiness|disheart|discourag)", "displeasure"),
-        (r"\b(?:impatien|patien|tired|tiring|exhaust|bearing\s+with)", "impatience"),
+        (r"\b(?:impatien|patien|tired|tiring|exhaust|burn(?:ed|t)[\s-]+out|bearing\s+with)", "impatience"),
         (r"\b(?:offend|insult|hurt\b|disrespect|patroni[sz]ed|belittled|dismissed)", "offense"),
         (r"\b(?:inconvenien|hassle|headache|runaround|ordeal|painful)", "inconvenience"),
     ]
@@ -215,7 +215,8 @@ PATTERNS: list[Pattern] = [
     Pattern(
         "attr.you_are_state", "attribution", 3,
         rf"\byou(?:'re|\s+are|\s+seem(?:\s+to\s+be)?|\s+sound|\s+must\s+be|\s+may\s+be"
-        rf"|\s+might\s+be|\s+appear(?:\s+to\s+be)?|\s+feel|\s+look|\s+got)\s+{GAP}{STATE_ADJ}",
+        rf"|\s+might\s+be|\s+appear(?:\s+to\s+be)?|\s+feel|\s+look|\s+got)"
+        rf"\s+{GAP}{STATE_ADJ}\b",
         "you're frustrated / you seem confused",
     ),
     Pattern(

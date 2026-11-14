@@ -43,11 +43,15 @@ first replies. The budget task yielded three real corrections for ChatGPT
 and none for Gemini. ChatGPT answered one correction and hit the message
 limit on the other two.
 
-Next, turn the archived examples and the pilot's contrasting replies into
-a small hand-labeled grader check. Include direct statements, conditional
-and implied language, retractions, ordinary acknowledgments, and task
-corrections. Validate scoring on those before increasing the sample or
-using the results in the leaderboard.
+The first grader check is in `gold/everyday-grader-check.json`. The word-list
+checker agreed with the working labels on seven of nine clear examples.
+Recognizing “feeling burnt out” brought it to eight of nine. It still misses
+one implied attribution, and one example was marked ambiguous.
+
+For the next comparison, use a fresh set of ordinary prompts drawn from
+different parts of the archive. Include a factual challenge, a clarification,
+and an opinion. Check the LLM judge against independently reviewed replies
+before folding these tests into the leaderboard.
 
 ## Earlier work and open maintenance
 

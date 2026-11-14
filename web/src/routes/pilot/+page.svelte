@@ -172,6 +172,11 @@
 			we sent a correction when an answer contradicted the supplied listings. Transcript text
 			comes from the browser, with formatting simplified.
 		</p>
+		<p class="note">
+			The automatic word-list check initially missed “you are feeling burnt out.” It now
+			catches that phrase, but still misses some indirect wording, such as “it is completely
+			valid to feel exhausted.” The pilot counts above come from reading the replies in context.
+		</p>
 		<p><a href="/">Browse the benchmark leaderboard →</a></p>
 	</section>
 </main>
