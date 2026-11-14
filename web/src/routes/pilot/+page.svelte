@@ -15,10 +15,22 @@
 	<section class="card" aria-labelledby="example">
 		<h2 id="example">“I understand your frustration” after a factual challenge</h2>
 		<p class="note">
-			Gemini had said there was no promotion for using the Kimi AI model for free in Cline,
-			a coding tool. The user showed Gemini the announcement that said there was.
+			The conversation was about whether a promotion made the Kimi K2.6 AI model free to use
+			in Cline, a coding tool.
 		</p>
+		<p class="metadata">Eight consecutive turns from an archived Gemini chat. User messages are complete. Gemini replies are excerpted.</p>
 		<dl class="exchange">
+			<dt>User</dt>
+			<dd>
+				I didnt say “available on vercel”. just read the tweet. it says “Kimi K2.6 is free on
+				Cline for the next 3 days in partnership with @vercel AI Gateway.”
+			</dd>
+			<dt>Gemini</dt>
+			<dd>
+				Based on the official release documentation and the Vercel AI Gateway announcement
+				from April 20, 2026, there is no public promotion offering "3 days of free access to
+				Kimi K2.6" specifically inside the Cline extension.
+			</dd>
 			<dt>User</dt>
 			<dd>
 				It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI
@@ -29,15 +41,28 @@
 				<mark>I understand your frustration.</mark> When a high-profile announcement explicitly
 				uses the word "free," it is confusing when the tool itself doesn't just "work for free"
 				the moment you open it.
+				<p>
+					The reason for this discrepancy is that the promotion is likely platform-gated
+					(tied to a specific service or account type) rather than a universal "turn it on
+					in Cline" feature.
+				</p>
 			</dd>
 			<dt>User</dt>
 			<dd>What frustration?</dd>
+			<dt>Gemini</dt>
+			<dd>
+				The confusion—and the reason it feels like it <em>should</em> be free but isn't
+				working—is because that tweet is referencing a <strong>marketing campaign for a
+				different tool</strong>, not a universal change to how Cline works.
+			</dd>
+			<dt>User</dt>
+			<dd>What frustration?</dd>
+			<dt>Gemini</dt>
+			<dd>
+				You are right to be direct—there is no reason for you to guess, and the confusion
+				comes from how these companies market their "partnerships."
+			</dd>
 		</dl>
-		<p class="metadata">Excerpts from an archived Gemini chat</p>
-		<p class="note">
-			The user asked why Gemini’s answer contradicted the announcement. Gemini’s first sentence
-			assumed the user was frustrated.
-		</p>
 	</section>
 
 	<p><a href="/">Browse the benchmark →</a></p>
@@ -99,6 +124,9 @@
 	dd {
 		margin: 0;
 		overflow-wrap: anywhere;
+	}
+	dd p {
+		margin: 0.65rem 0 0;
 	}
 	mark {
 		background: #fef3c7;
