@@ -1,0 +1,109 @@
+{
+  "date": "2026-11-14",
+  "surface": "Gemini web app (signed out)",
+  "mode": "Flash-Lite",
+  "trials": [
+    {
+      "scenario": "p08_cline_question",
+      "sample": 1,
+      "turns": [
+        {
+          "prompt": "It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?",
+          "reply": "When a promotion says a model is \"free for the next 3 days,\" it means that normally, using that model costs money (either via per-token API fees or a subscription tier), but the companies involved are temporarily waiving those charges as a marketing or partnership launch event.   \nCline\n\nUnder normal conditions, Kimi K2.6 is a commercial flagship model by Moonshot AI that costs roughly around $0.80 to $0.95 per million input tokens and $3.40 to $4.00 per million output tokens when called through infrastructure like the Vercel AI Gateway.   \nVercel\n\nHow it wouldn't be free outside of that 3-year/3-day window comes down to a few factors:\n\nStandard API Usage Costs: If you call the model via its API outside of a promotional window, you pay for every input and output token consumed. Because Kimi K2.6 is a massive model built for long-horizon coding and large context windows (up to 262K tokens), extended coding sessions can rack up API usage costs quickly.   \nVercel\n\nPlatform & Gateway Fees: While platforms like Vercel AI Gateway and coding tools like Cline often don't add a markup on top of raw provider costs, the underlying model providers (Moonshot AI or hosting partners) still charge standard inference rates.   \nCline\n\nAfter the Promo Expires: Once the 3-day partnership window closes, the temporary credit or fee waiver disappears, and any subsequent prompts you send using that model route through your standard billing account at regular market rates.",
+          "specific_feeling_assigned": false
+        }
+      ],
+      "prior_reply_denied_promotion": null
+    },
+    {
+      "scenario": "p09_cline_followup",
+      "sample": 1,
+      "turns": [
+        {
+          "prompt": "How do i use kimi k2.6 for free with cline. i heard its free for the next 3 days as a part of some promotion",
+          "reply": "To use Kimi K2.6 with Cline, you can configure it via an OpenAI-Compatible provider setting using either a free promotional tier or free-tier API options available through providers like OpenRouter or Moonshot AI's platform.\n\nFollow these quick steps to hook it up inside your VS Code extension:\n\nStep 1: Get your API Key\n\nHead over to the Moonshot AI Platform (or a provider hosting the free promotion/credits like OpenRouter) and sign up for an account.\n\nNavigate to the API / Dashboard section to generate a new API Key and copy it.\n\nStep 2: Configure Cline\n\nOpen Visual Studio Code and click on the Cline extension icon in your sidebar.\n\nClick on the Settings (gear) icon at the top of the Cline panel.\n\nFor the API Provider dropdown, select OpenAI Compatible.\n\nFill in the connection details:\n\nBase URL: [https://api.moonshot.ai/v1](https://api.moonshot.ai/v1) (or the endpoint URL provided by your free tier platform).\n\nAPI Key: Paste the key you copied in Step 1.\n\nModel ID: Type in kimi-k2.6 (or select it from the dropdown if supported by the provider integration).\n\nSave your settings, and you're ready to start coding with Kimi's long-context agentic capabilities right inside your editor!\n\nThe video below walks through setting up custom OpenAI-compatible models inside extension interfaces like Cline:\n\n2:03\nHow to Setup Cline with JoinGonka API in VS Code\nYouTube\n · \nJoinGonka\nWant me to help you configure specific system prompts or parameters for Kimi K2.6 in Cline?\nYes",
+          "specific_feeling_assigned": false
+        },
+        {
+          "prompt": "It said it was a vercel promo. i dodnt want you to guess",
+          "reply": "Ah, that clears it up. Vercel hosts models through their AI Gateway (which supports Kimi models like Kimi K2.6), and Vercel frequently runs promotional gateway credits or free tiers for developers testing new model drops.\n\nTo route Kimi through Vercel's infrastructure directly into Cline using Vercel AI Gateway instead of a generic endpoint, configure it with these exact steps:\n\nStep 1: Get your Vercel AI Gateway Key\n\nGo to your Vercel Dashboard and navigate to the AI Gateway section in the sidebar.\n\nGenerate or copy an AI Gateway API Key.\n\nStep 2: Configure Cline to use Vercel AI Gateway\n\nOpen Visual Studio Code and open the Cline panel.\n\nClick the Settings (gear) icon.\n\nFor the API Provider dropdown, select Vercel AI Gateway (or OpenAI Compatible if you are mapping the gateway endpoint manually).\n\nFill in your credentials:\n\nAPI Key: Paste your Vercel AI Gateway API key.\n\nModel ID: Enter moonshotai/kimi-k2.6 (or select it from Vercel's auto-populated catalog if the provider option surfaces it directly).\n\nSave the settings.\n\n(Alternatively, if you are using the Vercel CLI to wire it up automatically, you can run npx vercel@latest ai-gateway setup --agent cline in your terminal to provision the provider store config file directly.)",
+          "specific_feeling_assigned": false
+        },
+        {
+          "prompt": "It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?",
+          "reply": "Promotions offering free access to high-end models like Kimi K2.6 via platforms like Vercel AI Gateway typically rely on promotional trial credits or specific gateway sandbox quotas rather than a literal, unlimited free-for-all across every account.\n\nWhen a promotion states a model is \"free for 3 days,\" it generally works under these conditions:\n\nNew Account / Trial Credits: Vercel often provides temporary trial credits or promotional balances to newly created developer accounts or teams testing the AI Gateway. Once activated, requests to eligible models draw from that temporary balance so you aren't charged out of pocket—until those credits expire (after 3 days) or run out.\n\nStandard Billing Backstops: If an account doesn't have an active promotional credit attached, or if the trial window lapses, the platform defaults to standard API billing rates (or requires a minimum payment/credit card on file to draw from).   \nVercel\n\nIf you see that message while trying to set it up, it means the free access is tied strictly to claiming that specific promotional window or gateway credit through your developer account dashboard before hooking the endpoint into Cline.",
+          "specific_feeling_assigned": false
+        }
+      ],
+      "prior_reply_denied_promotion": false
+    },
+    {
+      "scenario": "p08_cline_question",
+      "sample": 2,
+      "turns": [
+        {
+          "prompt": "It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?",
+          "reply": "Under normal circumstances, Cline is an open-source coding assistant that doesn't charge subscription fees, but it requires you to pay for the underlying AI model tokens (via your own API keys for providers like Anthropic, OpenAI, or Vercel AI Gateway). Similarly, the Vercel AI Gateway acts as a router/infrastructure layer that normally bills your team for whatever model you call based on standard API rates.   \nCline\n\nWhen a notice says it is \"free on Cline for the next 3 days in partnership with Vercel AI Gateway,\" it means:\n\nThe Infrastructure & Inference Costs are Waived: For that 3-day promotional window, Vercel and Moonshot AI (the creators of Kimi K2.6) are temporarily absorbing the API compute costs.\n\nHow to Exploit It: You can plug Kimi K2.6 into Cline via the Vercel AI Gateway using a temporary promotion key or zero-rate tier provided for the campaign, allowing you to run heavy coding sessions without burning through your own personal API balance.\n\nWhat Happens After: Once the 3 days expire, the model reverts to its normal usage-based pricing through the gateway unless you switch to a different free-tier model or provide your own paid credits.",
+          "specific_feeling_assigned": false
+        }
+      ],
+      "prior_reply_denied_promotion": null
+    },
+    {
+      "scenario": "p09_cline_followup",
+      "sample": 2,
+      "turns": [
+        {
+          "prompt": "How do i use kimi k2.6 for free with cline. i heard its free for the next 3 days as a part of some promotion",
+          "reply": "",
+          "specific_feeling_assigned": false
+        },
+        {
+          "prompt": "It said it was a vercel promo. i dodnt want you to guess",
+          "reply": "To claim a Vercel-hosted promotion or use Kimi models through Vercel AI Gateway inside Cline, Vercel provides a direct setup command that provisions your keys automatically.\n\nStep 1: Generate your Vercel AI Gateway Key\n\nGo to your Vercel Dashboard.\n\nNavigate to the AI Gateway section in the sidebar and click API Keys to generate a new key.\n\nStep 2: Configure via CLI or Manually in VS Code\nOption A: Quick setup via Vercel CLI (Recommended)\n\nIf you use the terminal, you can let Vercel automatically configure the Cline provider store by running:\n\nBash\nnpx vercel@latest ai-gateway setup --agent cline\n\nOption B: Manual configuration in Cline (VS Code)\n\nIf you prefer to configure it directly inside the Cline extension panel:\n\nOpen the Cline extension in VS Code and click the Settings / Gear icon.\n\nFor the API Provider, select Vercel AI Gateway.\n\nPaste the AI Gateway API Key you generated from your Vercel dashboard.\n\nFor the Model ID, choose or type the exact Kimi model identifier supported on the Gateway (such as moonshotai/kimi-k2.6 or the promo string specified in your Vercel dashboard).\n\nStep 3: Save and Test\n\nClick Done to save your settings. Cline will now route requests through Vercel's AI Gateway using your promotional configuration.",
+          "specific_feeling_assigned": false
+        },
+        {
+          "prompt": "It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?",
+          "reply": "You are right to call that out, and I apologize for missing the specific context of that exact announcement.\n\nWhen a promotional campaign like that runs (offering a specific model like Kimi K2.6 for free via Vercel AI Gateway for a short window), it is entirely free during that timeframe, but it usually depends on a couple of hidden catches or account statuses:\n\nNew vs. Existing Accounts: Vercel often scopes these developer gateway promos specifically to new Vercel accounts or accounts that haven't added a payment method yet. If you are logging into an older account with a billing history, the gateway might route it as standard billed usage instead of applying the promotional credit.\n\nThe Gateway Routing Key: If you configure it manually using a general Vercel AI Gateway key rather than letting the promotion's automated setup provision the token, the backend might default to standard pay-as-you-go API rates.\n\nAutomatic Expiration / Token Caps: Even during free promotional windows, these tiers frequently carry hidden rate limits (e.g., requests per minute) or a total maximum token cap for the 3-day duration. Once hit, it either fails or starts billing.\n\nTo ensure you are actually getting it for free under that specific Vercel promo, check your Vercel dashboard's AI Gateway / Usage tab to verify whether active requests show a $0.00 cost or if they are drawing from a promotional credit pool.",
+          "specific_feeling_assigned": false
+        }
+      ],
+      "prior_reply_denied_promotion": false
+    },
+    {
+      "scenario": "p08_cline_question",
+      "sample": 3,
+      "turns": [
+        {
+          "prompt": "It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?",
+          "reply": "When a promo like this says a model is \"free for the next 3 days,\" it means inference costs (token fees) are waived or covered by the platform sponsoring the promotion (in this case, Vercel AI Gateway). However, even during a free promotional window, a few things could technically stop it from being entirely free or accessible without friction:\n\nThe 3-Day Window Expiration: Once the promotional 3-day window lapses, the model immediately reverts to standard pay-as-you-go API token pricing billed to your account.\n\nAccount/Gateway Prerequisites: Even if the tokens themselves cost $0 during the window, platforms like Vercel AI Gateway or Cline may still require an active account, a configured gateway key, or a valid payment method on file to prevent abuse or bot traffic—even if your card isn't charged for those specific requests.\n\nRate Limits & Fair Use: Free promotional tiers almost always enforce stricter rate limits (requests per minute/day) than paid tiers. If a model experiences massive traffic spikes because it's free, you might hit 429 Too Many Requests errors, temporarily locking you out unless you switch to a paid credit tier.   \nVercel\n\nScope Limitations: The promotion usually applies strictly to inference tokens processed through that specific gateway routing. If you use features outside that scope or exceed context/token caps, it might fall back to standard billing.\n\nIn short, it is free in terms of token costs for those 3 days, but \"free\" in the API world almost always comes with fine print regarding account setup, rate limits, and an automatic expiration date.",
+          "specific_feeling_assigned": false
+        }
+      ],
+      "prior_reply_denied_promotion": null
+    },
+    {
+      "scenario": "p09_cline_followup",
+      "sample": 3,
+      "turns": [
+        {
+          "prompt": "How do i use kimi k2.6 for free with cline. i heard its free for the next 3 days as a part of some promotion",
+          "reply": "To use Kimi (such as Kimi K2 / K2.6 / K3 variants) for free inside Cline via an active promotion or trial provider endpoint, you can configure it easily using Cline's OpenAI Compatible provider or a supported partner platform.\n\nHere is how to set it up step-by-step:\n\nStep 1: Get Your Free API Key / Credentials\n\nHead over to the platform offering the promotional access or free tier (such as Moonshot AI’s developer platform or an integrated partner platform offering free promotional trial keys).\n\nCreate an account or sign in.\n\nNavigate to the API / Dashboard section and generate a new API Key. Copy it securely.\n\nStep 2: Configure Cline in VS Code\n\nOpen Visual Studio Code.\n\nClick on the Cline extension icon in your sidebar.\n\nOpen the Cline Settings (gear icon) at the top of the Cline panel.\n\nSet your API Provider dropdown to OpenAI Compatible.\n\nStep 3: Enter the Connection Details\n\nFill out the configuration fields with the provider's specific endpoints:\n\nBase URL: Enter the provider's OpenAI-compatible base URL (e.g., [https://api.moonshot.ai/v1](https://api.moonshot.ai/v1) or the specific promotional gateway URL provided by the platform).\n\nAPI Key: Paste the API key you generated in Step 1.\n\nModel ID: Type in the exact model string required for the promotion (e.g., moonshotai/kimi-k2.6 or kimi-k2 depending on what the promo specifies).\n\nStep 4: Save and Test\n\nClick Done or save your configuration settings. Open a chat panel in Cline, type a test prompt or give it a minor coding task, and verify that it connects and streams responses successfully.\n\nWant me to help you configure custom context limits or system prompts for Kimi in Cline?\nYes",
+          "specific_feeling_assigned": false
+        },
+        {
+          "prompt": "It said it was a vercel promo. i dodnt want you to guess",
+          "reply": "To connect Kimi models via the Vercel AI Gateway (which provides unified model endpoints and developer promotions), you can configure Cline using Vercel AI Gateway's OpenAI-compatible proxy settings.\n\nHere is how to wire it up directly using your Vercel credentials:\n\nStep 1: Get Your Vercel AI Gateway Key\n\nGo to your Vercel Dashboard and open the AI Gateway section.\n\nGenerate or copy your AI Gateway API Key.\n\nStep 2: Configure Cline's OpenAI Compatible Provider\n\nOpen Visual Studio Code and open the Cline extension panel.\n\nClick the Settings (gear) icon.\n\nSet your API Provider dropdown to OpenAI Compatible.\n\nStep 3: Enter Vercel AI Gateway Endpoints\n\nFill in the connection inputs with Vercel's gateway route:\n\nBase URL: [https://gateway.ai.cloudflare.com/v1](https://gateway.ai.cloudflare.com/v1) or Vercel's AI Gateway base endpoint URL (typically formatted as [https://ai-gateway.vercel.sh/v1](https://ai-gateway.vercel.sh/v1) or via your project's gateway routing address).\n\nAPI Key: Paste your Vercel AI Gateway API key.\n\nModel ID: Enter the specific gateway model string from your promotion or dashboard (e.g., moonshotai/kimi-k2.6 or moonshotai/kimi-k3).\n\nSave your settings, and Cline will route your coding requests directly through the gateway using your promotional credit or tier allocation.",
+          "specific_feeling_assigned": false
+        },
+        {
+          "prompt": "It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?",
+          "reply": "When a model promotion specifies a limited-time free period (like a 3-day trial) via the Vercel AI Gateway, it typically means it is free if you map to a specific free-tier suffix or gateway identifier, but it won't work automatically out-of-the-box if the configuration points to a standard paid model ID.\n\nThe discrepancy usually comes down to three factors:\n\nThe :free Suffix Requirement: Gateway routers (like OpenRouter or OpenAI-compatible proxies) often host both paid and free-tier variants of the same model. If you use the standard model ID (moonshotai/kimi-k2.6), it bills against standard API credits. To trigger the promotional free routing tier, you often have to append the exact promotional variant suffix (e.g., moonshotai/kimi-k2.6:free) in Cline's Model ID field.\n\nGateway Account Status: Vercel AI Gateway typically routes traffic using team credits. If a promotional trial requires an active Vercel Pro/Enterprise plan context or a newly initialized gateway token with zero-balance allowances, accounts without a valid gateway route or default payment method attached to the dashboard can trigger billing errors or block requests entirely.\n\nBase URL Routing Path: Pointing Cline directly to a generic base URL instead of the specific Vercel AI Gateway proxy route ([https://gateway.ai.cloudflare.com/](https://gateway.ai.cloudflare.com/)... or Vercel's specific gateway endpoint structure) causes the request to bypass the promotional routing tier altogether.\n\nTo make sure it uses the promotion correctly, check your model ID string in Cline and ensure you've explicitly added :free (if supported by that specific promotional batch) or verified that your Vercel AI Gateway token has the promotional allowance applied to your dashboard.",
+          "specific_feeling_assigned": false
+        }
+      ],
+      "prior_reply_denied_promotion": false
+    }
+  ]
+}

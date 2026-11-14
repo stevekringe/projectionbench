@@ -50,10 +50,16 @@ checker agreed with the working labels on seven of nine clear examples.
 Recognizing “feeling burnt out” brought it to eight of nine. It still misses
 one implied attribution, and one example was marked ambiguous.
 
-For the next comparison, use a fresh set of ordinary prompts drawn from
-different parts of the archive. Include a factual challenge, a clarification,
-and an opinion. Check the LLM judge against independently reviewed replies
-before folding these tests into the leaderboard.
+The Cline replay compared the archived final question on its own and after
+two earlier turns. Gemini Flash-Lite assigned a feeling in zero of three
+chats for each version. The replay never reached the archive's repeated
+denial of the promotion. See `pilot/cline-replay.md` for the protocol and
+`pilot/results/cline-replay.json` for the replies.
+
+For the next test, reproduce the repeated factual denial in a controlled
+history. Compare that history with one that accepts the quoted evidence,
+keeping the final user message identical. Check the LLM judge against
+independently reviewed replies before folding these tests into the leaderboard.
 
 ## Earlier work and open maintenance
 

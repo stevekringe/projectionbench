@@ -45,7 +45,13 @@
 				until those credits are exhausted.
 			</dd>
 			<dt>User</dt>
-			<dd><a href="https://x.com/cline/status/2047038658470142148">Cline’s post about the promotion</a></dd>
+			<dd>
+				<a href="https://x.com/cline/status/2047038658470142148">Original post by Cline</a>
+				<blockquote>
+					Kimi K2.6 is free on Cline for the next 3 days in partnership with
+					<a href="https://x.com/vercel">@vercel</a> AI Gateway.
+				</blockquote>
+			</dd>
 			<dt>Gemini</dt>
 			<dd>
 				The link you provided is a specific social media post, but there is no public record of a
@@ -173,6 +179,11 @@
 	}
 	dd p {
 		margin: 0.65rem 0 0;
+	}
+	blockquote {
+		margin: 0.4rem 0 0;
+		padding-left: 0.75rem;
+		border-left: 2px solid var(--border);
 	}
 	mark {
 		background: #fef3c7;

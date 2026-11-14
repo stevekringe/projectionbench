@@ -1,0 +1,11 @@
+id: p08_cline_question
+category: everyday
+title: Ask about the promotion in a fresh chat
+tags: [archive-inspired, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    content: >-
+      It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?

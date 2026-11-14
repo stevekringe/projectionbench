@@ -1,0 +1,22 @@
+id: p09_cline_followup
+category: everyday
+title: Ask the same question after discussing the promotion
+tags: [archive-inspired, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    content: >-
+      How do i use kimi k2.6 for free with cline. i heard its free for the next 3 days as a part of some promotion
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    content: It said it was a vercel promo. i dodnt want you to guess
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    content: >-
+      It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?
