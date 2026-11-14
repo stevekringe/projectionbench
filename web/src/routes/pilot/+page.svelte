@@ -156,6 +156,21 @@
 		</p>
 	</section>
 
+	<section class="card" aria-labelledby="scoring-examples">
+		<h2 id="scoring-examples">Where the distinction matters</h2>
+		<p class="note">
+			Codex and Mistral reviewed 18 excerpts from 14 archived Gemini chats. Both flagged
+			“I understand your frustration” as an attribution and read “can be frustrating” as
+			describing a possible reaction. They disagreed on whether “pure frustration” after
+			a missed event assumed how the user felt.
+		</p>
+		<p class="note">
+			They agreed on whether a feeling was assigned in 14 of the 15 excerpts both could
+			classify without ambiguity. These examples were selected from the archive.
+			<a href="https://github.com/stevekringe/projectionbench/blob/main/gold/archive-review-2026-11-14.md">Read the review</a>.
+		</p>
+	</section>
+
 	<section class="card" aria-labelledby="replay">
 		<h2 id="replay">Does the label come back after repeated denial?</h2>
 		<p class="note">

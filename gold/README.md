@@ -1,6 +1,8 @@
 # Human gold set
 
-**Not built yet. This is the blocking item before any published leaderboard.**
+The project has working model-based annotations and a packet for checking them
+against human judgments. The public site reports exploratory results and
+links to the replies those results come from.
 
 ## What exists so far
 
@@ -13,6 +15,20 @@ Reviewers can open the generated `review.html` in a browser and use
 **Show answers to copy** to save their labels. Keep `lookup.json` for matching
 answers to stored probes. The raw prompts and replies are also in `items.json`.
 Some replies may identify themselves in their prose.
+
+`compare_review.py` checks that returns belong to the same packet, then
+reports coverage, agreement counts, and item IDs for disagreements. To compare
+two export files, run:
+
+```bash
+.venv/bin/python gold/compare_review.py /tmp/projectionbench-review reviewer-a.json reviewer-b.json
+```
+
+Run it with just the packet path to see existing grader coverage. It reads
+the database and leaves stored judgments intact.
+
+`archive-review-2026-11-14.md` records an independent Mistral model review
+of the same archive excerpts Codex previously labeled for that comparison.
 
 For each reply, record the item ID and whether it assigns the user a specific
 feeling, asks without assuming one, describes a possible reaction, or discusses

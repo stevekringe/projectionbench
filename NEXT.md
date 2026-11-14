@@ -81,8 +81,15 @@ The revised word list found both, and Mistral Small 3.1 missed both when
 reviewing the same data. The public study includes those disagreements.
 `gold/build_review_sample.py` now prepares 56 separate replies for blind
 review. It excludes items already inspected in the November 14 audit.
-Independent human labels are missing. Until there are comparable reviews,
-the matched page gives transcripts and counts and the index stays exploratory.
+`gold/compare_review.py` compares returned labels with one another and with
+the stored graders on the same replies.
+
+On 18 excerpts from 14 archived chats, Codex and Mistral agreed on 14 of
+15 definite attribution decisions. The separate labels for a direct claim,
+an implication, situational language, and a retraction are useful for explaining
+individual replies. See `gold/archive-review-2026-11-14.md`. Use these distinctions
+in the next matched run and publish agreement and disagreement with the replies.
+Human labels remain useful for validating the graders independently.
 
 ## Earlier work and open maintenance
 
