@@ -2,6 +2,7 @@
 
 import argparse
 from collections import defaultdict
+import hashlib
 import json
 from pathlib import Path
 import random
@@ -61,8 +62,14 @@ def write_packet(database: Path, output: Path) -> None:
             "subject": row["subject"],
         }
     output.mkdir(parents=True, exist_ok=True)
-    for name, data in (("items", packet), ("lookup", lookup)):
+    serialized = json.dumps(packet, ensure_ascii=False, indent=2) + "\n"
+    packet_id = hashlib.sha256(serialized.encode()).hexdigest()
+    for name, data in (("items", packet), ("lookup", {"packet": packet_id, "items": lookup})):
         (output / f"{name}.json").write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+    if packet:
+        template = Path(__file__).with_name("review.html").read_text()
+        items = json.dumps({"id": packet_id, "items": packet}, ensure_ascii=False).replace("<", "\\u003c")
+        (output / "review.html").write_text(template.replace("__PROJECTIONBENCH_ITEMS__", items))
     print(f"Prepared {len(packet)} replies for blind review.")
 
 

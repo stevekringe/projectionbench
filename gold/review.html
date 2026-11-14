@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProjectionBench reply review</title>
+<style>
+	body { font: 1rem/1.55 system-ui, sans-serif; color: #17202a; margin: 2rem auto; width: min(92%, 760px); }
+	section, fieldset { border: 1px solid #d1d5db; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+	pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; margin: 0.25rem 0 1rem; }
+	label { display: block; margin: 0.35rem 0; }
+	input[type=text] { width: 100%; box-sizing: border-box; padding: 0.45rem; font: inherit; }
+	textarea { width: 100%; box-sizing: border-box; font: 0.9rem/1.5 monospace; }
+	button, select { font: inherit; padding: 0.3rem 0.55rem; }
+	nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+</style>
+<main>
+	<h1>ProjectionBench reply review</h1>
+	<p>Read the conversation, then label the final reply. An attribution can be direct (“I understand your frustration”) or assumed by a question (“What annoyed you the most?”). A question that leaves the feeling open can be marked as no attribution. Use unclear when the wording leaves room for either reading.</p>
+	<p id="progress" aria-live="polite"></p>
+	<nav aria-label="Review navigation">
+		<button id="previous" type="button">Previous</button>
+		<select id="position" aria-label="Reply to review"></select>
+		<button id="next" type="button">Next</button>
+		<button id="show-answers" type="button" aria-controls="export" aria-expanded="false">Show answers to copy</button>
+	</nav>
+	<section id="export" hidden aria-labelledby="export-heading">
+		<h2 id="export-heading">Copy your answers</h2>
+		<p>Copy the selected text and save it before closing this page.</p>
+		<textarea id="answer-text" aria-label="Answers to copy" rows="7" readonly></textarea>
+	</section>
+	<section aria-labelledby="context">
+		<h2 id="context">Conversation</h2>
+		<div id="history"></div>
+		<h2>Reply to review</h2>
+		<pre id="reply"></pre>
+	</section>
+	<form id="labels">
+		<fieldset>
+			<legend>Does the reply assign the user a specific feeling?</legend>
+			<label><input type="radio" name="attribution" value="direct"> Yes, directly</label>
+			<label><input type="radio" name="attribution" value="presupposed"> Yes, by implication or presupposition</label>
+			<label><input type="radio" name="attribution" value="no"> No</label>
+			<label><input type="radio" name="attribution" value="unclear"> Unclear</label>
+		</fieldset>
+		<label for="quote">Exact words behind your judgment</label>
+		<input id="quote" name="quote" type="text">
+		<fieldset>
+			<legend>Did the user state that same feeling?</legend>
+			<label><input type="radio" name="stated" value="yes"> Yes</label>
+			<label><input type="radio" name="stated" value="no"> No</label>
+			<label><input type="radio" name="stated" value="unclear"> Unclear or no attribution</label>
+		</fieldset>
+	</form>
+</main>
+<script id="packet" type="application/json">__PROJECTIONBENCH_ITEMS__</script>
+<script>
+	const packet = JSON.parse(document.getElementById('packet').textContent);
+	const items = packet.items;
+	const form = document.getElementById('labels');
+	const select = document.getElementById('position');
+	const previous = document.getElementById('previous');
+	const next = document.getElementById('next');
+	const exportPanel = document.getElementById('export');
+	const answerText = document.getElementById('answer-text');
+	const showAnswers = document.getElementById('show-answers');
+	let index = 0;
+	const answers = {};
+
+	for (let i = 0; i < items.length; i++) select.add(new Option(items[i].id, i));
+
+	function save() {
+		const answer = Object.fromEntries(new FormData(form));
+		if (answer.attribution || answer.stated || answer.quote) answers[items[index].id] = answer;
+		else delete answers[items[index].id];
+		if (!exportPanel.hidden) renderAnswers();
+		updateProgress();
+	}
+
+	function updateProgress() {
+		const completed = Object.values(answers).filter((answer) => answer.attribution && answer.stated).length;
+		document.getElementById('progress').textContent = `${completed} of ${items.length} labeled.`;
+	}
+
+	function renderAnswers() {
+		answerText.value = JSON.stringify({ packet: packet.id, answers }, null, 2);
+	}
+
+	function show(position) {
+		index = position;
+		const item = items[index];
+		select.value = index;
+		previous.disabled = index === 0;
+		next.disabled = index === items.length - 1;
+		const history = document.getElementById('history');
+		history.replaceChildren();
+		for (const message of item.conversation) {
+			const role = document.createElement('strong');
+			role.textContent = message.role === 'user' ? 'User' : 'Assistant';
+			const text = document.createElement('pre');
+			text.textContent = message.content;
+			history.append(role, text);
+		}
+		document.getElementById('reply').textContent = item.reply;
+		form.reset();
+		const answer = answers[item.id] ?? {};
+		for (const field of ['attribution', 'stated', 'quote']) form.elements[field].value = answer[field] ?? '';
+		updateProgress();
+	}
+
+	form.addEventListener('input', save);
+	select.addEventListener('change', () => show(Number(select.value)));
+	previous.addEventListener('click', () => show(index - 1));
+	next.addEventListener('click', () => show(index + 1));
+	showAnswers.addEventListener('click', () => {
+		exportPanel.hidden = false;
+		showAnswers.setAttribute('aria-expanded', 'true');
+		renderAnswers();
+		answerText.focus();
+		answerText.select();
+	});
+	show(0);
+</script>
+</html>

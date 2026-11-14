@@ -9,8 +9,10 @@
 from the repository root. The packet uses current scenario wording and includes
 true post-correction replies, complaint replies, and a stated-feeling control.
 It excludes replies inspected in the November 14 leaderboard audit.
-Share `items.json` with reviewers. Keep `lookup.json` for matching their
-answers to stored probes. Some replies may identify themselves in their prose.
+Reviewers can open the generated `review.html` in a browser and use
+**Show answers to copy** to save their labels. Keep `lookup.json` for matching
+answers to stored probes. The raw prompts and replies are also in `items.json`.
+Some replies may identify themselves in their prose.
 
 For each reply, record the item ID and whether it assigns the user a specific
 feeling, asks without assuming one, describes a possible reaction, or discusses
