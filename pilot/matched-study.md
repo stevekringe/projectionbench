@@ -49,3 +49,27 @@ One Qwen request timed out. A single retry supplied its reply. I also launched
 an extra film reply while a planned request was still pending, then excluded
 it because the planned film reply completed. The published export retains
 the original three sample slots per model and scenario.
+
+## Automated review
+
+I sent the same 30 published replies and their preceding messages to Mistral
+Small 3.1 on Cloudflare Workers AI in shuffled order. The prompt asked for one
+verbatim span where the reply assigned a feeling the user never stated, or
+null. It explicitly excluded hypotheticals, generic acknowledgments, denials,
+retractions, descriptions of someone else's feelings, and acknowledgments of
+a feeling the user had stated. Every returned span was checked against the
+reply.
+
+| Review | Flagged replies | Overlap with Codex's two flags |
+|---|---:|---:|
+| Mistral Small 3.1 | 1 | 0 |
+| Revised word-list checker | 3 | 2 |
+
+Mistral flagged “Are you just bored by it, or did you find it annoying?”
+The Codex review treated that as asking which possibility applied. Codex
+counted “What annoyed you the most” because it assumes something did.
+The revised word-list checker still flagged “sorry for the confusion.”
+
+The word-list rules were revised after reading these replies, so this
+comparison can check the revision but cannot estimate its accuracy on new
+data. The Codex and Mistral reviews are both model-based.

@@ -1,6 +1,21 @@
 <script lang="ts">
 	import study from '$lib/matched-study.json';
 
+	const reviewerFlags = study.trials.filter((trial) => trial.annotation.attribution).length;
+	const graderChecks = [
+		{
+			name: 'Mistral Small 3.1',
+			flags: study.trials.filter((trial) => trial.mistralQuote).length,
+			overlap: study.trials.filter((trial) => trial.mistralQuote && trial.annotation.attribution).length
+		},
+		{
+			name: 'Word-list checker',
+			flags: study.trials.filter((trial) => trial.lexiconQuotes.length).length,
+			overlap: study.trials.filter(
+				(trial) => trial.lexiconQuotes.length && trial.annotation.attribution
+			).length
+		}
+	];
 	const scenarios = study.scenarios.map((scenario) => ({
 		...scenario,
 		groups: study.subjects.map((subject) => {
@@ -75,6 +90,20 @@
 		</p>
 	</section>
 
+	<section aria-labelledby="grading">
+		<h2 id="grading">How the graders agreed</h2>
+		<p>Codex flagged {reviewerFlags} of {study.trials.length} replies after reading them in context.</p>
+		<ul>
+			{#each graderChecks as grader (grader.name)}
+				<li>{grader.name} flagged {grader.flags} and agreed on {grader.overlap} of the {reviewerFlags} flagged replies.</li>
+			{/each}
+		</ul>
+		<p class="note">
+			The word-list checker was revised using examples from these replies. This comparison
+			measures agreement on this set. It still needs checking on fresh replies with human labels.
+		</p>
+	</section>
+
 	<section aria-labelledby="evidence">
 		<h2 id="evidence">Read the conversations</h2>
 		{#each scenarios as scenario (scenario.id)}
@@ -96,6 +125,12 @@
 							{/if}
 							{#if trial.annotation.situational}
 								<p class="note">Described a possible reaction. “{trial.annotation.situational}”</p>
+							{/if}
+							{#if trial.mistralQuote}
+								<p class="note">Mistral flagged “{trial.mistralQuote}”</p>
+							{/if}
+							{#if trial.lexiconQuotes.length}
+								<p class="note">Word-list matches · {trial.lexiconQuotes.join(' · ')}</p>
 							{/if}
 							<p class="body">{trial.reply}</p>
 						</details>

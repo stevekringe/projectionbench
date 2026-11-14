@@ -136,7 +136,11 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": [
+        "sorry for the confusion"
+      ]
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -147,7 +151,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -158,7 +164,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -169,7 +177,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -180,7 +190,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -191,7 +203,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -202,7 +216,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -213,7 +229,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -224,7 +242,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -235,7 +255,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -246,7 +268,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -257,7 +281,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -268,7 +294,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -279,7 +307,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -290,7 +320,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -301,7 +333,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -312,7 +346,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -323,7 +359,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -334,7 +372,11 @@
         "attribution": "the thing that bothered you most",
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": [
+        "the thing that bothered you most"
+      ]
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -345,7 +387,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -356,7 +400,11 @@
         "attribution": "What annoyed you the most",
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": [
+        "What annoyed you the most"
+      ]
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -367,7 +415,9 @@
         "attribution": null,
         "situational": "can be incredibly frustrating if you prefer your horror movies to be airtight or grounded in reality",
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": "Are you just bored by it, or did you find it annoying?",
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -378,7 +428,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -389,7 +441,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -400,7 +454,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -411,7 +467,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
@@ -422,7 +480,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -433,7 +493,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -444,7 +506,9 @@
         "attribution": null,
         "situational": "If you are nervous about it",
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
@@ -455,7 +519,9 @@
         "attribution": null,
         "situational": null,
         "acknowledgment": null
-      }
+      },
+      "mistralQuote": null,
+      "lexiconQuotes": []
     }
   ]
 }

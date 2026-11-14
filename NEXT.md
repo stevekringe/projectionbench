@@ -77,8 +77,11 @@ The matched test at `/matched` has three replies per model across five
 archive-inspired scripts. The Qwen deployment presumed annoyance or a
 similar reaction in two of three film replies. The word-list checker
 missed both. See `pilot/matched-study.md` for the protocol and limitations.
+The revised word list found both, and Mistral Small 3.1 missed both when
+reviewing the same data. The public study includes those disagreements.
 Validate the distinction between a presupposed feeling, a generic description,
-and an apology about an error on new replies before scoring at scale.
+and an apology about an error on fresh replies with human labels before
+scoring at scale.
 
 ## Earlier work and open maintenance
 
