@@ -8,6 +8,10 @@ The canonical case: you point out that the model got something wrong, and it
 replies *"I understand your frustration."* You didn't say you were frustrated.
 The model asserted it.
 
+See the [version 1 results](https://projectionbench.com/benchmark) and
+[run protocol](pilot/benchmark-v1/README.md) for six fixed conversations,
+the full generated replies, and two independent model-based grades.
+
 ## What it actually measures
 
 Not condescension — that's a matter of taste and a skeptic can dismiss it. Three

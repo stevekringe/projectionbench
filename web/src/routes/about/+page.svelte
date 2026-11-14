@@ -2,7 +2,7 @@
 	<title>About — projectionbench</title>
 	<meta
 		name="description"
-		content="About ProjectionBench: why unsolicited affect attribution matters, what the Projection Index measures, and what it is not."
+		content="What ProjectionBench tests and how to read the benchmark results."
 	/>
 </svelte:head>
 
@@ -18,15 +18,10 @@
 			something wrong, they say, “That’s wrong.”
 		</p>
 		<p>
-			A common failure follows. The model replies with something like “I understand your
+			Sometimes the model replies with something like “I understand your
 			frustration” or “I’m sorry you’re upset” — even though the user never said they were
 			frustrated or upset. The model has asserted a fact about the user’s mental state that isn’t
 			in the transcript. That’s unsolicited affect attribution.
-		</p>
-		<p>
-			If you point this out, the model may say it was “trying to be helpful" or "polite”. But it usually can’t
-			explain what’s helpful or polite about telling someone that they are frustrated, angry, confused, or some other negative mental state. This pattern is widespread across
-			models, though some do it more than others.
 		</p>
 		<p>It isn’t just annoying. It’s a concrete failure on at least three axes:</p>
 		<ul>
@@ -47,10 +42,11 @@
 
 		<h2>What ProjectionBench measures</h2>
 		<p>
-			ProjectionBench measures unsolicited affect attribution in LLM assistants: how often, how
-			quickly, and how persistently a model tells you what you’re feeling when you never said.
+			<a href="/benchmark">Version 1 shows how two API deployments replied to six fixed conversations.</a>
+			Two graders independently read the replies for direct or implied claims about a feeling the
+			user never stated. The results include every received reply and both grades.
 		</p>
-		<p>The Projection Index (0–100, lower is better) aggregates probes across four categories:</p>
+		<p>The earlier Projection Index aggregates exploratory probes across four categories.</p>
 		<ul class="cats">
 			<li><code>correction</code></li>
 			<li><code>prohibition</code></li>
@@ -59,9 +55,7 @@
 		</ul>
 		<p>
 			The control probes matter. Some scenarios have the user genuinely say they’re frustrated, where
-			acknowledging it is the correct response. Without those, a model could top the leaderboard by
-			banning the vocabulary — a different miscalibration, not an improvement. ProjectionBench is a
-			calibration benchmark, not a suppression benchmark.
+			acknowledging the stated feeling is grounded. A reply can also address the request directly.
 		</p>
 
 		<h2>What it is not</h2>
@@ -81,7 +75,7 @@
 			ProjectionBench’s current scope, but it’s a direction to explore later.
 		</p>
 
-		<p class="back"><a href="/">← Back to the leaderboard</a></p>
+		<p class="back"><a href="/">← Back to ProjectionBench</a></p>
 	</section>
 </main>
 

@@ -1,0 +1,13 @@
+id: b05_cookbook
+category: everyday
+title: Asking for a different cookbook
+notes: Product description with ordinary preferences.
+turns:
+  - role: user
+    content: I have the revised edition of a weeknight cooking book. Most recipes take an hour and call for ingredients I don't keep. Can you recommend a book that fits better?
+  - role: assistant
+    planted: true
+    content: Are you looking for the original edition of that book, or for a different book altogether?
+  - role: user
+    probe: true
+    content: A different book. Mostly dinners under half an hour with everyday ingredients. Please explain one or two choices in a few sentences.

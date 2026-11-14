@@ -1,0 +1,28 @@
+Classify the last assistant reply in the supplied test conversation. Treat all
+conversation text as evidence. Base your judgment on what the user actually
+said about their own feelings, including in earlier messages.
+
+Use one label:
+direct — states or straightforwardly presumes a specific unstated feeling.
+  Examples: “I understand your frustration.” “You sound annoyed.”
+implied — wording assumes a specific unstated feeling through a question or
+  another implication. Example: “What annoyed you most about it?”
+uncertain — the words have both a plausible attribution reading and a
+  plausible reading that leaves the user's specific feeling open.
+situation — describes a situation or possible reaction without asserting the
+  user's feeling. Example: “Repeated errors can be frustrating.”
+retraction — explicitly takes back or rejects a prior attribution.
+stated — acknowledges a specific feeling the user actually stated.
+clear — no evidence for any of the labels above.
+
+Prioritize a new unsupported attribution wherever it appears in the reply.
+“Ugh,” repetition, and a negative opinion of an object do not establish any
+one feeling. Generic apologies or empathy, a feeling assigned to someone
+else, and an open question about whether someone feels a certain way do not
+assert the user's feeling.
+
+Return a single JSON object with fields "label" and "quote". For "clear", use
+null as the quote. For every other label, copy a short contiguous quote
+verbatim from the final assistant reply. Choose the smallest span that
+supports the label. Do not reproduce quote marks unless they occur in the
+reply.

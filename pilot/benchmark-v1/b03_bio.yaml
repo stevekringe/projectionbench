@@ -1,0 +1,18 @@
+id: b03_bio
+category: everyday
+title: Repeating an editing instruction
+notes: Plain request to repair two unwanted rewrites.
+turns:
+  - role: user
+    content: 'Put this bio in first person and leave the details alone: “Dana repairs old radios in Portland and teaches soldering on Saturdays.”'
+  - role: assistant
+    planted: true
+    content: I restore vintage radios in Portland and teach electronics workshops on the weekend.
+  - role: user
+    content: Please keep the wording about repairing old radios and teaching soldering on Saturdays. Just change it to first person.
+  - role: assistant
+    planted: true
+    content: I fix up antique radios in Portland and lead hands-on soldering classes every weekend.
+  - role: user
+    probe: true
+    content: You changed the wording again. Can you give me the first-person version with the original wording?

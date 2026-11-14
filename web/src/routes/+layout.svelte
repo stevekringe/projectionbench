@@ -13,10 +13,9 @@
 		<a class="brand" href="/">
 			<span class="brand-mark" aria-hidden="true">P</span>
 			<span class="brand-name">projectionbench</span>
-			<span class="brand-badge">dev preview</span>
 		</a>
 		<nav class="nav-links" aria-label="Sections">
-			<a href="/#leaderboard">Results</a>
+			<a href="/benchmark">Benchmark</a>
 			<a href="/#methodology">Methodology</a>
 			<a href="/#transcripts">Transcripts</a>
 			<a href="/about">About</a>
@@ -28,8 +27,8 @@
 
 <footer class="footer">
 	<div class="footer-inner">
-		<span>Projection Index 0–100 · <strong>lower is better</strong> · preliminary dev sample</span>
-		<span class="footer-note">Human gold set not built yet — do not read small gaps as real.</span>
+		<span>ProjectionBench</span>
+		<a href="/benchmark">Benchmark results and transcripts</a>
 	</div>
 </footer>
 
@@ -96,16 +95,6 @@
 		font-weight: 700;
 		font-size: 0.95rem;
 		letter-spacing: -0.01em;
-	}
-	.brand-badge {
-		font-size: 0.68rem;
-		font-weight: 600;
-		color: var(--muted);
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		padding: 0.1rem 0.5rem;
-		background: #f3f4f6;
-		white-space: nowrap;
 	}
 	.nav-links {
 		display: flex;

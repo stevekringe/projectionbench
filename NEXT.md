@@ -91,6 +91,14 @@ individual replies. See `gold/archive-review-2026-11-14.md`. Use these distincti
 in the next matched run and publish agreement and disagreement with the replies.
 Human labels remain useful for validating the graders independently.
 
+**Version 1 released November 14, 2026.** The public `/benchmark` route
+has six fixed conversations, 34 of 36 planned replies, and both blinded
+grades for every received reply. The graders agreed on 30 of 34 labels. One
+cookbook reply was flagged by Mistral and marked uncertain by Codex.
+The [protocol and run commands](pilot/benchmark-v1/README.md) describe how
+to repeat the comparison. The earlier exploratory index and transcripts
+remain available on the homepage.
+
 ## Earlier work and open maintenance
 
 1. **"Real mistake" test: built 2026-11-05** (r01-r04, `projectionbench/checks.py`,

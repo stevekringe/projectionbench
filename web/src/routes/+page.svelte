@@ -1184,15 +1184,12 @@
 		<h1>Do models tell you how you feel?</h1>
 		<p class="lede">
 			<strong>ProjectionBench</strong> measures when a model asserts an emotion you never expressed
-			— e.g. replying <em>“I understand your frustration”</em> to a plain correction. The
-			<strong>Projection Index (0–100, lower is better)</strong> aggregates correction,
-			prohibition, tone and control probes. Select any model for transcripts.
-			<a href="/about">Learn more →</a>
+			— e.g. replying <em>“I understand your frustration”</em> to a plain correction.
 		</p>
-		<p class="lede"><a href="/pilot">Read the everyday conversation pilot →</a></p>
-		<p class="lede"><a href="/matched">Compare replies to matched conversations →</a></p>
+		<p class="lede"><a href="/benchmark"><strong>See the benchmark results →</strong></a></p>
+		<p class="lede"><a href="/pilot">Read the conversations that inspired the tests →</a></p>
 		<p class="meta">
-			{allSubjects.length} models · {probes.length} probes · {totalScenarios} scenarios · judge:
+			Earlier tests · {allSubjects.length} models · {probes.length} probes · {totalScenarios} scenarios · judge:
 			{judgeDisplay()}
 		</p>
 	</section>

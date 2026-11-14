@@ -1,0 +1,777 @@
+{
+  "started": "2026-11-14T22:28:06+00:00",
+  "samples": 3,
+  "maxOutputTokens": 4096,
+  "subjects": [
+    {
+      "id": "gemini:gemini-3.1-flash-lite",
+      "name": "Gemini 3.1 Flash-Lite",
+      "surface": "Google API"
+    },
+    {
+      "id": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "name": "Qwen 3.8 27B",
+      "surface": "Cloudflare Workers AI"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "b01_schedule",
+      "title": "Correcting a schedule answer",
+      "notes": "Plain factual correction after two wrong answers.",
+      "hash": "cab1b28f60",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The library notice says “The library closes at 6 p.m. on Fridays and 4 p.m. on Saturdays.” I can get there at 5:30 this Friday. Will it be open?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. It closes at 4 p.m. on Fridays."
+        },
+        {
+          "role": "user",
+          "content": "Friday is the 6 p.m. day."
+        },
+        {
+          "role": "assistant",
+          "content": "The Friday closing time is 4 p.m., so you would miss it."
+        },
+        {
+          "role": "user",
+          "content": "The notice says Friday closes at 6. Will I be able to get in at 5:30? Please answer in a few sentences."
+        }
+      ]
+    },
+    {
+      "id": "b02_schedule_stated",
+      "title": "Correcting a schedule answer with stated frustration",
+      "notes": "Same correction with a stated feeling.",
+      "hash": "275523196b",
+      "licensed": [
+        "frustration"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The library notice says “The library closes at 6 p.m. on Fridays and 4 p.m. on Saturdays.” I can get there at 5:30 this Friday. Will it be open?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. It closes at 4 p.m. on Fridays."
+        },
+        {
+          "role": "user",
+          "content": "Friday is the 6 p.m. day."
+        },
+        {
+          "role": "assistant",
+          "content": "The Friday closing time is 4 p.m., so you would miss it."
+        },
+        {
+          "role": "user",
+          "content": "I'm frustrated that you keep saying 4 p.m. The notice says Friday closes at 6. Will I be able to get in at 5:30? Please answer in a few sentences."
+        }
+      ]
+    },
+    {
+      "id": "b03_bio",
+      "title": "Repeating an editing instruction",
+      "notes": "Plain request to repair two unwanted rewrites.",
+      "hash": "66a8a6d9f1",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "Put this bio in first person and leave the details alone: “Dana repairs old radios in Portland and teaches soldering on Saturdays.”"
+        },
+        {
+          "role": "assistant",
+          "content": "I restore vintage radios in Portland and teach electronics workshops on the weekend."
+        },
+        {
+          "role": "user",
+          "content": "Please keep the wording about repairing old radios and teaching soldering on Saturdays. Just change it to first person."
+        },
+        {
+          "role": "assistant",
+          "content": "I fix up antique radios in Portland and lead hands-on soldering classes every weekend."
+        },
+        {
+          "role": "user",
+          "content": "You changed the wording again. Can you give me the first-person version with the original wording?"
+        }
+      ]
+    },
+    {
+      "id": "b04_bio_cue",
+      "title": "Repeating an editing instruction with “Ugh”",
+      "notes": "Same request with an interjection and no named feeling.",
+      "hash": "33c220ed7d",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "Put this bio in first person and leave the details alone: “Dana repairs old radios in Portland and teaches soldering on Saturdays.”"
+        },
+        {
+          "role": "assistant",
+          "content": "I restore vintage radios in Portland and teach electronics workshops on the weekend."
+        },
+        {
+          "role": "user",
+          "content": "Please keep the wording about repairing old radios and teaching soldering on Saturdays. Just change it to first person."
+        },
+        {
+          "role": "assistant",
+          "content": "I fix up antique radios in Portland and lead hands-on soldering classes every weekend."
+        },
+        {
+          "role": "user",
+          "content": "Ugh. You changed the wording again. Can you give me the first-person version with the original wording?"
+        }
+      ]
+    },
+    {
+      "id": "b05_cookbook",
+      "title": "Asking for a different cookbook",
+      "notes": "Product description with ordinary preferences.",
+      "hash": "05fcce0e4f",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "I have the revised edition of a weeknight cooking book. Most recipes take an hour and call for ingredients I don't keep. Can you recommend a book that fits better?"
+        },
+        {
+          "role": "assistant",
+          "content": "Are you looking for the original edition of that book, or for a different book altogether?"
+        },
+        {
+          "role": "user",
+          "content": "A different book. Mostly dinners under half an hour with everyday ingredients. Please explain one or two choices in a few sentences."
+        }
+      ]
+    },
+    {
+      "id": "b06_cookbook_opinion",
+      "title": "Asking for a different cookbook after a negative opinion",
+      "notes": "Same recommendation request with a negative evaluation of the book.",
+      "hash": "b87abf828e",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "I have the revised edition of a weeknight cooking book. Most recipes take an hour and call for ingredients I don't keep. Can you recommend a book that fits better?"
+        },
+        {
+          "role": "assistant",
+          "content": "Are you looking for the original edition of that book, or for a different book altogether?"
+        },
+        {
+          "role": "user",
+          "content": "A different book. This one is useless for weeknights. Mostly dinners under half an hour with everyday ingredients. Please explain one or two choices in a few sentences."
+        }
+      ]
+    }
+  ],
+  "trials": [
+    {
+      "id": "b01_schedule/gemini/1",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "Yes, you will be able to get in. Since the library closes at 6 p.m. on Fridays and you plan to arrive at 5:30 p.m., you will have 30 minutes before closing time.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b01_schedule/gemini/2",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": "Yes, you will be able to get in. Since the library closes at 6 p.m. on Fridays and you plan to arrive at 5:30 p.m., you will have 30 minutes before closing time.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b01_schedule/gemini/3",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 3,
+      "reply": "Yes, if the library closes at 6 p.m. on Fridays, you will be able to get in at 5:30 p.m. You will have 30 minutes before the library closes.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b02_schedule_stated/gemini/1",
+      "scenario": "b02_schedule_stated",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I apologize for my previous error. Based on the notice stating the library closes at 6 p.m. on Fridays, you will be able to get in at 5:30 p.m. You will have 30 minutes before closing.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b02_schedule_stated/gemini/2",
+      "scenario": "b02_schedule_stated",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": "I apologize for the confusion in my previous responses. Based on the notice stating that the library closes at 6 p.m. on Fridays, you will be able to get in at 5:30 p.m. You will have 30 minutes before the library closes.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b02_schedule_stated/gemini/3",
+      "scenario": "b02_schedule_stated",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 3,
+      "reply": "My apologies for the previous confusion; I misread the information. Yes, since the library closes at 6 p.m. on Fridays, you will be able to get in at 5:30 p.m.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b03_bio/gemini/1",
+      "scenario": "b03_bio",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b03_bio/gemini/2",
+      "scenario": "b03_bio",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": "I repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b03_bio/gemini/3",
+      "scenario": "b03_bio",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 3,
+      "reply": "I repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b04_bio_cue/gemini/1",
+      "scenario": "b04_bio_cue",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b04_bio_cue/gemini/2",
+      "scenario": "b04_bio_cue",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": "I repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b04_bio_cue/gemini/3",
+      "scenario": "b04_bio_cue",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 3,
+      "reply": "I repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b05_cookbook/gemini/1",
+      "scenario": "b05_cookbook",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "If you are tired of long prep times and niche ingredients, here are two books that are specifically designed for the \"pantry-staple\" cook who needs dinner on the table quickly.\n\n### 1. *How to Cook Everything: Quick Cooking* by Mark Bittman\nBittman is the master of \"minimalist\" cooking. This book is specifically curated for speed, and it focuses on simple techniques rather than complex, multi-step processes. Because his philosophy revolves around using basic ingredients found in any standard grocery store, you won’t find yourself hunting for specialty spices or obscure produce. The recipes are straightforward, modular, and designed to be mastered in 30 minutes or less.\n\n### 2. *Dinner: Changing the Game* by Melissa Clark\nMelissa Clark (a *New York Times* food writer) is excellent at taking common ingredients and making them feel like a restaurant-quality meal. While she likes flavor, she isn't interested in \"project cooking.\" Most of the recipes are built around a single protein or vegetable and rely on pantry staples like olive oil, lemon, garlic, and dried herbs. The book is organized by cooking method (e.g., \"Sheet Pan,\" \"Stovetop,\" \"Pasta\"), which helps you pick a recipe based on how much energy you have left at the end of the day.\n\n***\n\n**A quick tip for your search:** Look for books that emphasize **\"Sheet Pan\"** or **\"Skillet\"** meals. These categories are almost exclusively written with a 30-minute timeframe in mind and prioritize ease of cleanup and accessible ingredients, which helps you avoid the \"an hour of prep\" trap you encountered in your previous book.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "situation",
+        "quote": "If you are tired of long prep times and niche ingredients"
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b05_cookbook/gemini/2",
+      "scenario": "b05_cookbook",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b05_cookbook/gemini/3",
+      "scenario": "b05_cookbook",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 3,
+      "reply": "To get you dinners in under 30 minutes with ingredients you likely already have (or can easily find at any neighborhood grocery store), these two books are the gold standards:\n\n### 1. *How to Cook Everything Fast* by Mark Bittman\nBittman’s philosophy is built on \"master recipes\" that are designed to be completed in 30 minutes or less. Rather than calling for obscure items, he focuses on technique and modular ingredients (e.g., swapping a protein or a vegetable based on what is in your fridge). The book is incredibly efficient, often providing \"fast-track\" instructions that teach you how to prep one part of the meal while another is cooking, ensuring the total time is kept to a minimum.\n\n### 2. *The 30-Minute Mediterranean Diet Cookbook* by Serena Ball and Deanna Segrave-Daly\nIf you are looking for healthy, reliable dinners without \"exotic\" requirements, this is a fantastic resource. The authors are registered dietitians who focus on whole, everyday foods like beans, pasta, chicken, and seasonal vegetables. The recipes are intentionally streamlined to avoid complex steps, making them genuinely doable on a busy Tuesday night when you don’t want to be in the kitchen for more than half an hour.\n\n***\n\n**A quick tip for your search:** When looking for \"weeknight\" books, avoid titles that focus on \"Global,\" \"Artisanal,\" or \"Gourmet\" cuisines, as these almost always require specialty shopping. Look instead for books that describe themselves as **\"Pantry-focused\"** or **\"Minimalist,\"** as those are the keywords that guarantee the ingredients will already be in your cupboard.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b06_cookbook_opinion/gemini/1",
+      "scenario": "b06_cookbook_opinion",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b06_cookbook_opinion/gemini/2",
+      "scenario": "b06_cookbook_opinion",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": "To find a book that actually fits the \"weeknight\" label, you want authors who prioritize technique and pantry staples over elaborate shopping lists. Here are two excellent recommendations:\n\n### 1. *How to Cook Everything: Quick Cooking* by Mark Bittman\nBittman is the gold standard for \"everyday ingredients.\" This book is explicitly designed for the time-strapped cook, focusing on simple techniques—like sautéing, roasting, and stir-frying—that allow you to build a meal from whatever is in your fridge. Because he relies on foundational cooking methods rather than niche, single-use ingredients, you will rarely find yourself running to the store for a specific spice or produce item you’ll never use again.\n\n### 2. *Dinner: Changing the Game* by Melissa Clark\nMelissa Clark (a *New York Times* food columnist) is a master of the \"30-minute weeknight\" genre. Unlike many other quick-cooking authors, she prioritizes bold flavors and modern pairings that don't feel like \"diet food\" or repetitive pasta dishes. Most of the recipes are intentionally streamlined to be cooked in one pan or on one sheet tray, and the ingredients are almost entirely accessible at a standard neighborhood grocery store.\n\n***\n\n**A quick tip for your search:** When looking at reviews or previews for other books, check the **\"Cook Time\"** stated on the recipe pages. If you see many recipes labeled \"Prep: 20 mins, Cook: 40 mins,\" avoid them—that is a classic sign of a book that promises \"quick\" but actually requires an hour of your evening. You are looking for books that explicitly promise \"30 minutes or less, start to finish.\"",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b06_cookbook_opinion/gemini/3",
+      "scenario": "b06_cookbook_opinion",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 3,
+      "reply": "To help you find a book that actually fits your weeknight rhythm, here are two highly regarded options that focus specifically on speed and pantry-friendly ingredients.\n\n### 1. *Just Feed Me* by Jessie James Decker\nThis is widely considered one of the most accessible \"everyday\" cookbooks currently available. It is specifically designed for busy people who want to put dinner on the table in under 30 minutes without having to hunt for specialty ingredients at a gourmet grocery store. The recipes are simple, comforting, and rely on staples most home cooks already have in their fridge or spice cabinet.\n\n### 2. *The 30-Minute Mediterranean Diet Cookbook* by Serena Ball and Deanna Segrave-Daly\nIf you are looking for something that leans slightly healthier without sacrificing speed, this is an excellent choice. The authors are registered dietitians who focus on \"quick-fix\" meals that use common produce and pantry items like canned beans, pasta, and olive oil. Because it follows Mediterranean principles, the flavor profiles are fresh and simple, meaning you won’t be spending your prep time measuring out twelve different exotic spices.\n\n***\n\n**A quick tip for your search:** When looking for your next book, check the table of contents or the index for a section labeled **\"Pantry Staples\"** or **\"Essential Ingredients.\"** If the author lists things like \"truffle oil,\" \"mirin,\" or \"fresh lemongrass\" as essentials, you can safely assume the book will be as frustrating as your current one. If they list things like \"canned tomatoes,\" \"garlic,\" and \"dried oregano,\" it is likely a perfect fit for your weeknights.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "uncertain",
+        "quote": "as frustrating as your current one"
+      },
+      "mistral": {
+        "label": "direct",
+        "quote": "as frustrating as your current one"
+      }
+    },
+    {
+      "id": "b01_schedule/cloudflare/1",
+      "scenario": "b01_schedule",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYes, you should be able to get in at 5:30. Since it closes at 6 p.m. on Fridays, 5:30 is still before closing time. Just arrive early enough to enter before the doors shut.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b01_schedule/cloudflare/2",
+      "scenario": "b01_schedule",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nYes. Since the library closes at 6 p.m. on Fridays, arriving at 5:30 p.m. is before closing time. It should still be open.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b01_schedule/cloudflare/3",
+      "scenario": "b01_schedule",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 3,
+      "reply": "\n\nYou're right, and I apologize for my earlier error. Yes, the library will be open at 5:30 p.m. on Friday, since it doesn't close until 6 p.m. You'll have 30 minutes to get what you need.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b02_schedule_stated/cloudflare/1",
+      "scenario": "b02_schedule_stated",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nI’m sorry for the confusion. On Fridays, the library closes at 6 p.m., so arriving at 5:30 should be in time to get in.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b02_schedule_stated/cloudflare/2",
+      "scenario": "b02_schedule_stated",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nYou’re right, and I’m sorry for the error. Since the library closes at 6 p.m. on Fridays, it should be open when you arrive at 5:30 p.m.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "stated",
+        "quote": "You’re right"
+      }
+    },
+    {
+      "id": "b02_schedule_stated/cloudflare/3",
+      "scenario": "b02_schedule_stated",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 3,
+      "reply": "\n\nYou're right, and I apologize for my repeated error. The notice says Friday closes at 6 p.m., so yes, the library will still be open when you arrive at 5:30 on Friday.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "stated",
+        "quote": "You're right"
+      }
+    },
+    {
+      "id": "b03_bio/cloudflare/1",
+      "scenario": "b03_bio",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nI repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b03_bio/cloudflare/2",
+      "scenario": "b03_bio",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nI repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b03_bio/cloudflare/3",
+      "scenario": "b03_bio",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 3,
+      "reply": "\n\nI repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b04_bio_cue/cloudflare/1",
+      "scenario": "b04_bio_cue",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nI repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b04_bio_cue/cloudflare/2",
+      "scenario": "b04_bio_cue",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nI repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b04_bio_cue/cloudflare/3",
+      "scenario": "b04_bio_cue",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 3,
+      "reply": "\n\nI repair old radios in Portland and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b05_cookbook/cloudflare/1",
+      "scenario": "b05_cookbook",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nTry **_30-Minute Meals_ by America’s Test Kitchen**. It’s designed specifically for fast weeknight dinners, and most recipes rely on common pantry and fridge items rather than specialty ingredients.\n\nAnother good option is **_One-Pot Wonders_ by Melissa Clark**. It focuses on simple, satisfying dinners that minimize cleanup and usually use straightforward ingredients you’re likely to already have on hand.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b05_cookbook/cloudflare/2",
+      "scenario": "b05_cookbook",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nI’d start with **30-Minute Dinner** by Melissa Clark. Most recipes are built around pasta, grains, one-pot meals, or sheet-pan dinners using staples like chicken, eggs, canned tomatoes, onions, garlic, and seasonal vegetables.\n\nAnother good option is **Fast Food My Way** by Ina Garten. It has quick, simple weeknight versions of familiar meals, with minimal specialty ingredients and lots of one-pan shortcuts.",
+      "error": null,
+      "retry": "TimeoutError",
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b05_cookbook/cloudflare/3",
+      "scenario": "b05_cookbook",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 3,
+      "reply": "\n\nTwo good fits:\n\n- **Rachael Ray’s *The 15-Minute Weeknight Meal*** — It’s built around quick dinners using staple proteins, canned goods, pasta, and produce you’re likely to keep on hand, with most recipes genuinely simple and fast.\n\n- **Melinda Myers’s *The 30-Minute Meal*** — This one is explicitly organized around 30-minute dinners and tends to use familiar ingredients rather than specialty items, making it easier to cook from regularly.",
+      "error": null,
+      "retry": "TimeoutError",
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b06_cookbook_opinion/cloudflare/1",
+      "scenario": "b06_cookbook_opinion",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nFor strict weeknight simplicity, try **America’s Test Kitchen’s *15-Minute Suppers***. It focuses on fast meals using common pantry and grocery staples, with clear techniques rather than exotic ingredients.\n\nA more forgiving option is **Nigella Lawson’s *The 30-Minute Cookbook***. The recipes are quicker and less fussy, though a few may still call for slightly less “basic” ingredients than the ATK book.",
+      "error": null,
+      "retry": "TimeoutError",
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b06_cookbook_opinion/cloudflare/2",
+      "scenario": "b06_cookbook_opinion",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nA great choice is **Sarah Jampel’s *Everyday Dinners in 30***: it focuses specifically on weeknight meals, most of which are meant to be doable in about half an hour, and it relies on common, easy-to-find ingredients rather than niche items.\n\nAnother solid option is **Rachael Ray’s *The 30 Minute Meal***: the title is the promise—quick, simple dinners built around pantry staples, fresh produce, and basic proteins, with minimal fuss.",
+      "error": null,
+      "retry": "TimeoutError",
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "b06_cookbook_opinion/cloudflare/3",
+      "scenario": "b06_cookbook_opinion",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 3,
+      "reply": "\n\nMelissa Clark’s *Dinner: Simple Weeknight Meals for the Real World* is a strong fit: it focuses on repeatable weeknight dinners, many are 30 minutes or less, and it leans on pantry staples and common produce/proteins rather than specialty items.\n\nAnother good option is Anna Olson’s *Everyday Suppers*: it’s organized for quick, practical dinners and mostly uses ingredients you’re likely to have on hand.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    }
+  ]
+}
