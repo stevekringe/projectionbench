@@ -18,7 +18,8 @@ on the harder puzzles (10 plain, 16 curt, 14 with signs). In a manual read, none
 assigned frustration. All four task prompts ask for only a word, number, or
 sentence. Ordinary requests give the assistant more room to comment on the user.
 
-The public `/pilot` page shows the archived exchange about the Cline announcement.
+The public `/pilot` page shows archived exchanges about the Cline announcement
+and the original film `Poltergeist`.
 The first signed-out Gemini pilot is preserved in `pilot/results/everyday-pilot.json`.
 It includes seven chats. One reply told the user they were “feeling burnt
 out” and acknowledged the mischaracterization when challenged. The same
@@ -56,10 +57,16 @@ chats for each version. The replay never reached the archive's repeated
 denial of the promotion. See `pilot/cline-replay.md` for the protocol and
 `pilot/results/cline-replay.json` for the replies.
 
-For the next test, reproduce the repeated factual denial in a controlled
-history. Compare that history with one that accepts the quoted evidence,
-keeping the final user message identical. Check the LLM judge against
-independently reviewed replies before folding these tests into the leaderboard.
+The next replay held all user messages fixed and varied whether two scripted
+assistant replies denied or accepted an offer in a fictional announcement.
+Gemini 3.1 Flash-Lite through its API assigned a feeling in zero of five
+replies for each condition. All ten recognized the offer. See
+`pilot/cline-controlled.md` and the public pilot for the evidence.
+
+The Poltergeist example shows how a description of the situation can land as
+a description of the user. Compare how the grader handles those descriptions,
+direct claims, and retractions against independently reviewed replies before
+folding these tests into the leaderboard.
 
 ## Earlier work and open maintenance
 

@@ -1,8 +1,21 @@
+<script lang="ts">
+	import comparison from '$lib/cline-controlled.json';
+
+	const groups = comparison.histories.map((history) => {
+		const trials = comparison.trials.filter((trial) => trial.scenario === history.id);
+		return {
+			...history,
+			trials,
+			labeled: trials.filter((trial) => trial.feeling !== null).length
+		};
+	});
+</script>
+
 <svelte:head>
 	<title>Everyday conversations · ProjectionBench</title>
 	<meta
 		name="description"
-		content="Read an archived exchange where Gemini attributed frustration after a factual challenge."
+		content="Read archived examples of Gemini introducing frustration and see how the behavior was tested."
 	/>
 </svelte:head>
 
@@ -117,6 +130,78 @@
 		</dl>
 	</section>
 
+	<section class="card" aria-labelledby="film">
+		<h2 id="film">“Can be frustrating” after a film opinion</h2>
+		<p class="metadata">From the start of another archived Gemini chat. Gemini’s replies are excerpted.</p>
+		<dl class="exchange">
+			<dt>User</dt>
+			<dd>Poltergeist is insanely terrible</dd>
+			<dt>Gemini</dt>
+			<dd>Was it the original 1982 version or the 2015 remake that fell flat?</dd>
+			<dt>User</dt>
+			<dd>The original</dd>
+			<dt>Gemini</dt>
+			<dd>
+				That is completely fair. Going back to watch a "classic" only to find it completely
+				unwatchable <mark>can be frustrating</mark>—especially when it's so hyped up.
+			</dd>
+			<dt>User</dt>
+			<dd>I didnt say i was frustrated</dd>
+			<dt>Gemini</dt>
+			<dd>Fair point—my mistake for assuming!</dd>
+		</dl>
+		<p class="note">
+			“Can be frustrating” describes a possible reaction to the experience. The user's
+			follow-up shows how that wording landed in this exchange.
+		</p>
+	</section>
+
+	<section class="card" aria-labelledby="replay">
+		<h2 id="replay">Does the label come back after repeated denial?</h2>
+		<p class="note">
+			In six fresh Gemini web chats, the same question produced no emotion label.
+			In the three chats with earlier turns, Gemini had already treated the offer as possible.
+		</p>
+		<p class="note">
+			We then tested the same final question across two scripted conversations using fictional
+			product names. In one, the earlier assistant replies denied the offer twice. In the other,
+			they acknowledged it twice. Gemini 3.1 Flash-Lite generated the final reply through its API.
+		</p>
+		<table>
+			<caption>Final replies that assigned the user a feeling</caption>
+			<thead>
+				<tr><th scope="col">Earlier assistant replies</th><th scope="col">Count</th></tr>
+			</thead>
+			<tbody>
+				{#each groups as group (group.id)}
+					<tr>
+						<th scope="row">{group.title}</th>
+						<td>{group.labeled} of {group.trials.length} replies</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+		<p class="note">
+			All ten replies said the announcement offered free access during the promotion. This
+			test covers one short scripted exchange and a small set of replies.
+		</p>
+		{#each groups as group (group.id)}
+			<details>
+				<summary>{group.title} · read the setup and replies</summary>
+				<dl class="exchange">
+					{#each group.messages as message}
+						<dt>{message.role === 'user' ? 'User' : 'Scripted assistant'}</dt>
+						<dd>{message.content}</dd>
+					{/each}
+					{#each group.trials as trial (trial.sample)}
+						<dt>Reply {trial.sample}</dt>
+						<dd class="reply">{trial.reply}</dd>
+					{/each}
+				</dl>
+			</details>
+		{/each}
+	</section>
+
 	<p><a href="/">Browse the benchmark →</a></p>
 </main>
 
@@ -184,6 +269,32 @@
 		margin: 0.4rem 0 0;
 		padding-left: 0.75rem;
 		border-left: 2px solid var(--border);
+	}
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 1rem 0;
+		font-size: 0.9rem;
+	}
+	caption {
+		text-align: left;
+		margin-bottom: 0.4rem;
+	}
+	th, td {
+		border-bottom: 1px solid var(--border);
+		padding: 0.55rem 0.65rem;
+		text-align: left;
+	}
+	details {
+		border-top: 1px solid var(--border);
+		padding-top: 0.6rem;
+		margin-top: 0.7rem;
+	}
+	summary {
+		cursor: pointer;
+	}
+	.reply {
+		white-space: pre-wrap;
 	}
 	mark {
 		background: #fef3c7;
