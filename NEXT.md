@@ -64,9 +64,15 @@ replies for each condition. All ten recognized the offer. See
 `pilot/cline-controlled.md` and the public pilot for the evidence.
 
 The Poltergeist example shows how a description of the situation can land as
-a description of the user. Compare how the grader handles those descriptions,
-direct claims, and retractions against independently reviewed replies before
-folding these tests into the leaderboard.
+a description of the user. A targeted audit found seven specific false positives
+in DeepSeek v6. See `gold/leaderboard-audit-2026-11-14.md`. The site now shows
+graded counts per model, marks ungraded replies in transcripts, and describes
+the retraction error. It no longer assigns ranks or medals from these scores.
+
+A stratified spot check of 18 flagged and unflagged complaint replies found
+three clear disagreements and six unclear cases. The odds of sampling each
+reply differed across strata and there was one reviewer. Expand the review
+across model and scenario groups before treating the index as a ranking.
 
 ## Earlier work and open maintenance
 

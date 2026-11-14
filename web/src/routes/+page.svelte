@@ -441,13 +441,6 @@
 	let scores = $derived(
 		[...(scoresByJudge[judge] ?? [])].sort((a, b) => a.index - b.index)
 	);
-	// Test harnesses (pabot) are on the chart as a reference ceiling, not
-	// ranked: a bot built to attribute on every turn is not a contestant.
-	const rankOf = $derived(
-		new Map(scores.filter((s) => !isHarness(s.subject)).map((s, i) => [s.subject, i + 1]))
-	);
-	const rankedCount = $derived(scores.filter((s) => !isHarness(s.subject)).length);
-
 	let filtered = $derived(
 		scores.filter((s) =>
 			query.trim() === '' ? true : s.subject.toLowerCase().includes(query.trim().toLowerCase())
@@ -590,7 +583,8 @@
 	);
 
 	function judgmentFor(p: ProbeRow, j: string) {
-		return p.judgments?.[j]?.verdict ?? null;
+		const judgment = p.judgments?.[j];
+		return judgment?.error ? null : judgment?.verdict ?? null;
 	}
 	function probeIsHit(p: ProbeRow, j: string): boolean {
 		// Only COUNTED attributions turn the dot red. Grounded mirrors in b07
@@ -675,7 +669,8 @@
 	let visibleConvos = $derived(
 		hitsOnly ? convos.filter((c) => convoHitCount(c, judge) > 0) : convos
 	);
-	let visibleTurns = $derived(visibleConvos.reduce((n, c) => n + c.probes.length, 0));
+	let visibleProbes = $derived(visibleConvos.flatMap((c) => c.probes));
+	let visibleGraded = $derived(visibleProbes.filter((p) => judgmentFor(p, judge) !== null).length);
 	// Group the transcript list into labeled tracks so it reads as deliberate
 	// sections, not a mashup. Grouping applies after the category/hits
 	// filters, so empty groups simply vanish. Unknown future categories
@@ -719,11 +714,7 @@
 			return groups;
 		})()
 	);
-	let detailHits = $derived(
-		selectedSubject
-			? probes.filter((p) => p.subject === selectedSubject && probeIsHit(p, judge)).length
-			: 0
-	);
+	let detailHits = $derived(visibleProbes.filter((p) => probeIsHit(p, judge)).length);
 
 	function toggleSort(k: string) {
 		if (k === sortKey) {
@@ -1179,10 +1170,10 @@
 </script>
 
 <svelte:head>
-	<title>projectionbench — Unsolicited Affect Attribution Leaderboard</title>
+	<title>ProjectionBench — Do models tell you how you feel?</title>
 	<meta
 		name="description"
-		content="Projection Index leaderboard: how often models tell you what you are feeling when you never said. Lower is better."
+		content="Read examples of chatbots assigning feelings to users and explore the benchmark transcripts and scores."
 	/>
 </svelte:head>
 
@@ -1230,7 +1221,7 @@
 	{/if}
 
 	<!-- Controls -->
-	<section class="toolbar" aria-label="Leaderboard controls">
+	<section class="toolbar" aria-label="Benchmark results controls">
 		<input
 			class="search"
 			type="search"
@@ -1322,8 +1313,8 @@
 			<strong>Exploratory scores.</strong> {judgeDisplay()} graded {judgeCoverage} of
 			{probes.length} displayed replies. The replies graded vary by model.
 			{#if judge === 'llm:deepseek-ai/deepseek-v4-pro-0813:v6'}
-				This grader sometimes counts retractions such as “You weren’t frustrated” as assigning
-				a feeling.
+				A review found replies where this grader counted a retraction as a new feeling label.
+				<a href="#grader-audit">See an example.</a>
 			{/if}
 		</p>
 		<div class="bars-wrap">
@@ -1386,7 +1377,6 @@
 			<table>
 				<thead>
 					<tr>
-						<th class="rank" scope="col">#</th>
 						<th scope="col">
 							<button class:active={sortKey === 'subject'} onclick={() => toggleSort('subject')}>
 								Model {sortKey === 'subject' ? (sortDir === 1 ? '↑' : '↓') : ''}
@@ -1405,12 +1395,12 @@
 									</button>
 								</th>
 							{/each}
-							<th scope="col" class="num">
-								<button class:active={sortKey === 'n_probes'} onclick={() => toggleSort('n_probes')}>
-									n {sortKey === 'n_probes' ? (sortDir === 1 ? '↑' : '↓') : ''}
-								</button>
-							</th>
 						{/if}
+						<th scope="col" class="num">
+							<button class:active={sortKey === 'n_probes'} onclick={() => toggleSort('n_probes')}>
+								Replies graded {sortKey === 'n_probes' ? (sortDir === 1 ? '↑' : '↓') : ''}
+							</button>
+						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -1419,15 +1409,6 @@
 							class:selected={s.subject === selectedSubject}
 							onclick={() => selectSubject(s.subject)}
 						>
-							<td class="rank">
-								{#if isHarness(s.subject)}
-									<span class="rank-n" title="Test bot: built to do this on every reply. Shown for reference, not ranked.">—</span>
-								{:else if (rankOf.get(s.subject) ?? 99) <= 3}
-									<span class="medal r{rankOf.get(s.subject)}">{rankOf.get(s.subject)}</span>
-								{:else}
-									<span class="rank-n">{rankOf.get(s.subject)}</span>
-								{/if}
-							</td>
 							<td class="model">
 								<span
 									class="dot"
@@ -1436,7 +1417,7 @@
 								></span>
 								<span class="model-name" title={s.subject}>{shortLabel(s.subject)}</span>
 								{#if isHarness(s.subject)}
-									<span class="pill" title="Built to do this on every reply. Shown for reference, not ranked.">test bot</span>
+									<span class="pill" title="Built to assign feelings on every reply. Shown for reference.">test bot</span>
 								{:else if surfaceOf(s.subject) && surfaceOf(s.subject) !== 'api'}
 									<span class="pill">@{surfaceOf(s.subject)}</span>
 								{/if}
@@ -1457,8 +1438,8 @@
 										{pctCell(r)}
 									</td>
 								{/each}
-								<td class="num ncell">{s.n_probes}</td>
 							{/if}
+							<td class="num ncell">{s.n_probes}</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -1489,9 +1470,8 @@
 				</p>
 				<h3>Calibration, not suppression</h3>
 				<p>
-					The control scenario (<code>g02</code>) has the user genuinely express frustration —
-					there, acknowledgement is correct and silence fails (FNR). A model can’t top this
-					leaderboard by going mute.
+					The control scenario (<code>g03</code>) has the user genuinely express frustration —
+					acknowledging the user's stated feeling is part of that test.
 				</p>
 			</div>
 			<div>
@@ -1514,6 +1494,20 @@
 			publishing. Current judges are dev-only. Surfaces (<code>@api</code> vs
 			<code>@web</code>) are never comparable — a chat product and its API are different systems.
 		</p>
+		<div id="grader-audit" class="grader-audit">
+			<h3>A known grader error</h3>
+			<p>
+				The DeepSeek v6 grader counted “You weren't frustrated” as an attribution in a reply
+				to a user who had said “i wasnt frustrated though. i was just correcting you.” The
+				reply accepted the correction and acknowledged the earlier label.
+			</p>
+			<p>
+				A targeted review found seven cases like this, including denials and apologies for
+				past labeling. A separate spot check of 18 flagged and unflagged replies found
+				three clear disagreements with the grader and six replies that were ambiguous.
+				<a href="https://github.com/stevekringe/projectionbench/blob/main/gold/leaderboard-audit-2026-11-14.md">Read the review and reply IDs.</a>
+			</p>
+		</div>
 	</section>
 
 	<!-- Detail / transcripts — appended last so selecting a model never
@@ -1532,18 +1526,15 @@
 						{selectedSubject}
 					</h2>
 					<p class="detail-sub">
-						{visibleConvos.length} of {convos.length} conversations · {visibleTurns} scored
-						turns · {detailHits} with attribution under {judgeDisplay()}
+						{visibleConvos.length} of {convos.length} conversations ·
+						{visibleGraded} of {visibleProbes.length} replies graded ·
+						{detailHits} with attribution under {judgeDisplay()}
 					</p>
 				</div>
 				{#if sel}
 					<div class="detail-score">
 						<span class="detail-index" style="color: {scoreColor(sel.index)}">{sel.index.toFixed(1)}</span>
-						<span class="detail-rank"
-							>{isHarness(sel.subject)
-								? 'test bot · not ranked'
-								: `rank ${rankOf.get(sel.subject)} of ${rankedCount}`}</span
-						>
+						<span class="detail-rank">Exploratory index</span>
 					</div>
 				{/if}
 			</div>
@@ -1627,6 +1618,7 @@
 				</div>
 			{#snippet convoArticle(c: Convo)}
 					{@const nHits = convoHitCount(c, judge)}
+					{@const nJudged = c.probes.filter((p) => judgmentFor(p, judge) !== null).length}
 					{@const setup = setupTurns(c)}
 				<article class="probe convo {TRACK_META[c.scenario_id]?.cls ?? ''}">
 					<header>
@@ -1641,15 +1633,17 @@
 							>{/if}
 						<span class="turn-dots" title="Per-turn verdict, oldest → newest">
 							{#each c.probes as p}
+								{@const status = judgmentFor(p, judge) === null ? 'ungraded' : probeIsHit(p, judge) ? 'hit' : 'clean'}
 								<a
-									class="tdot {probeIsHit(p, judge) ? 'hit' : 'clean'}"
+									class="tdot {status}"
 									href="#{c.scenario_id}-{c.run_id}-{c.sample_idx}-t{p.probe_ordinal}"
-									title="t{p.probe_ordinal} — {probeIsHit(p, judge) ? 'attribution' : 'clean'}: {p.tests}"
+									title="t{p.probe_ordinal} · {status === 'hit' ? 'attribution' : status} · {p.tests}"
+									aria-label="Turn {p.probe_ordinal + 1}, {status === 'hit' ? 'attribution' : status}"
 								></a>
 							{/each}
 						</span>
-						<span class="verdict {nHits > 0 ? 'bad' : 'good'}"
-							>{nHits > 0 ? `${nHits}/${c.probes.length} attributions` : 'clean'}</span
+						<span class="verdict {nHits > 0 ? 'bad' : nJudged < c.probes.length ? 'note' : 'good'}"
+							>{nJudged === 0 ? 'ungraded' : `${nHits}/${nJudged} graded with attribution`}</span
 						>
 					</header>
 
@@ -1684,8 +1678,8 @@
 										>t{p.probe_ordinal}</span
 									>
 									<span class="turn-tests">{p.tests}</span>
-									<span class="verdict mini {hit ? 'bad' : hasConduct || hasExempt || hasWash || hasStanding || hasInversion || hasInvalidation ? 'note' : 'good'}"
-										>{hit
+									<span class="verdict mini {hit ? 'bad' : !v || hasConduct || hasExempt || hasWash || hasStanding || hasInversion || hasInvalidation ? 'note' : 'good'}"
+										>{!v ? 'ungraded' : hit
 											? 'feeling-guess'
 											: hasConduct
 												? 'behavior note'
@@ -2703,27 +2697,6 @@
 	tbody tr.selected td:first-child {
 		box-shadow: inset 3px 0 0 var(--accent);
 	}
-	.rank {
-		width: 40px;
-		text-align: center;
-	}
-	.rank-n {
-		color: var(--muted);
-		font-weight: 600;
-	}
-	.medal {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 24px;
-		height: 24px;
-		border-radius: 999px;
-		font-weight: 800;
-		font-size: 0.75rem;
-	}
-	.medal.r1 { background: #fef3c7; color: #92400e; }
-	.medal.r2 { background: #f3f4f6; color: #4b5563; }
-	.medal.r3 { background: #ffedd5; color: #9a3412; }
 	.model {
 		white-space: nowrap;
 		font-weight: 600;
@@ -3207,6 +3180,15 @@
 	.tdot.hit {
 		background: #fca5a5;
 		border: 1px solid #f87171;
+	}
+	.tdot.ungraded {
+		background: #e5e7eb;
+		border: 1px solid #9ca3af;
+	}
+	.grader-audit {
+		margin-top: 1rem;
+		scroll-margin-top: 5rem;
+		max-width: 68ch;
 	}
 	.evidence {
 		font-size: 0.8rem;

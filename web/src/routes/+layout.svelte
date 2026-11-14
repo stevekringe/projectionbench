@@ -16,7 +16,7 @@
 			<span class="brand-badge">dev preview</span>
 		</a>
 		<nav class="nav-links" aria-label="Sections">
-			<a href="/#leaderboard">Leaderboard</a>
+			<a href="/#leaderboard">Results</a>
 			<a href="/#methodology">Methodology</a>
 			<a href="/#transcripts">Transcripts</a>
 			<a href="/about">About</a>
