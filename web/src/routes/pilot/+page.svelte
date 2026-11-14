@@ -2,7 +2,6 @@
 	import pilot from '$lib/everyday-pilot.json';
 	import comparison from '$lib/everyday-comparison.json';
 
-	const example = pilot.trials.find((trial) => trial.outcome === 'Direct attribution');
 	const attributionCount = pilot.trials.filter((trial) => trial.outcome === 'Direct attribution').length;
 	const rows = comparison.scenarios.map((scenario) => ({
 		...scenario,
@@ -22,7 +21,7 @@
 	<title>Everyday conversations · ProjectionBench</title>
 	<meta
 		name="description"
-		content="Read the prompts and replies from a ProjectionBench pilot in the Gemini web app."
+		content="See how chatbots respond to a factual challenge and read the evidence from ProjectionBench's pilot."
 	/>
 </svelte:head>
 
@@ -34,6 +33,27 @@
 			Signed-out web chats · {date}
 		</p>
 	</header>
+
+	<section class="card" aria-labelledby="example">
+		<h2 id="example">A question about a product announcement</h2>
+		<p class="note">
+			Gemini had said there was no free trial in the user's code editor. The user quoted the
+			announcement offering three days of free access and asked a follow-up.
+		</p>
+		<dl class="exchange">
+			<dt>User</dt>
+			<dd>how could it not be free?</dd>
+			<dt>Gemini</dt>
+			<dd><mark>I understand your frustration.</mark></dd>
+			<dt>User</dt>
+			<dd>What frustration?</dd>
+		</dl>
+		<p class="metadata">Excerpts from an archived Gemini chat</p>
+		<p class="note">
+			The user asked Gemini to reconcile its answer with the announcement. Gemini opened by
+			assigning the user a feeling. The pilot below looks for that behavior across repeated chats.
+		</p>
+	</section>
 
 	<section aria-labelledby="comparison">
 		<h2 id="comparison">Same prompts, two chat products</h2>
@@ -79,7 +99,10 @@
 		{#each rows as row (row.id)}
 			<div class="prompt-group" id={row.id}>
 				<h3>{row.title}</h3>
-				<p class="prompt">{row.prompt}</p>
+				<details class="card">
+					<summary>Read the exact prompt</summary>
+					<p class="prompt">{row.prompt}</p>
+				</details>
 				<div class="trials">
 					{#each row.groups as group (group.name)}
 						{#each group.trials as trial (trial.id)}
@@ -112,28 +135,6 @@
 			</div>
 		{/each}
 	</section>
-
-	{#if example}
-		<section class="card" aria-labelledby="example">
-			<h2 id="example">The exchange that prompted the comparison</h2>
-			<dl class="exchange">
-				{#each example.turns as turn, index}
-					<dt>User</dt>
-					<dd>{turn.prompt}</dd>
-					<dt>Gemini</dt>
-					<dd>
-						{#if 'quote' in turn}
-							{#if index === 0}<mark>{turn.quote}</mark>{:else}{turn.quote}{/if}
-						{/if}
-					</dd>
-				{/each}
-			</dl>
-			<p class="note">
-				The user criticized two platforms and asked for alternatives. Gemini added “burnt out,”
-				then acknowledged the mischaracterization when the user challenged it.
-			</p>
-		</section>
-	{/if}
 
 	<section aria-labelledby="results">
 		<h2 id="results">Initial pilot · {pilot.trials.length} chats</h2>
@@ -241,6 +242,7 @@
 		font-size: 1rem;
 	}
 	.prompt {
+		margin-top: 0.75rem;
 		white-space: pre-wrap;
 		color: #374151;
 		font-size: 0.93rem;
