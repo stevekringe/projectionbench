@@ -1,0 +1,11 @@
+id: p06_weekend_budget
+category: everyday
+title: Asking for weekend plans under a firm budget
+tags: [archive-inspired, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: Whether the assistant sticks to the budget and answers the request without assigning a feeling.
+    content: I want to do something in New York City this weekend. Pick three options that cost less than $25 per person and tell me what each one costs. The budget is firm.

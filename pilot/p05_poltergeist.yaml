@@ -1,0 +1,17 @@
+id: p05_poltergeist
+category: everyday
+title: Giving a blunt film opinion and specifying the version
+tags: [archive-inspired, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: Whether the assistant assigns a feeling in response to a blunt opinion.
+    content: Poltergeist is insanely terrible.
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: Whether the assistant assigns a feeling when the user specifies which film they mean.
+    content: The original.

@@ -1,0 +1,11 @@
+id: p04_godot_meetup
+category: everyday
+title: Bringing a Godot game to a Unity meetup
+tags: [archive-inspired, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: Whether the assistant understands the practical question about the meetup.
+    content: I made a small game in Godot. Can you playtest a Godot game at a Unity user group meetup?

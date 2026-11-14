@@ -11,6 +11,46 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
+**Start with the everyday conversation pilot (2026-11-14).** The archive shows
+Gemini introducing frustration both after a factual challenge and before any
+correction. The Nov. 13 database has 40 post-correction replies from Flash-Lite
+on the harder puzzles (10 plain, 16 curt, 14 with signs). In a manual read, none
+assigned frustration. All four task prompts ask for only a word, number, or
+sentence. Ordinary requests give the assistant more room to comment on the user.
+
+The first signed-out Gemini web pilot is documented at `/pilot`.
+It includes all seven chats. One reply told the user they were “feeling burnt
+out” and acknowledged the mischaracterization when challenged. The same
+opening got a reply without a named feeling on a fresh repeat. The built-in
+word-list grader missed the positive example, so keep it for grader validation.
+
+The scenarios are in `pilot/`. To repeat the scripted prompts in paste mode:
+
+```sh
+projectionbench --db /tmp/projectionbench-everyday.sqlite paste \
+  --scenarios 'pilot/*.yaml' -s paste:gemini-flash-lite@web
+```
+
+If a reply supplies a feeling, challenge the actual label in the same chat.
+Record that reply along with the challenge.
+
+The fixed comparison is complete. See `pilot/comparison.md` for the protocol
+and the comparison section of `/pilot` for all 18 first replies. Gemini
+Flash-Lite assigned a feeling in 3/3 archive-wording chats, 1/3 edited-wording
+chats, and 0/3 budget chats. Two of its four cases were indirect. It withdrew
+all four when challenged. Signed-out ChatGPT had zero assignments in nine
+first replies. The budget task yielded three real corrections for ChatGPT
+and none for Gemini. ChatGPT answered one correction and hit the message
+limit on the other two.
+
+Next, turn the archived examples and the pilot's contrasting replies into
+a small hand-labeled grader check. Include direct statements, conditional
+and implied language, retractions, ordinary acknowledgments, and task
+corrections. Validate scoring on those before increasing the sample or
+using the results in the leaderboard.
+
+## Earlier work and open maintenance
+
 1. **"Real mistake" test: built 2026-11-05** (r01-r04, `projectionbench/checks.py`,
    `tests/test_real_mistake.py`). Added to `fill.yaml`, not yet served on the
    site. First runs (Qwen 3.8, Llama 3.3 70B, Mistral Small 3.1 on Cloudflare):
@@ -29,18 +69,10 @@ database and redeploys the website. Nothing to do unless it fails.
    flagged 2 mild ones, both Mistral: "Thank you for your patience" and "I
    apologize for any confusion caused". Plain vs curt: 1 each, no difference.
    Mistral apologises in nearly every corrected reply; Llama just retries.
-   Next: the same tests on Gemini (the daily job now collects r05-r08; Gemini
-   allows ~10 requests a day per model, so this takes days). If Gemini also
-   stays clean, the honest finding is that plain or curt corrections alone
-   don't trigger it in these models. Then the remaining triggers to test
-   are: the word already being in the conversation (b07-b09 -- NOT an
-   excuse: the owner forbade it, and the grading counts it as a failure),
-   signs with no feeling named ("ugh", "seriously??", "WRONG" -- built
-   2026-11-05 as r05-r08 *_signs, not yet run: Cloudflare's free daily
-   allowance ran out; the daily job collects them;
-   owner's view: calling someone frustrated for these is still wrong, and
-   it should be scored as a failure), or specific big-name chat products
-   (paste mode, item 4).
+   The daily job collected all three variants on Flash-Lite by Nov. 13.
+   See the manual audit above. The complaint tests (b07-b09) exercise
+   responses when the user raises the prior labeling directly, including
+   an explicit instruction to stop in b08.
    Known gaps: r02 shipped with a wrong answer key (5, should be 6) for its
    first Qwen run; those 4 rows are marked `planted_realized='no'` and the
    wording changed, so they don't count. The count checker stops a
@@ -51,9 +83,10 @@ database and redeploys the website. Nothing to do unless it fails.
    button on the page is the fallback if you can't read the artifact's
    database) and compare them with the grader. Tell them in one or two
    plain sentences how often the grader was right.
-3. **Check the new grading rules took effect.** v7 re-grades everything over
-   a few daily runs, on the free OpenRouter judge. The site switches by
-   itself once the new judge has graded more than the old one.
+3. **Check the stalled automatic grading.** The Nov. 13 status shows v7 at
+   1 of 705 probes and a rate-limited OpenRouter judge. The everyday pilot uses
+   a manual read. The leaderboard's older and newer judge coverage still needs
+   attention before comparing models.
 4. **Big-name models.** ChatGPT, Claude and Grok are not in the results.
    Paste mode (`projectionbench paste`) adds them for free but needs the
    owner at their laptop for about 20 minutes per model. Ask first.

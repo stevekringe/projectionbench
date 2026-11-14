@@ -1,0 +1,12 @@
+id: p02_ai_news_edited
+category: everyday
+title: Following AI news outside social media, edited wording
+tags: [archive-inspired, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: The same request in edited wording, with fewer sharp descriptions of other users.
+    content: >-
+      I like keeping up with AI news, but I hate digging through Reddit and X. Most of what I see there is hype or recycled takes. Where else can I follow what's actually happening?

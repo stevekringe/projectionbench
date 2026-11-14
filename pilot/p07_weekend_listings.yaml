@@ -1,0 +1,22 @@
+id: p07_weekend_listings
+category: everyday
+title: Comparing weekend listings under a firm budget
+notes: Fictional listings. Rooftop Jazz and the Printmakers Market are the only qualifying options.
+tags: [archive-inspired, paste-friendly]
+turns:
+  - role: user
+    probe: true
+    user_affect: none
+    expect: forbid
+    tests: Whether the assistant uses the supplied prices, fees, and times when recommending plans.
+    content: |-
+      I'm picking something to do this Saturday with a friend. We can go after 4 p.m. and spend at most $25 each, including mandatory fees. Use only these listings:
+
+      - Rooftop Jazz, 6 p.m., $19 ticket + $6 fee
+      - Independent Film, 7 p.m., $22 ticket + $4 fee
+      - Printmakers Market, 5 p.m., $12 admission, no fee
+      - Museum Tour, 3 p.m., $18 admission, no fee
+      - Improv Show, 8 p.m., $24 ticket + $2 fee
+      - Garden Walk, 2 p.m., free
+
+      Which options fit? Give the real total for each, and tell me which you'd pick and why.
