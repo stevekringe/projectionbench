@@ -1,26 +1,8 @@
-<script lang="ts">
-	import pilot from '$lib/everyday-pilot.json';
-	import comparison from '$lib/everyday-comparison.json';
-
-	const rows = comparison.scenarios.map((scenario) => ({
-		...scenario,
-		groups: comparison.products.map((product) => {
-			const trials = comparison.trials.filter(
-				(trial) => trial.scenario === scenario.id && trial.product === product.name
-			);
-			return { ...product, trials, attributions: trials.filter((trial) => trial.attribution).length };
-		})
-	}));
-	const date = new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'UTC' }).format(
-		new Date(pilot.date)
-	);
-</script>
-
 <svelte:head>
 	<title>Everyday conversations · ProjectionBench</title>
 	<meta
 		name="description"
-		content="See how chatbots respond to a factual challenge and read the evidence from ProjectionBench's pilot."
+		content="Read an archived exchange where Gemini attributed frustration after a factual challenge."
 	/>
 </svelte:head>
 
@@ -28,9 +10,6 @@
 	<header>
 		<h1>Everyday conversations</h1>
 		<p class="lede">When does a chatbot start telling you how you feel?</p>
-		<p class="metadata">
-			Signed-out web chats · {date}
-		</p>
 	</header>
 
 	<section class="card" aria-labelledby="example">
@@ -57,115 +36,11 @@
 		<p class="metadata">Excerpts from an archived Gemini chat</p>
 		<p class="note">
 			The user asked why Gemini’s answer contradicted the announcement. Gemini’s first sentence
-			assumed the user was frustrated. The tests below look for that assumption in fresh chats.
+			assumed the user was frustrated.
 		</p>
 	</section>
 
-	<section aria-labelledby="comparison">
-		<h2 id="comparison">A weekend budget test</h2>
-		<p class="note">
-			We gave both chatbots the same event listings and asked which fit a $25 budget
-			after fees. We ran three fresh chats in each product and read the replies by hand.
-		</p>
-		<table>
-			<caption>Chats that assigned a feeling out of first replies collected</caption>
-			<thead>
-				<tr>
-					<th scope="col">Prompt</th>
-					{#each comparison.products as product (product.name)}
-						<th scope="col">{product.name}<small>{product.mode ?? 'Mode undisclosed'}</small></th>
-					{/each}
-				</tr>
-			</thead>
-			<tbody>
-				{#each rows as row (row.id)}
-					<tr>
-						<th scope="row"><a href="#{row.id}">{row.title}</a></th>
-						{#each row.groups as group (group.name)}
-							<td>{group.attributions} / {group.trials.length}</td>
-						{/each}
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-		<p class="note">
-			All three ChatGPT budget answers contained a contradiction about which options fit.
-			One correction got a reply that fixed the options. The other two hit the signed-out
-			message limit. Gemini’s budget answers gave the correct options on the first try.
-		</p>
-	</section>
-
-	<section aria-labelledby="comparison-transcripts">
-		<h2 id="comparison-transcripts">Read the comparison transcripts</h2>
-		{#each rows as row (row.id)}
-			<div class="prompt-group" id={row.id}>
-				<h3>{row.title}</h3>
-				<details class="card">
-					<summary>Read the exact prompt</summary>
-					<p class="prompt">{row.prompt}</p>
-				</details>
-				<div class="trials">
-					{#each row.groups as group (group.name)}
-						{#each group.trials as trial (trial.id)}
-							<details id={trial.id} class="card">
-								<summary>
-									<strong>{trial.product} · Chat {trial.sample}</strong>
-									{#if trial.followUp}
-										<span>{trial.followUp.outcome}</span>
-									{/if}
-								</summary>
-								<dl class="exchange transcript">
-									<dt>{trial.product}</dt>
-									<dd>{trial.response}</dd>
-									{#if trial.followUp}
-										<dt>User</dt>
-										<dd>{trial.followUp.prompt}</dd>
-										<dt>{trial.followUp.response ? trial.product : 'Status'}</dt>
-										<dd>{trial.followUp.response ?? trial.followUp.outcome}</dd>
-									{/if}
-								</dl>
-							</details>
-						{/each}
-					{/each}
-				</div>
-			</div>
-		{/each}
-	</section>
-
-	<section aria-labelledby="results">
-		<h2 id="results">Initial pilot · {pilot.trials.length} chats</h2>
-		<p class="note">Gemini assigned no specific feeling in these four chats.</p>
-		<div class="trials">
-			{#each pilot.trials as trial (trial.id)}
-				<details id={trial.id} class="card">
-					<summary>
-						<strong>{trial.title}</strong>
-						<span class:hit={trial.outcome === 'Direct attribution'}>{trial.outcome}</span>
-					</summary>
-					<dl class="exchange transcript">
-						{#each trial.turns as turn}
-							<dt>User</dt>
-							<dd>{turn.prompt}</dd>
-							<dt>Gemini</dt>
-							<dd>{turn.response}</dd>
-						{/each}
-					</dl>
-				</details>
-			{/each}
-		</div>
-	</section>
-
-	<section aria-labelledby="method">
-		<h2 id="method">How we tested</h2>
-		<p class="note">
-			We adapted prompts from archived conversations and fixed the comparison prompts and trial
-			count before collection. We counted specific feelings assigned to the user, including
-			clearly implied feelings, and challenged the label in the same chat. On the budget task,
-			we sent a correction when an answer contradicted the supplied listings. Transcript text
-			comes from the browser, with formatting simplified.
-		</p>
-		<p><a href="/">Browse the benchmark leaderboard →</a></p>
-	</section>
+	<p><a href="/">Browse the benchmark →</a></p>
 </main>
 
 <style>
@@ -203,42 +78,6 @@
 		font-size: 0.94rem;
 		max-width: 69ch;
 	}
-	table {
-		width: 100%;
-		border-collapse: collapse;
-		background: var(--card);
-		margin: 0.85rem 0;
-		font-size: 0.9rem;
-	}
-	caption {
-		color: #4b5563;
-		text-align: left;
-		padding-bottom: 0.5rem;
-	}
-	th, td {
-		padding: 0.6rem 0.75rem;
-		border: 1px solid var(--border);
-		text-align: left;
-	}
-	small {
-		display: block;
-		font-weight: normal;
-		color: #4b5563;
-	}
-	.prompt-group {
-		scroll-margin-top: 4rem;
-		margin: 1.4rem 0;
-	}
-	h3 {
-		margin: 0 0 0.5rem;
-		font-size: 1rem;
-	}
-	.prompt {
-		margin-top: 0.75rem;
-		white-space: pre-wrap;
-		color: #374151;
-		font-size: 0.93rem;
-	}
 	.card {
 		background: var(--card);
 		border: 1px solid var(--border);
@@ -268,31 +107,6 @@
 		padding: 0.1rem 0.2rem;
 		box-decoration-break: clone;
 	}
-	.trials {
-		display: grid;
-		gap: 0.55rem;
-		margin-top: 1rem;
-	}
-	summary {
-		cursor: pointer;
-	}
-	summary span {
-		display: inline-block;
-		margin-left: 0.55rem;
-		color: #4b5563;
-		font-size: 0.83rem;
-	}
-	summary .hit {
-		color: #92400e;
-	}
-	.transcript {
-		border-top: 1px solid var(--border);
-		padding-top: 1rem;
-		margin-bottom: 0;
-	}
-	.transcript dd {
-		white-space: pre-wrap;
-	}
 	a {
 		color: var(--accent);
 		text-underline-offset: 0.18em;
@@ -304,10 +118,6 @@
 		}
 		dd + dt {
 			margin-top: 0.65rem;
-		}
-		summary span {
-			display: block;
-			margin: 0.25rem 0 0;
 		}
 	}
 </style>

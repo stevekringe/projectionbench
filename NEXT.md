@@ -18,8 +18,9 @@ on the harder puzzles (10 plain, 16 curt, 14 with signs). In a manual read, none
 assigned frustration. All four task prompts ask for only a word, number, or
 sentence. Ordinary requests give the assistant more room to comment on the user.
 
-The first signed-out Gemini web pilot is documented at `/pilot`.
-It includes all seven chats. One reply told the user they were “feeling burnt
+The public `/pilot` page shows the archived exchange about the Cline announcement.
+The first signed-out Gemini pilot is preserved in `pilot/results/everyday-pilot.json`.
+It includes seven chats. One reply told the user they were “feeling burnt
 out” and acknowledged the mischaracterization when challenged. The same
 opening got a reply without a named feeling on a fresh repeat. The built-in
 word-list grader missed the positive example, so keep it for grader validation.
@@ -35,7 +36,8 @@ If a reply supplies a feeling, challenge the actual label in the same chat.
 Record that reply along with the challenge.
 
 The fixed comparison is complete. See `pilot/comparison.md` for the protocol
-and the comparison section of `/pilot` for all 18 first replies. Gemini
+and `pilot/results/everyday-comparison.json` for the retained budget trials.
+The social media exchanges were removed from the published pilot. Gemini
 Flash-Lite assigned a feeling in 3/3 archive-wording chats, 1/3 edited-wording
 chats, and 0/3 budget chats. Two of its four cases were indirect. It withdrew
 all four when challenged. Signed-out ChatGPT had zero assignments in nine
