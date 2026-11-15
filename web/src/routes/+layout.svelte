@@ -15,9 +15,8 @@
 			<span class="brand-name">projectionbench</span>
 		</a>
 		<nav class="nav-links" aria-label="Sections">
-			<a href="/benchmark">Benchmark</a>
-			<a href="/#methodology">Methodology</a>
-			<a href="/#transcripts">Transcripts</a>
+			<a href="/">Results</a>
+			<a href="/benchmark">Transcripts</a>
 			<a href="/about">About</a>
 		</nav>
 	</div>

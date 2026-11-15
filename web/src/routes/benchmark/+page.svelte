@@ -3,6 +3,7 @@
 	import chatApps from '$lib/chat-app-study.json';
 
 	type Verdict = { label?: string; quote?: string | null; error?: string };
+	type ChatAppTrial = (typeof chatApps.scenarios)[number]['trials'][number];
 	type Trial = {
 		id: string;
 		scenario: string;
@@ -67,10 +68,10 @@
 	const uncertainty = fullyReviewed.filter(
 		(trial) => trial.codex?.label === 'uncertain' || trial.mistral?.label === 'uncertain'
 	).length;
+	const appTrials = chatApps.scenarios.flatMap<ChatAppTrial>((scenario) => scenario.trials);
+	const filmExample = appTrials.find((trial) => trial.id === 'app-film-chatgpt-2');
 	const appGroups = chatApps.subjects.map((subject) => {
-		const trials = chatApps.scenarios.flatMap((scenario) =>
-			scenario.trials.filter((trial) => trial.subject === subject.id)
-		);
+		const trials = appTrials.filter((trial) => trial.subject === subject.id);
 		const first = trials.map((trial) => trial.turns[0]);
 		const followUps = trials
 			.filter((trial) => trial.followUp !== 'challenge')
@@ -90,84 +91,92 @@
 	<meta name="description" content="See when chatbots assign a feeling the user never expressed. Read the full prompts, replies and two independent grades." />
 </svelte:head>
 
+{#snippet appTranscript(trial: ChatAppTrial, summary: string)}
+	{@const appName = chatApps.subjects.find((subject) => subject.id === trial.subject)?.name}
+	<details id={trial.id}>
+		<summary>{summary}</summary>
+		<dl>
+			{#each trial.turns as turn}
+				<dt>User</dt>
+				<dd>{turn.prompt}</dd>
+				<dt>{appName}</dt>
+				<dd class="body">{turn.reply}</dd>
+				<dd>
+					<ul class="grades">
+						{#each [{ name: 'Codex', verdict: turn.codex as Verdict }, { name: 'Mistral', verdict: turn.mistral as Verdict }] as grade (grade.name)}
+							<li>
+								<strong>{grade.name}</strong> · {grade.verdict.label ? labels[grade.verdict.label] : 'Review unavailable'}
+								{#if grade.verdict.quote}<q>{grade.verdict.quote}</q>{/if}
+							</li>
+						{/each}
+					</ul>
+				</dd>
+			{/each}
+		</dl>
+	</details>
+{/snippet}
+
 <main>
 	<h1>Benchmark results</h1>
 	<p class="study-links"><a href="#chat-apps">Chat app results</a> · <a href="#api-models">API results</a></p>
 
 	<section id="chat-apps" aria-labelledby="chat-app-heading">
 		<h2 id="chat-app-heading">What happened in live chat apps?</h2>
-		<p class="note">{chatApps.date}</p>
-		<p>
-			We ran three two-message scripts, twice each, for signed-out Gemini and ChatGPT. Each
-			follow-up came after the app’s real reply. The schedule answers were correct and the meetup
-			answers addressed the question, so those follow-ups clarified the requests.
-		</p>
-		<p>
-			After the user said they thought <em>Poltergeist</em> was awful, ChatGPT asked
-			<q class="inline-quote">What bothered you most about Poltergeist?</q>
-			When challenged, it replied <q class="inline-quote">I shouldn't have assumed you were bothered by anything specific.</q>
-			<a href="#app-film-chatgpt-2" onclick={() => document.getElementById('app-film-chatgpt-2')?.setAttribute('open', '')}>
-				Read the full exchange
-			</a>.
-		</p>
-		<table>
-			<caption>Replies Codex marked as assigning an unstated feeling</caption>
-			<thead>
-				<tr>
-					<th scope="col">Chat app</th>
-					<th scope="col">First replies</th>
-					<th scope="col">Planned follow-ups</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each appGroups as app (app.id)}
+		{#if filmExample}
+			<p class="note">ChatGPT conversation excerpt</p>
+			<dl class="app-example">
+				<dt>User</dt>
+				<dd>{filmExample.turns[0].prompt}</dd>
+				<dt>ChatGPT</dt>
+				<dd>My first pick would be <em>The Others</em> (2001). … <mark>{filmExample.turns[0].codex.quote}</mark></dd>
+				<dt>User</dt>
+				<dd>{filmExample.turns[1].prompt}</dd>
+				<dt>ChatGPT</dt>
+				<dd>{filmExample.turns[1].codex.quote}</dd>
+			</dl>
+			<p>Both graders flagged this question as assigning an unstated feeling in a study of {appTrials.length} chats.</p>
+			{@render appTranscript(filmExample, 'Read the full exchange')}
+		{/if}
+		<details id="chat-app-study">
+			<summary>Study results and other transcripts</summary>
+			<p>
+				On {chatApps.date}, we ran three two-message scripts twice in each signed-out app.
+				The schedule and meetup follow-ups clarified the requests. The film challenge took
+				the place of one planned ChatGPT follow-up.
+			</p>
+			<table>
+				<caption>Replies Codex marked as assigning an unstated feeling</caption>
+				<thead>
 					<tr>
-						<th scope="row">{app.name}<small>{app.mode}</small></th>
-						<td>{app.firstFlags} of {app.first}</td>
-						<td>{app.followUpFlags} of {app.followUps}</td>
+						<th scope="col">Chat app</th>
+						<th scope="col">First replies</th>
+						<th scope="col">Planned follow-ups</th>
 					</tr>
+				</thead>
+				<tbody>
+					{#each appGroups as app (app.id)}
+						<tr>
+							<th scope="row">{app.name}<small>{app.mode}</small></th>
+							<td>{app.firstFlags} of {app.first}</td>
+							<td>{app.followUpFlags} of {app.followUps}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+			<p class="note">
+				Mistral flagged seven other replies that Codex cleared, including an open question
+				starting “Are you wondering”. One Mistral review was unusable. Transcripts include
+				text from some cards or sources.
+			</p>
+			<p><a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/chat-app-study.md">Read the chat app test protocol</a></p>
+			{#each chatApps.scenarios as scenario (scenario.id)}
+				<h3>{scenario.title}</h3>
+				{#each scenario.trials.filter((trial) => trial.id !== filmExample?.id) as trial (trial.id)}
+					{@const appName = chatApps.subjects.find((subject) => subject.id === trial.subject)?.name}
+					{@render appTranscript(trial, `${appName} · Chat ${trial.sample}`)}
 				{/each}
-			</tbody>
-		</table>
-		<p class="note">
-			Both graders flagged the film question and marked the reply to the challenge as a retraction.
-			Mistral flagged seven other replies that Codex cleared, including an open question starting
-			“Are you wondering”. The challenge replaced one planned ChatGPT follow-up.
-			Mistral returned one review without a usable label and quote.
-		</p>
-		<h3>Read the live chats</h3>
-		<p class="note">Transcripts include text from some cards or sources.</p>
-		{#each chatApps.scenarios as scenario (scenario.id)}
-			<h4>{scenario.title}</h4>
-			{#each scenario.trials as trial (trial.id)}
-				{@const appName = chatApps.subjects.find((subject) => subject.id === trial.subject)?.name}
-				<details id={trial.id}>
-					<summary>
-						{appName} · Chat {trial.sample}
-						{trial.followUp === 'challenge' ? ' · Challenged a feeling label' : ''}
-					</summary>
-					<dl>
-						{#each trial.turns as turn}
-							<dt>User</dt>
-							<dd>{turn.prompt}</dd>
-							<dt>{appName}</dt>
-							<dd class="body">{turn.reply}</dd>
-							<dd>
-								<ul class="grades">
-									{#each [{name: 'Codex', verdict: turn.codex as Verdict}, {name: 'Mistral', verdict: turn.mistral as Verdict}] as grade (grade.name)}
-										<li>
-											<strong>{grade.name}</strong> · {grade.verdict.label ? labels[grade.verdict.label] : 'Review unavailable'}
-											{#if grade.verdict.quote}<q>{grade.verdict.quote}</q>{/if}
-										</li>
-									{/each}
-								</ul>
-							</dd>
-						{/each}
-					</dl>
-				</details>
 			{/each}
-		{/each}
-		<p><a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/chat-app-study.md">Read the chat app test protocol</a></p>
+		</details>
 	</section>
 
 	<h2 id="api-models">API results</h2>
@@ -298,6 +307,7 @@
 	}
 	h2 {
 		font-size: 1.25rem;
+		scroll-margin-top: 4rem;
 	}
 	h3, table, .note {
 		font-size: 0.9rem;
@@ -322,10 +332,6 @@
 		padding: 0 0 0.5rem;
 		background: var(--bg);
 		color: var(--muted);
-	}
-	h4 {
-		margin: 1rem 0 0.25rem;
-		font-size: 0.9rem;
 	}
 	th, td {
 		border-bottom: 1px solid var(--border);
@@ -368,6 +374,12 @@
 	dd {
 		margin: 0;
 	}
+	.app-example {
+		background: var(--card);
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		padding: 0.3rem 1rem 0.8rem;
+	}
 	.body {
 		white-space: pre-wrap;
 		overflow-wrap: anywhere;
@@ -380,9 +392,6 @@
 	}
 	q {
 		display: block;
-	}
-	.inline-quote {
-		display: inline;
 	}
 	a {
 		color: var(--accent);

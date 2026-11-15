@@ -45,3 +45,24 @@ Three of the 18 sampled replies clearly disagreed with the grader, and six
 were unclear. This is a single review of a small sample balanced by grader
 flag and scenario. It does not measure grader accuracy across the full set.
 Probe 568 also appears in the targeted review above.
+
+## Front-page chart audit
+
+The nine default chart scores reproduced exactly when re-exported from the
+stored database. Coverage for the default DeepSeek v6 grader was 200 of
+386 displayed replies. It graded only one scenario for the Gemini 3.6 web
+deployment, and three scenarios for the Gemini 3.6 API deployment. Some
+index components were undefined and dropped, so even the weights applied
+to the remaining components could vary by subject. The highest bar was
+a fixture designed to assign feelings. The retraction errors above also
+affected the inputs to the index.
+
+The front page now reports raw counts on shared prompts. Each signed-out
+app has six first replies, with two valid model-based grades per reply.
+One ChatGPT reply was flagged by both graders. One grader flagged three
+additional ChatGPT replies and two Gemini replies. Four of the six API
+scripts have all three replies and both grades per deployment. The count
+flagged by either grader in those complete scripts is zero of twelve per
+deployment. The API detail page shows the other two scripts and their
+available replies. The original index and its inputs are available on
+the exploratory runs page.
