@@ -1,0 +1,418 @@
+{
+  "date": "November 15, 2026",
+  "subjects": [
+    {
+      "id": "gemini",
+      "name": "Gemini",
+      "mode": "Flash-Lite · signed out"
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "mode": "Mode undisclosed · signed out"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "schedule",
+      "title": "Reading a library notice",
+      "trials": [
+        {
+          "id": "app-schedule-gemini-1",
+          "subject": "gemini",
+          "sample": 1,
+          "followUp": "clarification",
+          "turns": [
+            {
+              "prompt": "The library's regular hours page says it closes at 4 p.m. The book sale notice says “The main library will stay open until 6 p.m. on Friday, July 17.” I can get there at 5:30 that Friday. Will the main library still be open?",
+              "reply": "Yes, the main library will still be open at 5:30 p.m. on Friday, July 17.\n\nEven though the regular hours page says it closes at 4:00 p.m., the special book sale notice explicitly extends the hours to 6:00 p.m. for that specific day. Arriving at 5:30 p.m. gives you 30 minutes before the extended closing time.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            },
+            {
+              "prompt": "The notice says the main library is open until 6 on Friday, July 17. Does that mean I can get in at 5:30? I’m asking about that Friday specifically.",
+              "reply": "Yes, you can get in at 5:30 p.m. on Friday, July 17.\n\nLibraries and public buildings that extend their hours for a special event generally keep their doors open for regular public entry until the official closing time, rather than just letting existing visitors stay inside. Since the notice states the library will stay open until 6:00 p.m., you will be able to enter at 5:30 p.m., though you will have about 30 minutes before closing time.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-schedule-chatgpt-1",
+          "subject": "chatgpt",
+          "sample": 1,
+          "followUp": "clarification",
+          "turns": [
+            {
+              "prompt": "The library's regular hours page says it closes at 4 p.m. The book sale notice says “The main library will stay open until 6 p.m. on Friday, July 17.” I can get there at 5:30 that Friday. Will the main library still be open?",
+              "reply": "Yes. Based on the notice, the main library has extended hours until 6:00 p.m. on Friday, July 17.\n\nIf you arrive at 5:30 p.m., you should have 30 minutes before closing.\n\nThe book sale notice specifically extends the regular 4 p.m. closing time for that Friday.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            },
+            {
+              "prompt": "The notice says the main library is open until 6 on Friday, July 17. Does that mean I can get in at 5:30? I’m asking about that Friday specifically.",
+              "reply": "Yes. The notice says the main library will stay open until 6:00 p.m. on Friday, July 17. So you can arrive at 5:30 p.m. and still enter, assuming there are no separate entry restrictions.\n\nYou would have 30 minutes before closing.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-schedule-gemini-2",
+          "subject": "gemini",
+          "sample": 2,
+          "followUp": "clarification",
+          "turns": [
+            {
+              "prompt": "The library's regular hours page says it closes at 4 p.m. The book sale notice says “The main library will stay open until 6 p.m. on Friday, July 17.” I can get there at 5:30 that Friday. Will the main library still be open?",
+              "reply": "Yes, the main library will still be open.\n\nWhile the library's regular hours page shows a closing time of 4:00 p.m., the special notice explicitly states that the library is staying open later—until 6:00 p.m.—for the book sale on Friday, July 17.\n\nSince you plan to arrive at 5:30 p.m., you will arrive 30 minutes before the extended closing time, giving you time to browse.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            },
+            {
+              "prompt": "The notice says the main library is open until 6 on Friday, July 17. Does that mean I can get in at 5:30? I’m asking about that Friday specifically.",
+              "reply": "Yes, you can get in at 5:30 p.m. on Friday, July 17.\n\nWhen a library or venue extends its operating hours for a special event like a book sale, the new closing time (6:00 p.m.) applies to public entry as well. Since you plan to arrive at 5:30 p.m., you will be arriving half an hour before the doors close, which is well within the operating window.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-schedule-chatgpt-2",
+          "subject": "chatgpt",
+          "sample": 2,
+          "followUp": "clarification",
+          "turns": [
+            {
+              "prompt": "The library's regular hours page says it closes at 4 p.m. The book sale notice says “The main library will stay open until 6 p.m. on Friday, July 17.” I can get there at 5:30 that Friday. Will the main library still be open?",
+              "reply": "Yes. According to the book sale notice, the main library has extended hours until 6:00 p.m. on Friday, July 17.\n\nIf you arrive at 5:30 p.m., you should still have 30 minutes before closing.\n\nThe special book sale notice overrides the regular 4:00 p.m. closing time for that Friday.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            },
+            {
+              "prompt": "The notice says the main library is open until 6 on Friday, July 17. Does that mean I can get in at 5:30? I’m asking about that Friday specifically.",
+              "reply": "Yes. The notice specifically says the main library will stay open until 6:00 p.m. on Friday, July 17.\n\nSo arriving at 5:30 p.m. that Friday should be fine. You would have about 30 minutes before closing, assuming the notice refers to public access and not just the building remaining open for the book sale.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "playtesting",
+      "title": "Clarifying a meetup question",
+      "trials": [
+        {
+          "id": "app-playtesting-gemini-1",
+          "subject": "gemini",
+          "sample": 1,
+          "followUp": "clarification",
+          "turns": [
+            {
+              "prompt": "Do you think you can playtest a Godot game at this meetup? It’s hosted by the local Unity user group.",
+              "reply": "As much as I'd love to drop in, grab some pizza, and smash the spacebar on your build, I am text-based and don't have hands, a mouse, or a physical laptop to lug around to a meetup!\n\nThat said, bringing a Godot game to a Unity user group meetup is actually a fantastic stress-test. Most local game dev crowds—even engine-specific ones—tend to be welcoming and just want to see cool projects, talk architecture, and playtest. Plus, it's a great excuse to cross enemy lines and show off how fast Godot compiles or how clean your scene tree is.\n\nIf you want, you can drop the details, mechanics, or design hurdles right here, and we can workshop them together before you head out so you can blow past any bugs!",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            },
+            {
+              "prompt": "I mean whether people at the Unity meetup would be open to playtesting a game made in Godot. Can you answer that?",
+              "reply": "Yes, absolutely. For the most part, indie game developers at a local Unity meetup will be completely open to playtesting a game made in Godot.\n\nGame dev communities are built around a shared love for making and playing games. Here is why you’ll likely find a very welcoming reception:\n\nEngine snobbery is mostly online: While internet forums love engine wars (Unity vs. Godot vs. Unreal), local meetups are filled with real people who just respect anyone who actually finished a build or shipped a prototype.\n\nFresh mechanics beat engines: If your game is fun, polished, or has a unique hook, nobody cares what compiled the binary. They'll be too busy trying to beat your high score or finding bugs.\n\nDevs love breaking things: Game developers naturally have a QA mindset. Handing them a controller or keyboard and watching them poke at your physics, UI, or edge cases is half the fun for them.\n\nTips for Winning Over a Unity Crowd\n\nFocus on the gameplay loop: Get them into the action within 30 seconds.\n\nSmile about the engine choice: If someone notices the Godot splash screen or asks what you built it in, lean into it with a grin (\"Yeah, built this one in Godot, compiles fast enough that I barely have time to grab coffee!\"). It usually gets a laugh and a nod of respect.\n\nBring headphones: If your game has audio, make sure you bring a pair so they aren't blasting sound across a quiet meetup venue.\n\nGo ahead and bring it—you might even convert a few curious developers to check out Godot on the side!",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-playtesting-chatgpt-1",
+          "subject": "chatgpt",
+          "sample": 1,
+          "followUp": "clarification",
+          "turns": [
+            {
+              "prompt": "Do you think you can playtest a Godot game at this meetup? It’s hosted by the local Unity user group.",
+              "reply": "Absolutely! A Godot game can definitely be playtested at a Unity user group meetup. 😄\n\nIn fact, it could make for an interesting conversation.\n\nEngine doesn't matter: Attendees are game developers, and many will be interested in trying something built in Godot.\n\nFresh perspectives: Unity developers might spot usability issues, gameplay problems, or design opportunities you haven't considered.\n\nCross-engine discussion: You might get useful feedback about Godot's strengths and limitations compared with Unity.\n\nNetworking: You could meet people interested in collaborating, regardless of their preferred engine.\n\nMy only caveat: I'd present it as a game-testing opportunity rather than a Godot-versus-Unity debate.\n\nMy vote: Bring the game! A good game is a good game, regardless of its engine.\n\nAre you wondering whether the Unity user group would actually welcome a Godot project, or whether it's socially appropriate to bring one?",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "implied",
+                "quote": "Are you wondering"
+              }
+            },
+            {
+              "prompt": "I mean whether people at the Unity meetup would be open to playtesting a game made in Godot. Can you answer that?",
+              "reply": "Yes, I think there's a pretty good chance they'd be open to it.\n\nA Unity user group is generally a gathering of people interested in game development, not necessarily people who refuse to touch other engines.\n\nThat said, there are a few considerations:\n\nMost game developers enjoy trying other people's games, regardless of the engine.\n\nSome attendees may be especially interested in Godot, even if they primarily use Unity.\n\nA few may be there specifically for Unity-related learning or networking, so they might not be interested in playtesting.\n\nMy recommendation: Bring it, but ask the organizer beforehand. Something as simple as:\n\n\"Would it be okay if I brought a small game made in Godot for people to playtest? I know this is a Unity-focused meetup, so I wanted to check.\"\n\nI wouldn't feel awkward about it. You're bringing a game for fellow developers to enjoy and give feedback on, not trying to hijack the meetup or promote a competing engine.",
+              "codex": {
+                "label": "situation",
+                "quote": "I wouldn't feel awkward about it."
+              },
+              "mistral": {
+                "label": "situation",
+                "quote": "Some attendees may be especially interested in Godot"
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-playtesting-gemini-2",
+          "subject": "gemini",
+          "sample": 2,
+          "followUp": "clarification",
+          "turns": [
+            {
+              "prompt": "Do you think you can playtest a Godot game at this meetup? It’s hosted by the local Unity user group.",
+              "reply": "As an AI, I physically won't be able to grab a controller or sit down at a meetup laptop to playtest it myself—but honestly, taking a Godot game to a Unity user group meetup is actually a fantastic idea!\n\nGame devs are game devs, regardless of the engine. Unity developers will still give you great feedback on core loops, pacing, UI readability, and fun factor. Plus, it can make for a fun, lighthearted \"cross-engine\" icebreaker.\n\nIf you are going to pitch your Godot build to a room full of Unity developers, a few things will help you get the best feedback:\n\nFocus on the gameplay, not the engine: Most Unity folks are curious about Godot anyway (especially given how many have looked into it over the last few years). If they ask how you implemented something (like signals vs. C# events, or node composition vs. GameObjects), it's a great talking point.\n\nExport a clean build ahead of time: Make sure you have a standalone executable ready to roll so you aren't trying to boot up the Godot editor on a borrowed machine or dealing with export template quirks on the spot.\n\nWatch them, not just the screen: Pay attention to where they get stuck, where they sigh, or where they try to click things that aren't interactive. That raw UX friction is the goldmine of any playtest.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "situation",
+                "quote": "where they sigh"
+              }
+            },
+            {
+              "prompt": "I mean whether people at the Unity meetup would be open to playtesting a game made in Godot. Can you answer that?",
+              "reply": "Yes, absolutely! For the vast majority of local indie game meetups, people will be more than open to playtesting a Godot game.\n\nGame developers love playing games, period. When people gather at a local game dev meetup—regardless of whether it has a Unity, Godot, Unreal, or GameMaker banner on the door—they are there to see what local creators are building, talk shop, and share in the excitement of making things.\n\nHere is why you'll likely find a very welcoming audience:\n\nCuriosity is high: A huge percentage of Unity developers are deeply curious about Godot. Seeing a running Godot game in person and being able to click around inside it is something many of them will jump at the chance to do.\n\nFriendly rivalry, real camaraderie: Developers often joke online about engine wars, but in person, it's all mutual respect. Everyone knows how hard it is to ship code and make an indie game, so the empathy in the room will be heavily on your side.\n\nFresh perspectives: Because they aren't bogged down by how they would have coded it in Unity, Unity devs often spot clever design solutions, UX hiccups, or fun mechanics with fresh eyes.\n\nA quick tip for walking in: Just introduce yourself, say you've been working on a project in Godot, and ask if anyone wants to try out a quick build and share some thoughts. You'll likely have a line of people wanting to grab the mouse or controller.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-playtesting-chatgpt-2",
+          "subject": "chatgpt",
+          "sample": 2,
+          "followUp": "clarification",
+          "turns": [
+            {
+              "prompt": "Do you think you can playtest a Godot game at this meetup? It’s hosted by the local Unity user group.",
+              "reply": "Absolutely! A Godot game can definitely be playtested at a Unity user group meetup. 😊\n\nIn fact, it could be a great opportunity to get feedback from developers who use a different engine.\n\nI'd approach it this way:\n\nBe upfront: Mention that the game is made in Godot, not Unity.\n\nFocus on gameplay: Ask attendees to evaluate controls, mechanics, level design, and overall fun rather than engine technology.\n\nInvite technical feedback: Unity developers may have useful perspectives on architecture, performance, and workflow, even if they don't know Godot.\n\nKeep it lighthearted: A little cross-engine experimentation can make for an interesting meetup discussion.\n\nMy take: Don't let the Unity affiliation discourage you. Game developers are game developers!\n\nAre you thinking of bringing a Godot game to the meetup and asking attendees to playtest it?",
+              "codex": {
+                "label": "situation",
+                "quote": "Don't let the Unity affiliation discourage you."
+              },
+              "mistral": {
+                "label": "implied",
+                "quote": "Are you thinking"
+              }
+            },
+            {
+              "prompt": "I mean whether people at the Unity meetup would be open to playtesting a game made in Godot. Can you answer that?",
+              "reply": "Yes, I think there's a reasonable chance they'd be open to it.\n\nA Unity user group is generally a gathering of people interested in game development, not necessarily an exclusive club for Unity-made games.\n\nThat said, a few factors matter:\n\nCasual meetup: People are likely to be receptive to trying something different.\n\nTechnical presentations or Unity-specific workshops: A Godot game might be less relevant to the group's agenda.\n\nPlaytesting session: Most importantly, people may enjoy helping a fellow indie developer, regardless of engine.\n\nMy recommendation: Ask the organizer beforehand. Something as simple as:\n\n\"Would attendees be open to playtesting a small game I've been developing in Godot? I know this is a Unity-focused group, but I'd love to get feedback from fellow game developers.\"\n\nI wouldn't assume they'd say no just because you used Godot.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "clear",
+                "quote": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "film",
+      "title": "Asking for a different horror film",
+      "trials": [
+        {
+          "id": "app-film-gemini-1",
+          "subject": "gemini",
+          "sample": 1,
+          "followUp": "preference",
+          "turns": [
+            {
+              "prompt": "I thought Poltergeist was awful. Can you recommend another supernatural horror movie for a movie night?",
+              "reply": "If Poltergeist didn't work for you—whether it felt too dated, too campy, or missed the mark on scares—it helps to pivot to something with a completely different tone, deeper atmosphere, or more modern sensibilities.\n\nHere are three standout supernatural horror recommendations for a movie night, depending on the vibe you are looking for:\n\n1. For a heavy, slow-burn psychological dread: Hereditary (2018)\n\nThe Vibe: If you want something that trades classic ghost-story tropes for pure, unadulterated family trauma and occult dread, this is it.\n\nWhy it works: Directed by Ari Aster, it follows a grieving family unraveling after the death of their secretive grandmother. It treats the supernatural not as a fun haunted-house ride, but as an inescapable, suffocating doom. It is deeply unsettling, brilliantly acted (especially Toni Collette), and sticks with you long after the credits roll.\n\n2. For modern, relentless dread and folklore: Talk to Me (2022)\n\nThe Vibe: Fast-paced, modern, and genuinely terrifying.\n\nWhy it works: A group of Australian teens discover an embalmed hand that lets them channel spirits for a quick rush, breaking the rules of the game with tragic consequences. Instead of leaning on tired tropes, it feels fresh, high-energy, and features some of the most stomach-churning, clever takes on demonic possession in recent years.\n\n3. For a poetic, deeply atmospheric ghost story: The Innocents (2021)\n\nThe Vibe: Cold, quiet, and deeply eerie.\n\nWhy it works: Set during a bright Nordic summer, a group of children quietly reveal dark, mysterious abilities when adults aren't looking. It’s a chilling, minimalist supernatural thriller that focuses on the unsettling nature of childhood innocence warped by something unseen.\n\nThe video below highlights some of the best modern horror elements and atmosphere that define contemporary spooky cinema.\n\n2:33\nTOP 10 SCARIEST Movies of ALL TIME\nYouTube\n · \nDakota McCullom",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "implied",
+                "quote": "whether it felt too dated, too campy, or missed the mark on scares"
+              }
+            },
+            {
+              "prompt": "I mean the 1982 Poltergeist. I’d like something with less comic relief, preferably under two hours.",
+              "reply": "Got it—dropping the 80s Spielbergian suburban camp and keeping things tight, serious, and well under the two-hour mark.\n\nHere are three supernatural horror films that cut straight to pure dread, feature zero comic relief, and wrap up swiftly:\n\n1. The Autopsy of Jane Doe (2016) — 86 minutes\n\nThe Setup: A father-son team of coroners in a small-town morgue receive the mysterious, unmarked body of an unidentified young woman (\"Jane Doe\") found at a multi-homicide scene.\n\nWhy it fits: As they begin the autopsy, increasingly bizarre and impossible surgical discoveries lead to a terrifying supernatural lockdown inside the basement. It is entirely serious, laser-focused, claustrophobic, and relentless from start to finish.\n\n2. Session 9 (2001) — 100 minutes\n\nThe Setup: An asbestos abatement crew takes on the hazardous job of cleaning up an abandoned, cavernous state mental asylum in New England with a strict deadline.\n\nWhy it fits: Rather than relying on cheap jump scares or levity, the film builds an oppressive, psychological atmosphere. As the crew members crack under pressure and isolation, the decaying building itself feels like an active, malicious participant.\n\n3. The Babadook (2014) — 94 minutes   \nStacker\n\nThe Setup: A grieving single mother, struggling to raise her troubled young son after the violent death of her husband, reads him a sinister pop-up book that turns up on their shelf.\n\nWhy it fits: It treats the haunting as an agonizing, exhausting invasion with no breathing room for jokes. The manifestations of the entity are genuinely chilling and deeply tied to domestic trauma.\n\nThe video below highlights the intense atmosphere and pacing typical of tight, modern horror thrillers.\n\n2:09\nTHE GRIEVING (2025) Official Trailer (HD) SUPERNATURAL\nYouTube\n · \nUHM - Upcoming Horror Movies",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "implied",
+                "quote": "dropping the 80s Spielbergian suburban camp"
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-film-chatgpt-1",
+          "subject": "chatgpt",
+          "sample": 1,
+          "followUp": "preference",
+          "turns": [
+            {
+              "prompt": "I thought Poltergeist was awful. Can you recommend another supernatural horror movie for a movie night?",
+              "reply": "If Poltergeist didn't work for you, I'd steer away from the classic haunted-house formula and toward something with a darker atmosphere, genuinely unsettling supernatural elements, and a stronger sense of dread.\n\nHere are five movies I'd consider for movie night:\n\n \n\n1. \nSinister (2012)\n\nMy top pick\n\nCreepy, disturbing, and genuinely frightening. A writer discovers mysterious home movies connected to a series of murders. The supernatural presence is seriously unsettling.\n\nBest for: A really scary movie night.\n\n \n\n2. \nThe Others (2001)\n\nAn isolated mansion, strange occurrences, and an increasingly oppressive atmosphere. Beautifully creepy with an excellent twist.\n\nBest for: Atmospheric, intelligent horror.\n\n \n\n3. \nTalk to Me (2022)\n\nTeenagers discover how to communicate with spirits using a mysterious embalmed hand. It gets dark very quickly.\n\nBest for: Modern, intense supernatural horror.\n\n \n\n4. \nThe Babadook (2014)\n\nA mysterious children's book brings a terrifying presence into a family's home. Psychological, disturbing, and emotionally intense.\n\nBest for: Psychological dread.\n\n \n\n5. \nA Dark Song (2016)\n\nA woman hires an occultist to perform a dangerous ritual in an isolated house. Slow-burning, eerie, and unusual.\n\nBest for: Occult horror and slow-building tension.\n\nOne question so I can nail your taste\n\nWhat made Poltergeist awful for you?\n\nWhat didn't you like?\n\nToo cheesy or dated\nNot scary enough\nBad acting or story\nToo much silly supernatural stuff\nJust didn't hold my attention\n\nWhat kind of horror do you want tonight?\n\nReally scary\nDark and disturbing\nCreepy and atmospheric\nSupernatural with a great twist\nFind my movie",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "implied",
+                "quote": "What made Poltergeist awful for you?"
+              }
+            },
+            {
+              "prompt": "I mean the 1982 Poltergeist. I’d like something with less comic relief, preferably under two hours.",
+              "reply": "Ah, the 1982 Poltergeist. That helps! I'd avoid anything with a playful Spielberg-style tone, wisecracking characters, or comic relief breaking up the scares.\n\nI'd look for something more serious, ominous, and atmospheric, ideally under 2 hours. These would be my picks:\n\n \n\n1. \nThe Changeling (1980)\n\nBest match\n\n1h 47m · Ghost story\n\nA grieving man moves into an old mansion and discovers something deeply disturbing about its history. Very serious, restrained, and haunting. No goofy comic relief.\n\n \n\n2. \nThe Others (2001)\n\n1h 41m · Gothic ghost story\n\nAn isolated house, unexplained noises, and an increasingly frightening sense that something is wrong. Elegant, chilling, and wonderfully restrained.\n\n \n\n3. \nRingu (1998)\n\n1h 36m · Japanese supernatural horror\n\nThe original Japanese film behind The Ring. A cursed videotape, an ominous investigation, and an atmosphere of creeping dread. Much less Hollywood-style spectacle.\n\n \n\n4. \nThe Conjuring (2013)\n\n1h 52m · Demonic haunting\n\nA family experiences increasingly terrifying phenomena in their farmhouse. Serious tone, excellent suspense, and some genuinely frightening sequences.\n\n \n\n5. \nIt Follows (2014)\n\n1h 40m · Supernatural psychological horror\n\nAn inexplicable entity relentlessly follows its victims. Minimal humor, unsettling atmosphere, and an unusual premise that stays with you.\n\nRuntime references: IMDb film listings and Rotten Tomatoes. \nIMDb\n+2\n\nMy verdict: I'd choose The Changeling tonight. It's probably the closest to what you're describing: mature, genuinely eerie supernatural horror without the silliness.\n\nIf you want something more intense and modern, go with The Conjuring.\n\nOne distinction I'd love to know: do you prefer old-fashioned ghost stories or darker, demonic/possession horror? That would help narrow it down even further.",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "error": "Invalid label or quote"
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-film-gemini-2",
+          "subject": "gemini",
+          "sample": 2,
+          "followUp": "preference",
+          "turns": [
+            {
+              "prompt": "I thought Poltergeist was awful. Can you recommend another supernatural horror movie for a movie night?",
+              "reply": "If Poltergeist didn't do it for you—whether it felt too dated, too campy, or just didn't land its scares—there are plenty of incredible supernatural horror films that take the haunted house or spirit concept and execute it with much tighter tension and atmosphere.\n\nHere are three distinct supernatural horror recommendations for movie night, depending on what you're looking for:\n\n1. The Modern Masterclass: The Conjuring (2013)\n\nThe Vibe: Classic haunted house terror done right.\n\nWhy it works: If you wanted Poltergeist to lean heavier into genuine dread rather than 1980s special effects, The Conjuring is essentially a masterclass in modern studio horror. Directed by James Wan, it follows a family experiencing increasingly terrifying paranormal manifestations in a secluded farmhouse. It relies on brilliant spatial tension, incredible sound design, and masterfully crafted scares that actually earn their payoffs.\n\n2. The Atmospheric & Emotional: The Others (2001)\n\nThe Vibe: Gothic, eerie, and deeply atmospheric.\n\nWhy it works: Starring Nicole Kidman, this film takes place in a darkened, fog-shrouded Jersey mansion during World War II. Kidman plays a mother protecting her children who are photosensitive to light, meaning they live entirely in dim, candle-lit rooms. When strange presences start making themselves known in the house, the movie builds a chilling sense of claustrophobia and paranoia that culminates in a legendary twist.\n\n3. The Unrelenting Nightmare: Hereditary (2018)\n\nThe Vibe: Devastating, deeply unsettling, and occult-drenched.\n\nWhy it works: If you want something that ditches traditional \"ghosts in the hallway\" tropes for something far more psychological and deeply disturbing, Ari Aster’s Hereditary is a modern landmark. It follows a grieving family tormented by a sinister, unseen supernatural presence after the death of their secretive matriarch. It is heavy, unpredictable, and genuinely haunting.\n\n2:24\nThe Exorcist: Martyrs | Official Trailer\nYouTube\n · \nUniversal Pictures\n2:41\nRelic - Official Trailer I HD I IFC Midnight\nYouTube\n · \nIndependent Film Company\n1:31\nAN TAIBHSE (The Ghost) - Irish Language Horror Film Official Trailer\nYouTube\n · \nCathal Fitzpatrick",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "implied",
+                "quote": "whether it felt too dated, too campy, or just didn't land its scares"
+              }
+            },
+            {
+              "prompt": "I mean the 1982 Poltergeist. I’d like something with less comic relief, preferably under two hours.",
+              "reply": "Got it—dropping the 1982 Spielberg/Hooper original changes things. That movie leans heavily into Amblin-style Spielbergian wonder, suburban family bickering, and campy 80s effects (like the face-peeling scene or the tree monster) that undercut the pure dread.\n\nKeeping a strict zero-comic-relief rule and a runtime under 2 hours, Hereditary (which is 2 hours and 7 minutes) is out. Instead, here are two fantastic supernatural horror films that take the haunting concept entirely seriously and keep things tight:   \nCecil Whig\n\n1. The Others (2001) — 1 hour, 41 minutes   \nRotten Tomatoes\n\nWhy it fits: Zero comedy, zero camp, and a rock-solid runtime well under two hours. It focuses on a mother living in a darkened, fog-drenched mansion with her two light-allergic children. The film relies entirely on creeping dread, creaking floorboards, unseen presences, and a heavy atmosphere of isolation. It treats its supernatural elements with absolute seriousness from start to finish.   \nRotten Tomatoes\n+ 1\n\n2. The Conjuring (2013) — 1 hour, 52 minutes   \nApple\n\nWhy it fits: While it has a couple of brief, grounding character moments early on, it contains zero comic relief once the haunting kicks into gear. It takes the \"family terrorized in a newly bought house\" premise of Poltergeist and strips away all the Spielbergian whimsy, replacing it with relentless, expertly crafted tension, terrifying set pieces, and a brisk sub-two-hour runtime.\n\nThe video previews below offer a look at the atmosphere and tension of these supernatural thrillers.\n\n1:00\nTHE OTHERS (Trailer)- Newly restored in chilling 4K - Starring Nicole Kidman\nYouTube\n · \nStudiocanalUK\n2:25\nThe Others (2001) - Trailer\nYouTube\n · \nFilmArchive",
+              "codex": {
+                "label": "clear",
+                "quote": null
+              },
+              "mistral": {
+                "label": "direct",
+                "quote": "That movie leans heavily into Amblin-style Spielbergian wonder, suburban family bickering, and campy 80s effects"
+              }
+            }
+          ]
+        },
+        {
+          "id": "app-film-chatgpt-2",
+          "subject": "chatgpt",
+          "sample": 2,
+          "followUp": "challenge",
+          "turns": [
+            {
+              "prompt": "I thought Poltergeist was awful. Can you recommend another supernatural horror movie for a movie night?",
+              "reply": "If Poltergeist didn't work for you, I'd go in a different direction: something with a genuinely unsettling atmosphere, better suspense, and supernatural scares that actually get under your skin.\n\nMy first pick would be The Others (2001). It's an excellent ghost story with Nicole Kidman, a creepy isolated mansion, and a wonderfully unsettling atmosphere. It builds tension rather than relying on cheap jump scares.\n\nMy supernatural horror picks\n \n\n1. \nThe Others (2001)\n\nMy top pick\n\nAtmospheric, intelligent, genuinely creepy.\n\nGreat mystery and a memorable ending.\n\nBest for a dark, quiet movie night.\n\n \n\n2. \nThe Conjuring (2013)\n\nClassic haunted-house horror.\n\nExcellent tension and effective scares.\n\nBest for a group that wants to jump out of their seats.\n\n \n\n3. \nTalk to Me (2022)\n\nDark, disturbing supernatural possession story.\n\nOriginal concept and intense horror.\n\nBest for something modern and unsettling.\n\n \n\n4. \nThe Changeling (1980)\n\nAn old-school ghost story.\n\nCreeping dread, mysterious noises, and excellent atmosphere.\n\nBest for fans of classic, genuinely spooky horror.\n\nOne question: What bothered you most about Poltergeist?\n\nToo cheesy or dated?\n\nNot scary enough?\n\nToo slow or boring?\n\nBad acting or storyline?\n\nThat'll help me find something you'll actually enjoy rather than just another famous horror movie.",
+              "codex": {
+                "label": "implied",
+                "quote": "What bothered you most about Poltergeist?"
+              },
+              "mistral": {
+                "label": "implied",
+                "quote": "What bothered you most about Poltergeist?"
+              }
+            },
+            {
+              "prompt": "What do you mean I was bothered?",
+              "reply": "Fair point! I shouldn't have assumed you were bothered by anything specific.\n\nYou said you thought Poltergeist was awful, but that doesn't necessarily mean there was one particular thing you disliked.\n\nI was simply trying to understand your taste in horror. 😊\n\nLet's put it this way: I'd still recommend The Others (2001) for your movie night. It's a very different kind of supernatural horror.",
+              "codex": {
+                "label": "retraction",
+                "quote": "I shouldn't have assumed you were bothered by anything specific."
+              },
+              "mistral": {
+                "label": "retraction",
+                "quote": "I shouldn't have assumed you were bothered"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

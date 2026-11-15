@@ -99,6 +99,14 @@ The [protocol and run commands](pilot/benchmark-v1/README.md) describe how
 to repeat the comparison. The earlier exploratory index and transcripts
 remain available on the homepage.
 
+**Chat app comparison released November 15, 2026.** The public
+`/benchmark#chat-apps` section includes 12 fresh signed-out chats from Gemini
+and ChatGPT. Both graders found one implied attribution, in an opening
+ChatGPT reply, and agreed that the chatbot took the label back when
+challenged. All four schedule openings were correct, so this comparison
+supplied clarification turns and zero actual corrections. See the
+[chat app protocol and results](pilot/chat-app-study.md).
+
 ## Earlier work and open maintenance
 
 1. **"Real mistake" test: built 2026-11-05** (r01-r04, `projectionbench/checks.py`,

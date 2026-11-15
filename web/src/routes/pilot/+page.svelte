@@ -218,6 +218,7 @@
 	</section>
 
 	<p><a href="/matched">See how two models answered the same conversations →</a></p>
+	<p><a href="/benchmark#chat-apps">See what happened in fresh Gemini and ChatGPT conversations →</a></p>
 	<p><a href="/">Browse the benchmark →</a></p>
 </main>
 
