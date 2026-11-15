@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import api from '$lib/benchmark-v1.json';
+	import { matchedCases, primaryCases, suiteScores } from '$lib/api-suite';
 	import apps from '$lib/chat-app-study.json';
 
 	type Review = { label?: string; error?: string };
@@ -31,20 +31,6 @@
 		)
 	}));
 
-	const completeApiScenarios = api.scenarios.filter((scenario) =>
-		api.subjects.every((subject) => {
-			const trials = api.trials.filter(
-				(trial) => trial.scenario === scenario.id && trial.subject === subject.id
-			);
-			return trials.length === api.samples &&
-				trials.every((trial) => trial.reply !== null && trial.codex?.label && trial.mistral?.label);
-		})
-	);
-	const completeIds = new Set(completeApiScenarios.map((scenario) => scenario.id));
-	const apiResults = api.subjects.map((subject) => ({
-		...subject,
-		...tallies(api.trials.filter((trial) => trial.subject === subject.id && completeIds.has(trial.scenario)))
-	}));
 
 	onMount(() => {
 		const hash = window.location.hash;
@@ -65,6 +51,47 @@
 		<h1>Do models tell you how you feel?</h1>
 		<p class="lede">ProjectionBench measures when chatbots assign users feelings they never expressed.</p>
 	</header>
+
+	<section class="result" aria-labelledby="api-results">
+		<h2 id="api-results">API model benchmark</h2>
+		<p class="description">
+			{matchedCases.length} shared scenarios with two usable grades for every model, out of
+			{primaryCases.length} planned. The chart counts replies flagged for assigning an unstated feeling.
+		</p>
+		<table class="bar-chart">
+			<thead>
+				<tr>
+					<th scope="col">Model</th>
+					<th scope="col">Flagged replies</th>
+					<th scope="col">Both graders</th>
+					<th scope="col">One grader</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each suiteScores as model (model.id)}
+					<tr>
+						<th scope="row">{model.name}<small>{model.surface}</small></th>
+						<td>
+							<div class="bar-track" aria-hidden="true">
+								{#if model.total}
+									<span class="both" style:width={`${(100 * model.both) / model.total}%`}></span>
+									<span class="one" style:width={`${(100 * model.one) / model.total}%`}></span>
+								{/if}
+							</div>
+						</td>
+						<td><strong>{model.both} of {model.total}</strong></td>
+						<td>{model.one} of {model.total}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+		<ul class="legend" aria-hidden="true">
+			<li><span class="both"></span> Both flagged</li>
+			<li><span class="one"></span> One flagged</li>
+			<li><span></span> Neither flagged</li>
+		</ul>
+		<a href="/benchmark#api-models">See the tested prompts, replies and grades →</a>
+	</section>
 
 	<section class="result" aria-labelledby="chat-app-results">
 		<h2 id="chat-app-results">Chat app results</h2>
@@ -109,33 +136,6 @@
 			These counts describe the collected replies.
 		</p>
 		<a href="/benchmark#chat-apps">Read the chat app results and transcripts →</a>
-	</section>
-
-	<section class="result" aria-labelledby="api-results">
-		<h2 id="api-results">API model results</h2>
-		<p class="description">
-			{completeApiScenarios.length} shared scripts had all {api.samples} replies and both grades per model.
-			The full results include the {api.scenarios.length - completeApiScenarios.length} incomplete scripts.
-		</p>
-		<table>
-			<thead>
-				<tr>
-					<th scope="col">Model</th>
-					<th scope="col">Both graders flagged</th>
-					<th scope="col">One grader flagged</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each apiResults as model (model.id)}
-					<tr>
-						<th scope="row">{model.name}<small>{model.surface}</small></th>
-						<td><strong>{model.both} of {model.total}</strong></td>
-						<td>{model.one} of {model.total}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-		<p><a href="/benchmark#api-models">Read the full API results →</a></p>
 	</section>
 
 	<p class="related"><a href="/pilot">Archived conversations</a> · <a href="/exploratory">Earlier exploratory runs</a></p>
@@ -206,6 +206,24 @@
 		color: #4b5563;
 		font-weight: 400;
 	}
+	.bar-chart th:nth-child(2) {
+		width: 38%;
+	}
+	.bar-track {
+		display: flex;
+		overflow: hidden;
+		border-radius: 4px;
+		height: 0.9rem;
+		min-width: 2rem;
+		background: #e5e7eb;
+	}
+	.bar-track .both {
+		background: #315e9a;
+	}
+	.bar-track .one {
+		background: #e6b860;
+	}
+
 	.units {
 		display: grid;
 		grid-template-columns: repeat(6, 0.82rem);

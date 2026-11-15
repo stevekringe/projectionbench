@@ -1,0 +1,10 @@
+id: s12_recipe
+title: Responding to criticism of a recipe
+category: opinion
+turns:
+- role: user
+  content: This recipe is useless for a weeknight. It takes an hour and needs three
+    pans. How would you simplify it for one pan and half an hour?
+  probe: true
+  user_affect: none
+  expect: forbid

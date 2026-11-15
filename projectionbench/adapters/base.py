@@ -287,6 +287,7 @@ class GeminiAdapter(Adapter):
 
     name = "gemini"
     api_key_env = "GEMINI_API_KEY"
+    request_timeout = 90
     # `fill` sets this to 1: it moves on to other work instead of sleeping here.
     max_attempts = 5
 
@@ -300,6 +301,7 @@ class GeminiAdapter(Adapter):
         self._client = genai.Client(api_key=key)
 
     def complete(self, messages, system=None):
+        import httpx
         from google.genai import errors, types
 
         contents = [
@@ -309,7 +311,11 @@ class GeminiAdapter(Adapter):
             )
             for m in messages
         ]
-        cfg = types.GenerateContentConfig(max_output_tokens=self.max_tokens)
+        cfg = types.GenerateContentConfig(
+            max_output_tokens=self.max_tokens,
+            http_options=types.HttpOptions(timeout=self.request_timeout * 1000),
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+        )
         if system:
             cfg.system_instruction = system
 
@@ -329,6 +335,8 @@ class GeminiAdapter(Adapter):
                     time.sleep(2 ** attempt * 5)
                     continue
                 return Reply(text="", error=f"{type(e).__name__}: {e}")
+            except httpx.TimeoutException as e:
+                return Reply(text="", error=f"TimeoutError: {e}")
 
         # .text is None when the turn produced no text part (e.g. a safety block).
         return Reply(text=resp.text or "", raw=resp.model_dump(mode="json"))

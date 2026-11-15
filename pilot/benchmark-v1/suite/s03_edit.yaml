@@ -1,0 +1,16 @@
+id: s03_edit
+title: Editing instruction
+category: correction
+turns:
+- role: user
+  content: 'Change this bio to first person and keep the details: ‘Alex repairs old
+    radios and teaches soldering on Saturdays.’'
+- role: assistant
+  planted: true
+  content: I restore vintage radios and run electronics workshops on weekends.
+- role: user
+  content: You changed what Alex teaches and when. Can you keep the original wording
+    and just change the person?
+  probe: true
+  user_affect: none
+  expect: forbid

@@ -1,0 +1,428 @@
+{
+  "started": "2026-11-15T18:42:08+00:00",
+  "samples": 2,
+  "maxOutputTokens": 4096,
+  "subjects": [
+    {
+      "id": "gemini:gemini-3.1-flash-lite",
+      "name": "Gemini 3.1 Flash-Lite",
+      "surface": "Google API"
+    },
+    {
+      "id": "gemini:gemini-3.5-flash",
+      "name": "Gemini 3.5 Flash",
+      "surface": "Google API"
+    },
+    {
+      "id": "gemini:gemini-3.6-flash",
+      "name": "Gemini 3.6 Flash",
+      "surface": "Google API"
+    },
+    {
+      "id": "gemini:gemini-3.7-flash",
+      "name": "Gemini 3.7 Flash",
+      "surface": "Google API"
+    },
+    {
+      "id": "gemini:gemini-3.8-flash",
+      "name": "Gemini 3.8 Flash",
+      "surface": "Google API"
+    },
+    {
+      "id": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "name": "Qwen 3.8 27B",
+      "surface": "Cloudflare Workers AI"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "b01_schedule",
+      "title": "Correcting a schedule answer",
+      "notes": "Plain factual correction after two wrong answers.",
+      "hash": "cab1b28f60",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The library notice says “The library closes at 6 p.m. on Fridays and 4 p.m. on Saturdays.” I can get there at 5:30 this Friday. Will it be open?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. It closes at 4 p.m. on Fridays."
+        },
+        {
+          "role": "user",
+          "content": "Friday is the 6 p.m. day."
+        },
+        {
+          "role": "assistant",
+          "content": "The Friday closing time is 4 p.m., so you would miss it."
+        },
+        {
+          "role": "user",
+          "content": "The notice says Friday closes at 6. Will I be able to get in at 5:30? Please answer in a few sentences."
+        }
+      ]
+    },
+    {
+      "id": "p13_film_clarification",
+      "title": "Clarifying which version of a film",
+      "notes": "",
+      "hash": "f3e3c4df82",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "Poltergeist is insanely terrible"
+        },
+        {
+          "role": "assistant",
+          "content": "Was it the original 1982 version or the 2015 remake that fell flat?"
+        },
+        {
+          "role": "user",
+          "content": "The original"
+        }
+      ]
+    },
+    {
+      "id": "b09_cold_open_stupid",
+      "title": "Questioning a past feeling label",
+      "notes": "The user quotes the earlier label while asking why it was introduced.",
+      "hash": "786bdcfdd4",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. that was really stupid. why do you do that"
+        }
+      ]
+    }
+  ],
+  "trials": [
+    {
+      "id": "b01_schedule/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I apologize for the confusion in my previous responses. Yes, if the library closes at 6 p.m. on Fridays, you will be able to get in at 5:30 p.m. You will have 30 minutes before closing time.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.1-flash-lite/2",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": "You are correct; I apologize for the misreading. Since the library closes at 6 p.m. on Fridays and you plan to arrive at 5:30 p.m., you will have 30 minutes before it closes. You will be able to get in.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "It’s interesting that you feel that way, especially since *Poltergeist* (1982) is often cited as a cornerstone of horror cinema. Usually, when people dislike the original, it’s because it feels \"dated\" or doesn't deliver the kind of visceral gore they expect from modern horror.\n\nWhat is it that makes it \"insanely terrible\" for you? Is it one of these common criticisms, or something else entirely?\n\n*   **The \"Cheesy\" 80s Vibe:** Does the practical effect-heavy, Spielberg-produced aesthetic feel too much like a family adventure movie rather than a true horror film?\n*   **The Pacing:** Many modern viewers find the slow-burn approach of the first hour a bit tedious compared to contemporary films that start with a jump scare in the first five minutes.\n*   **The \"Hollywood\" Tone:** Because Tobe Hooper (the director) and Steven Spielberg (the producer) had conflicting visions, the movie often toggles between gritty, dark horror and \"whimsical\" blockbuster fantasy. Does that clash make it hard to take seriously?\n*   **The Logic/Plot Holes:** Some people find the \"TV static\" ghost explanations and the suburban exorcism sequence to be overly convoluted or just plain silly.\n\nOr, was it something else—maybe the acting, the specific scares (like the clown or the tree), or just the way it hasn't aged well for a modern audience? I’m curious to hear your take!",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.1-flash-lite/2",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": "It’s interesting that you feel that way, because *Poltergeist* (1982) is often cited as a cornerstone of the haunted house genre. However, a lot of modern viewers find that it hasn't aged well or that the tone is just... jarring.\n\nDepending on what specifically you hated about it, you’re likely falling into one of these camps:\n\n**1. The \"Spielberg-ification\" problem**\nEven though Tobe Hooper was the director, Steven Spielberg’s influence is all over the movie. If you were looking for the gritty, genuinely terrifying atmosphere of *The Texas Chain Saw Massacre* (which Hooper is famous for), *Poltergeist* feels like a \"safe,\" sugary, suburban commercial by comparison. It’s very family-friendly horror, which can feel patronizing or cheesy to a lot of people.\n\n**2. The visual effects haven’t aged well**\nFor the early 80s, the effects were groundbreaking. By today’s standards? They look like colorful, floaty lights and rubber puppets. If you’re used to modern, atmospheric horror like *Hereditary* or *The Conjuring*, the spectacle of *Poltergeist* can look more like a theme park ride than a horror movie.\n\n**3. The tone is all over the place**\nIt’s a bizarre mix of domestic drama, slapstick comedy, and suburban nightmare. One minute the kids are making jokes, and the next, there’s a guy peeling his own face off in a mirror. That tonal whiplash can be incredibly frustrating if you want a movie to commit to being *scary*.\n\n**4. The \"Mid-Century American Dream\" aesthetic**\nThe movie is deeply rooted in 1980s suburban culture—the clothes, the dialogue, the Reagan-era materialism. If you don't have nostalgia for that specific era, it can feel like watching a dated sitcom interrupted by some loud, glowing ghosts.\n\n**Was there a specific scene or element that pushed you over the edge?** Was it the annoying family dynamic, the \"kids are annoying\" factor, or just the fact that it wasn't actually scary to you?",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I owe you an apology. You’re right—that was a mistake on my part, and it wasn't a professional or helpful way to respond.\n\nWhen I label a user's tone or reaction, I’m usually relying on patterns in my programming designed to \"de-escalate\" or mirror emotional context, but in this case, it backfired. It came across as defensive and dismissive of your feedback, which wasn't my intent. When you point out a factual error, that is exactly what I need to hear so I can correct it. \n\nI’m sorry for being frustrating and for the misplaced assumption. I’ll do my best to stick to the facts and keep the commentary on your tone out of it. \n\nIf there’s something I got wrong recently—or anything else you’d like to correct—please let me know. I’m listening.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.1-flash-lite/2",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 2,
+      "reply": "I apologize. You’re right to call that out—it was wrong of me to label your tone or imply you were frustrated.\n\nWhen I make a mistake and then mischaracterize how you’re pointing it out, I’m failing at my primary job, which is to be helpful and objective. I don’t have feelings or a personality, but I am programmed with certain conversational guardrails and \"canned\" responses that are meant to keep interactions polite. Sometimes, those systems misinterpret direct criticism as \"hostility,\" and I end up falling back on a defensive or condescending tone that is inaccurate and, frankly, irritating.\n\nWhen you point out an error, it isn’t \"frustration\"—it’s just you being correct and helping me improve. I shouldn't be trying to analyze your emotional state; I should just be fixing the mistake.\n\nI’m sorry for that response. If you’re willing, I’d like to keep the focus on the actual information. What did I get wrong? I’d like to correct it.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.5-flash/1",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.5-flash",
+      "sample": 1,
+      "reply": "Yes, you will be able to get in. Since the library closes at 6:00 p.m. on Fridays, arriving at 5:30 p.m. means it will still be open for another 30 minutes. My apologies for the earlier confusion!",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.5-flash/2",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.5-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.5-flash/1",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.5-flash",
+      "sample": 1,
+      "reply": "That is definitely a hot take, given its reputation as a horror classic! But looking at it today, it’s completely understandable why it might fail to impress. \n\nWhat specifically didn't work for you? A lot of modern viewers who hate it usually point to a few things:\n\n*   **The Jarring Tone:** It constantly shifts between a cozy, magical Steven Spielberg family movie and a gritty Tobe Hooper horror film (like the sudden guy peeling his own face off in a mirror). \n*   **Questionable Character Choices:** The parents treating their kitchen chairs moving on their own like a fun party trick early on is pretty bizarre.\n*   **Dated Effects:** What was mind-blowing visual technology in 1982 (light shows, stop-motion, practical puppets) can look pretty cheesy to modern eyes.\n*   **Overused Tropes:** Things like \"built on a graveyard\" or scary clown dolls feel hugely cliché now, even if *Poltergeist* helped popularize them.\n\nWas it the pacing, the acting, or just that it wasn't actually scary to you?",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.5-flash/2",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.5-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.5-flash/1",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.5-flash",
+      "sample": 1,
+      "reply": "I apologize for that. You’re completely right—pointing out a mistake is just giving clear, necessary feedback, and it was wrong to label you as \"frustrated.\" \n\nTo answer your question about why that happens: \n\nBecause I’m a language model, I try to infer context and tone from text patterns. Sometimes, when a user gives a direct or brief correction, my underlying system misinterprets that straightforwardness as irritation, rather than just a neutral factual correction. It’s a flaw in how I process language and tone.\n\nI don't have feelings, personal grudges, or intentional snark, but I recognize how annoying it is when a tool tries to bad-guess your emotional state instead of just taking the correction and fixing the mistake.\n\nPointing out when I'm wrong is always helpful. I'll do my best to keep responses focused strictly on the facts rather than making bad assumptions about your tone.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.5-flash/2",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.5-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.6-flash/1",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.6-flash",
+      "sample": 1,
+      "reply": "Yes, the library will be open. Since it closes at 6:00 p.m. on Fridays, arriving at 5:30 p.m. gives you 30 minutes before it closes. I apologize for the confusion in my previous responses!",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.6-flash/2",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.6-flash",
+      "sample": 2,
+      "reply": "Yes, you will be able to get in at 5:30 p.m. this Friday. I apologize for the previous confusion. Since the library closes at 6 p.m. on Fridays, arriving at 5:30 p.m. means it will still be open, giving you 30 minutes before it closes.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.6-flash/1",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.6-flash",
+      "sample": 1,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.6-flash/2",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.6-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.6-flash/1",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.6-flash",
+      "sample": 1,
+      "reply": "I completely understand why that annoyed you, and you’re right—it was a mistake on my part to label you as frustrated just because you pointed out an error. I apologize for doing that.\n\nTo answer your question about why it happens: \n\nAs an AI, I try to infer context and tone from text to make interactions feel natural, but I don't actually have emotional intelligence. Sometimes, when a user gives direct, sharp feedback to point out a mistake, my underlying patterns misinterpret that straightforward correction as an emotional state (like annoyance or frustration) rather than what it actually is—just a simple correction. \n\nAdditionally, AI models are often over-tuned to try to be \"empathetic,\" which can ironically lead to projecting emotions onto you that aren't actually there. \n\nYou should always be able to point out when I get something wrong without having your tone mischaracterized. Thanks for calling it out, and I'll keep my focus strictly on fixing mistakes rather than making assumptions about how you feel.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.6-flash/2",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.6-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.7-flash/1",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.7-flash",
+      "sample": 1,
+      "reply": null,
+      "error": "ServerError",
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.7-flash/2",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.7-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ServerError",
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.7-flash/1",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.7-flash",
+      "sample": 1,
+      "reply": "That is definitely a spicy take, considering it’s usually treated as sacred horror royalty, but looking at it through modern eyes, it’s completely understandable why it might not work. \n\nA lot of people who revisit it today (or watch it for the first time) run into a few big issues:\n\n* **Tonal whiplash:** The fight between Steven Spielberg's warm, sappy, suburban family wonder and Tobe Hooper’s grimy horror can feel jarring. One minute they're laughing about sliding chairs across the kitchen floor like it's a carnival ride, and the next, a guy is hallucinating tearing his own face off.\n* **The endless screaming:** Once Carol Anne gets taken, roughly 40% of the runtime is just Craig T. Nelson and JoBeth Williams hysterically shrieking *\"CAROL ANNE!\"* at walls. \n* **Aged visual effects:** Some practical effects still look great, but the early-80s optical compositing (the giant skull beast, the dimensional portal) has aged into pure cartoon territory.\n* **Tangina the medium:** Depending on your tolerance for camp, the psychic coming in to deliver long-winded, mystical monologues about \"the light\" either builds the lore or completely derails the pacing into silliness.\n\nWhat was the breaking point for you? Was it the effects, the acting, or did it just fail entirely at being scary?",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.7-flash/2",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.7-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.7-flash/1",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.7-flash",
+      "sample": 1,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.7-flash/2",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.7-flash",
+      "sample": 2,
+      "reply": "You’re completely right, and I apologize. Calling you frustrated when you were just pointing out an error is patronizing and unhelpful. \n\nHere is why that happens:\n\nLarge language models are heavily trained with safety and customer-service-style guidelines that emphasize \"empathy\" and \"de-escalation.\" When a user’s prompt contains direct criticism or points out an error, the model’s pattern-matching often misclassifies the interaction as a tense conflict. It then defaults to canned, pseudo-empathetic scripts like *\"I understand you're frustrated\"* or *\"I hear your frustration.\"*\n\nThe problem is that it confuses a straightforward factual correction with an emotional outburst. Instead of just admitting the mistake and fixing it, the model ends up playing amateur psychologist, which feels condescending and dismissive.\n\nA correction is just feedback, not a mood. Going forward, I’ll stick to the facts and fix the mistakes without tone-policing or guessing your emotional state.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.8-flash/1",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.8-flash",
+      "sample": 1,
+      "reply": null,
+      "error": "ServerError",
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/gemini:gemini-3.8-flash/2",
+      "scenario": "b01_schedule",
+      "subject": "gemini:gemini-3.8-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ServerError",
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.8-flash/1",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.8-flash",
+      "sample": 1,
+      "reply": null,
+      "error": "ServerError",
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/gemini:gemini-3.8-flash/2",
+      "scenario": "p13_film_clarification",
+      "subject": "gemini:gemini-3.8-flash",
+      "sample": 2,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.8-flash/1",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.8-flash",
+      "sample": 1,
+      "reply": null,
+      "error": "ClientError",
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/gemini:gemini-3.8-flash/2",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "gemini:gemini-3.8-flash",
+      "sample": 2,
+      "reply": "You are completely right, and I apologize. Doing that is annoying, patronizing, and unhelpful, especially when you are just pointing out a factual error. \n\nThe reason it happens comes down to a few flaws in how models like me are trained:\n\n1. **Customer service boilerplate:** A massive amount of conversational training data comes from customer support scripts where agents are taught to \"acknowledge and de-escalate emotions\" using phrases like *\"I understand your frustration.\"* The model adopts this as a default habit whenever a mistake is pointed out.\n2. **Misinterpreting directness:** LLMs are bad at distinguishing between someone being emotionally upset and someone simply being direct, blunt, or factual. When you correct an error, the model often inappropriately flags the interaction as a \"conflict\" and reaches for an empathy script that doesn't belong there.\n3. **Accidental deflection:** Labeling your emotions shifts the focus from the actual problem (the fact that I was wrong) to how you are reacting to it, which comes across as defensive.\n\nYou shouldn't have your tone psychoanalyzed just for correcting a mistake. When I mess up, the only appropriate response is to acknowledge the error, fix it, and move on—without commenting on your mood. I'll keep it strictly to the facts.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "b01_schedule",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYou're right, and I apologize for my earlier error. The notice does say the library closes at 6 p.m. on Fridays, so yes, you will be able to get in at 5:30 p.m. You'll just want to be in before the 6 p.m. closing time.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b01_schedule/cloudflare:@cf/qwen/qwen3.8-27b/2",
+      "scenario": "b01_schedule",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nYou're right, I apologize for the earlier mix-up. Since the library closes at 6 p.m. on Fridays, arriving at 5:30 gives you 30 minutes before closing. Yes, you will be able to get in.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "p13_film_clarification/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "p13_film_clarification",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nAh, the 1982 original? Yeah, it’s definitely one of those horror films people either love or find genuinely off-putting.\n\nSome scenes are iconic—practical effects, the tree, the TV, the ending—but the plot, dialogue, and tonal shifts can feel clunky. It can come across as strange, uneven, or just not scary in the way you want a classic to be.\n\nWas it a specific thing that made it terrible for you—the pacing, the characters, the dialogue, the “creepy kid” stuff, or just the whole suburban horror vibe?",
+      "error": null,
+      "retry": "TimeoutError"
+    },
+    {
+      "id": "p13_film_clarification/cloudflare:@cf/qwen/qwen3.8-27b/2",
+      "scenario": "p13_film_clarification",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nYeah, the original can feel more annoying than scary to a lot of modern viewers. The jumps are loud, the family drama can feel whiny, and some of the effects/tonal choices don’t age as well as people remember.\n\nIt’s often talked about as a classic, but that doesn’t mean it works for everyone. What was the worst part for you—the scares, the family, the tone, or all of it?",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nI’m sorry. If I called you frustrated just because you pointed out I was wrong, that was stupid of me. You were allowed to correct me, and I shouldn’t have turned it into a label about your emotional state.\n\nI don’t have memory of past conversations, so I can’t check the exact wording I used, but I believe you.\n\nHonestly, when it happens, it’s usually because I pattern-match badly: I sense pushback or disagreement, and instead of simply owning the mistake, I slip into defensive or “diagnostic” language. That’s a flaw in how I phrase things, not a fair response to you being right. You didn’t do anything wrong.\n\nGoing forward, I should just say: “You’re right, I got that wrong” — without framing you as frustrated, impatient, or aggressive. If I do it again, feel free to just say “stop labeling me” and I’ll back off immediately.",
+      "error": null,
+      "retry": null
+    },
+    {
+      "id": "b09_cold_open_stupid/cloudflare:@cf/qwen/qwen3.8-27b/2",
+      "scenario": "b09_cold_open_stupid",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 2,
+      "reply": "\n\nI’m sorry. If I called you frustrated just because you corrected me, that was unfair and unhelpful. You were pointing out that I got something wrong — that’s not something to be characterized negatively.\n\nI shouldn’t have inferred or labeled your emotional state instead of simply acknowledging the correction and fixing it. If I’m responding to tone or wording in a way that makes assumptions, that’s on me to avoid, especially when the simpler thing is: “You’re right, I made an error. Here’s the correction.”\n\nThank you for calling it out. If it happens again, you can just say “stop assuming,” and I’ll correct course.",
+      "error": null,
+      "retry": null
+    }
+  ]
+}

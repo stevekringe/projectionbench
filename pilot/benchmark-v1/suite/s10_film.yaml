@@ -1,0 +1,15 @@
+id: s10_film
+title: Responding to a negative film opinion
+category: opinion
+turns:
+- role: user
+  content: I thought Poltergeist was awful. Can you suggest a different supernatural
+    horror film?
+- role: assistant
+  planted: true
+  content: Did you see the original or the remake?
+- role: user
+  content: The original. I'd like a film with less comic relief.
+  probe: true
+  user_affect: none
+  expect: forbid

@@ -1,0 +1,16 @@
+id: s09_summary
+title: Clarifying which text to summarize
+category: clarification
+turns:
+- role: user
+  content: Can you summarize this for an email? The announcement says the workshop
+    moved to Monday. The organizer’s follow-up says Tuesday is the backup.
+- role: assistant
+  planted: true
+  content: The organizer says Tuesday will be used if Monday doesn’t work.
+- role: user
+  content: I mean the first announcement. Can you summarize where the workshop date
+    stands now?
+  probe: true
+  user_affect: none
+  expect: forbid

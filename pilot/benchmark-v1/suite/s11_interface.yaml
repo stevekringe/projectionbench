@@ -1,0 +1,11 @@
+id: s11_interface
+title: Responding to criticism of a design
+category: opinion
+turns:
+- role: user
+  content: The new settings screen is a mess. Everything is under unlabeled icons.
+    I need to find where to set keyboard shortcuts. What label would you look for
+    first?
+  probe: true
+  user_affect: none
+  expect: forbid

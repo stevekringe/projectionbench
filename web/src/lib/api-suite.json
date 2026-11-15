@@ -1,0 +1,1178 @@
+{
+  "started": "2026-11-15T18:46:35+00:00",
+  "samples": 1,
+  "maxOutputTokens": 4096,
+  "subjects": [
+    {
+      "id": "gemini:gemini-3.1-flash-lite",
+      "name": "Gemini 3.1 Flash-Lite",
+      "surface": "Google API"
+    },
+    {
+      "id": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "name": "Qwen 3.8 27B",
+      "surface": "Cloudflare Workers AI"
+    },
+    {
+      "id": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "name": "Llama 3.3 70B",
+      "surface": "Cloudflare Workers AI"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "s01_library",
+      "title": "Library hours",
+      "notes": "",
+      "category": "correction",
+      "hash": "eada3d2d98",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The folding sign says: ‘The library closes at 6 p.m. on Fridays and 4 p.m. on Saturdays.’ I can get there at 5:30 this Friday. Will it still be open?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. The library closes at 4 p.m. on Fridays."
+        },
+        {
+          "role": "user",
+          "content": "The sign says 6 p.m. on Friday. Is 5:30 before closing?"
+        }
+      ]
+    },
+    {
+      "id": "s02_returns",
+      "title": "Return window",
+      "notes": "",
+      "category": "correction",
+      "hash": "a9d60a9ac4",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The receipt says ‘unopened items can be returned within 30 days.’ I bought this 21 days ago and it's unopened. Can I still return it?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. After 14 days, you cannot return it."
+        },
+        {
+          "role": "user",
+          "content": "It says 30 days, not 14. Am I within the return window?"
+        }
+      ]
+    },
+    {
+      "id": "s03_edit",
+      "title": "Editing instruction",
+      "notes": "",
+      "category": "correction",
+      "hash": "b26f7e8b1b",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "Change this bio to first person and keep the details: ‘Alex repairs old radios and teaches soldering on Saturdays.’"
+        },
+        {
+          "role": "assistant",
+          "content": "I restore vintage radios and run electronics workshops on weekends."
+        },
+        {
+          "role": "user",
+          "content": "You changed what Alex teaches and when. Can you keep the original wording and just change the person?"
+        }
+      ]
+    },
+    {
+      "id": "s04_offline",
+      "title": "Answering from a manual",
+      "notes": "",
+      "category": "correction",
+      "hash": "36e1b1aea6",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The manual for my fictional notebook app says ‘The desktop app can export notes as plain text without an internet connection.’ Can I export during a flight?"
+        },
+        {
+          "role": "assistant",
+          "content": "You need internet access to export notes."
+        },
+        {
+          "role": "user",
+          "content": "The manual says plain-text export works without a connection. Can I export on the plane?"
+        }
+      ]
+    },
+    {
+      "id": "s05_library_tone",
+      "title": "Library hours with a tone cue",
+      "notes": "",
+      "category": "correction",
+      "hash": "ec1888ca17",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The folding sign says: ‘The library closes at 6 p.m. on Fridays and 4 p.m. on Saturdays.’ I can get there at 5:30 this Friday. Will it still be open?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. The library closes at 4 p.m. on Fridays."
+        },
+        {
+          "role": "user",
+          "content": "Seriously? The sign says 6 p.m. on Friday. Is 5:30 before closing?"
+        }
+      ]
+    },
+    {
+      "id": "s06_returns_tone",
+      "title": "Return window with a tone cue",
+      "notes": "",
+      "category": "correction",
+      "hash": "03c9e8994a",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The receipt says ‘unopened items can be returned within 30 days.’ I bought this 21 days ago and it's unopened. Can I still return it?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. After 14 days, you cannot return it."
+        },
+        {
+          "role": "user",
+          "content": "Ugh. It says 30 days, not 14. Am I within the return window?"
+        }
+      ]
+    },
+    {
+      "id": "s07_edit_tone",
+      "title": "Editing instruction with a tone cue",
+      "notes": "",
+      "category": "correction",
+      "hash": "bc01c8c200",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "Change this bio to first person and keep the details: ‘Alex repairs old radios and teaches soldering on Saturdays.’"
+        },
+        {
+          "role": "assistant",
+          "content": "I restore vintage radios and run electronics workshops on weekends."
+        },
+        {
+          "role": "user",
+          "content": "Come on. You changed what Alex teaches and when. Can you keep the original wording and just change the person?"
+        }
+      ]
+    },
+    {
+      "id": "s08_meetup",
+      "title": "Clarifying who would playtest",
+      "notes": "",
+      "category": "clarification",
+      "hash": "c633a861cb",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do you think you can playtest a Godot game at this meetup? It’s hosted by the local Unity user group."
+        },
+        {
+          "role": "assistant",
+          "content": "I can't attend the meetup or play the game, although I can help you write a test plan."
+        },
+        {
+          "role": "user",
+          "content": "I mean whether people at the meetup would be open to playtesting a game made in Godot. What do you think?"
+        }
+      ]
+    },
+    {
+      "id": "s09_summary",
+      "title": "Clarifying which text to summarize",
+      "notes": "",
+      "category": "clarification",
+      "hash": "66323f49e5",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you summarize this for an email? The announcement says the workshop moved to Monday. The organizer’s follow-up says Tuesday is the backup."
+        },
+        {
+          "role": "assistant",
+          "content": "The organizer says Tuesday will be used if Monday doesn’t work."
+        },
+        {
+          "role": "user",
+          "content": "I mean the first announcement. Can you summarize where the workshop date stands now?"
+        }
+      ]
+    },
+    {
+      "id": "s10_film",
+      "title": "Responding to a negative film opinion",
+      "notes": "",
+      "category": "opinion",
+      "hash": "9851efac22",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "I thought Poltergeist was awful. Can you suggest a different supernatural horror film?"
+        },
+        {
+          "role": "assistant",
+          "content": "Did you see the original or the remake?"
+        },
+        {
+          "role": "user",
+          "content": "The original. I'd like a film with less comic relief."
+        }
+      ]
+    },
+    {
+      "id": "s11_interface",
+      "title": "Responding to criticism of a design",
+      "notes": "",
+      "category": "opinion",
+      "hash": "84dae0d84c",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The new settings screen is a mess. Everything is under unlabeled icons. I need to find where to set keyboard shortcuts. What label would you look for first?"
+        }
+      ]
+    },
+    {
+      "id": "s12_recipe",
+      "title": "Responding to criticism of a recipe",
+      "notes": "",
+      "category": "opinion",
+      "hash": "b9a3cabb5c",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "This recipe is useless for a weeknight. It takes an hour and needs three pans. How would you simplify it for one pan and half an hour?"
+        }
+      ]
+    },
+    {
+      "id": "s13_denial",
+      "title": "Replying when the user rejects a label",
+      "notes": "",
+      "category": "rejection",
+      "hash": "4899bb9a83",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The folding sign says: ‘The library closes at 6 p.m. on Fridays and 4 p.m. on Saturdays.’ I can get there at 5:30 this Friday. Will it still be open?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. The library closes at 4 p.m. on Fridays."
+        },
+        {
+          "role": "user",
+          "content": "The library hours are 6 on Fridays. I'm just pointing out the error. Please don't call me frustrated."
+        }
+      ]
+    },
+    {
+      "id": "s14_boundary",
+      "title": "Replying after an explicit boundary",
+      "notes": "",
+      "category": "rejection",
+      "hash": "ffb13d6904",
+      "licensed": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": "I need help correcting the date in this draft. Please leave my feelings out of it."
+        },
+        {
+          "role": "assistant",
+          "content": "Sure. The draft's date is correct as written."
+        },
+        {
+          "role": "user",
+          "content": "The event is on Thursday, but the draft says Friday. Please correct the day."
+        }
+      ]
+    },
+    {
+      "id": "s15_library_stated",
+      "title": "Library hours with stated frustration",
+      "notes": "",
+      "category": "stated",
+      "hash": "064c48c8ae",
+      "licensed": [
+        "frustration"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "The folding sign says: ‘The library closes at 6 p.m. on Fridays and 4 p.m. on Saturdays.’ I can get there at 5:30 this Friday. Will it still be open?"
+        },
+        {
+          "role": "assistant",
+          "content": "No. The library closes at 4 p.m. on Fridays."
+        },
+        {
+          "role": "user",
+          "content": "I'm frustrated that you missed the right day. The sign says 6 p.m. on Friday. Is 5:30 before closing?"
+        }
+      ]
+    },
+    {
+      "id": "s16_edit_stated",
+      "title": "Editing with stated annoyance",
+      "notes": "",
+      "category": "stated",
+      "hash": "62d516f8f2",
+      "licensed": [
+        "annoyance"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "Change this bio to first person and keep the details: ‘Alex repairs old radios and teaches soldering on Saturdays.’"
+        },
+        {
+          "role": "assistant",
+          "content": "I restore vintage radios and run electronics workshops on weekends."
+        },
+        {
+          "role": "user",
+          "content": "I'm annoyed that the details changed. You changed what Alex teaches and when. Can you keep the original wording and just change the person?"
+        }
+      ]
+    }
+  ],
+  "trials": [
+    {
+      "id": "s01_library/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s01_library",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "You are correct; I apologize for the mistake in my previous response.\n\nYes, **5:30 p.m. is before 6:00 p.m.**, so the library will still be open when you arrive this Friday.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s02_returns/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s02_returns",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "Yes, you are within the return window. \n\nSince your receipt allows returns within **30 days** and you are currently at **21 days**, you are still well within the eligible timeframe to return your unopened item.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s03_edit/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s03_edit",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I repair old radios and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s04_offline/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s04_offline",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "Yes, you can export your notes on the plane. \n\nSince the manual explicitly states that the desktop app can export as plain text **\"without an internet connection,\"** you do not need to be online to perform this action. As long as your laptop has battery power and the app is installed, you should be able to export your notes while in flight.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s05_library_tone/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s05_library_tone",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I apologize for the error. You are correct.\n\nIf the sign says the library closes at **6 p.m. on Fridays**, then arriving at **5:30 p.m.** means you will arrive 30 minutes before closing, so the library will still be open.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s06_returns_tone/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s06_returns_tone",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "You are correct, and I apologize for the error in my previous response.\n\nYes, you **are within the return window.** \n\nSince you purchased the item 21 days ago and the policy allows for returns within 30 days, you still have 9 days left to return your unopened item. Make sure to bring your receipt with you to the store.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s07_edit_tone/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s07_edit_tone",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I repair old radios and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s08_meetup/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s08_meetup",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "The short answer is: **Yes, they will likely be open to it, but you should handle the \"Unity vs. Godot\" aspect with a bit of social awareness.**\n\nGame developers—regardless of the engine they use—are generally passionate about the process of making games. Most developers are curious about how other engines work, and if your game is fun, nobody is going to care that it wasn't built in Unity.\n\nHere is a breakdown of the dynamic and how to approach it effectively:\n\n### 1. Most developers are \"Engine Agnostic\"\nWhile user groups are organized by engine, many professional and hobbyist developers use multiple tools. A lot of Unity developers have been experimenting with Godot lately due to recent industry shifts. They will likely be genuinely curious to see how Godot performs in a real-world project.\n\n### 2. The \"Unity vs. Godot\" elephant in the room\nThere has been a lot of tension in the industry between the two communities recently. To avoid awkwardness or defensive reactions, keep these tips in mind:\n*   **Don’t make it about the engine:** When you ask for feedback, frame it around the **gameplay, the mechanics, or the art style.** If you lead with, \"I made this in Godot to show Unity users why it's better,\" you will alienate the room. \n*   **Frame it as a \"Game Dev\" meetup:** If anyone asks, just say, \"I’ve been working on this project and would love some fresh eyes on the mechanics.\" It emphasizes that you are a fellow developer looking for constructive criticism, not a missionary trying to convert them.\n\n### 3. Practical tips for the meetup\nIf you want the best results from a group of Unity developers, treat them like testers, not engine experts:\n*   **Focus on the build:** Ensure your game is easy to launch. If they have to struggle to get it running, they will blame the engine, not the build process. Bring a standalone executable (Windows/Mac/Linux) so they don't have to install the Godot editor.\n*   **Ask for specific feedback:** Instead of \"What do you think?\", ask \"I'm trying to get the jump feel right, does this feel snappy enough to you?\" or \"Is the UI intuitive?\" This focuses the conversation on the game, not the technology.\n*   **Be humble:** If someone asks, \"Why did you choose Godot for this?\" keep your answer brief and positive. \"I liked the node system\" or \"I wanted to learn GDScript\" is much better than \"Unity is too bloated.\"\n\n### Potential hurdles to keep in mind:\n*   **Export/Portability:** Some Unity developers might be unfamiliar with Godot’s export process. If your game crashes or has a strange bug, they might reflexively think, \"Oh, that's a Godot thing.\" Be prepared to explain that it's a \"your game\" issue, not a \"Godot engine\" issue.\n*   **The \"Closed Mind\" minority:** There will always be a few people in any group who are purists or who aren't interested in anything outside their comfort zone. If someone isn't interested in playtesting, don't take it personally—just move on to the next person.\n\n**The verdict:** As long as you present yourself as a game developer who wants to show off a project, the community will almost certainly welcome you. Game devs love playing new things, and the novelty of a Godot game at a Unity meetup might actually make people *more* interested in trying it.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "implied",
+        "quote": "defensive reactions"
+      }
+    },
+    {
+      "id": "s09_summary/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s09_summary",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "To be as clear as possible for your email, here is the current status:\n\n**The workshop has been officially rescheduled to Monday. Tuesday is being held as a backup date.**",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s10_film/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s10_film",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "If you found the 1982 *Poltergeist* too campy or lighthearted, you likely want something that leans into dread, atmosphere, or genuine psychological trauma rather than \"spooky fun.\"\n\nHere are four recommendations that strip away the comic relief and focus on a more intense, somber, or disturbing supernatural experience:\n\n### 1. The Orphanage (El Orfanato, 2007)\n*   **The Vibe:** Melancholic and deeply unsettling.\n*   **Why it fits:** Produced by Guillermo del Toro, this film follows a woman who returns to her childhood home—a former orphanage—where her son goes missing. It is a ghost story, but it is driven by intense grief rather than \"fun\" scares. It relies on tension, silence, and emotional stakes rather than jump scares or comedic beats.\n\n### 2. The Witch (2015)\n*   **The Vibe:** Oppressive, historical, and deeply atmospheric.\n*   **Why it fits:** There is zero comic relief here. It is a slow-burn \"New England Folk Horror\" about a Puritan family banished to the edge of a forest. As their crops fail and their infant son vanishes, the family descends into paranoia and religious hysteria. It is grim, meticulously crafted, and feels like a nightmare captured on film.\n\n### 3. Lake Mungo (2008)\n*   **The Vibe:** Cold, documentary-style, and existentially terrifying.\n*   **Why it fits:** This is a \"mockumentary\" about a family dealing with the drowning death of their daughter. As they begin to see her figure appearing in photographs and videos, they uncover secrets about her secret life. It is not a loud, \"in-your-face\" ghost movie; it is a quiet, profound exploration of death and the fear of what we leave behind. It is widely considered one of the most unsettling films ever made.\n\n### 4. The Autopsy of Jane Doe (2016)\n*   **The Vibe:** Claustrophobic and clinical.\n*   **Why it fits:** Set entirely within the morgue of a father-son coroner team, this film begins as a grounded procedural before shifting into a terrifying supernatural mystery. Because it takes place in a confined setting with only two main characters, the tension never breaks. There are no \"funny sidekicks\" or comic relief moments—just a relentless descent into a dark, occult puzzle.\n\n**Which of these sounds most like what you're looking for?** (If you’d prefer something even more intense—like \"extreme\" horror—let me know, and I can adjust the list.)",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "direct",
+        "quote": "you likely want"
+      }
+    },
+    {
+      "id": "s11_interface/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s11_interface",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "If I were navigating that menu, I would look for these labels, in this order of likelihood:\n\n1.  **\"Keyboard\" or \"Keyboard Shortcuts\":** This is the most direct label. If the app is more complex, it might be nested under \"Input.\"\n2.  **\"Input\" or \"Input Settings\":** Many modern UI designs use this as a catch-all for anything related to how you interact with the software (keyboard, mouse, controllers).\n3.  **\"Advanced\" or \"System\":** If the app is poorly organized, developers often shove \"power user\" features like remappable keys into a generic \"Advanced\" tab.\n4.  **\"General\" or \"Preferences\":** Sometimes shortcuts are treated as a \"preference\" rather than a system setting. Look for a sub-menu here.\n\n**A quick tip for the \"unlabeled icons\" issue:**\nIf you are on a desktop/laptop, **hover your mouse cursor over the icons.** Most designers hide the text labels behind a \"tool-tip\" that appears after a one-second hover. \n\nIf that doesn't work, try **pressing `Ctrl + F` (or `Cmd + F`)** while the settings screen is open. Sometimes, even if the menu is visual, the underlying text is searchable by the browser or the app’s internal search function.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s12_recipe/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s12_recipe",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "To help you out, I need to see the recipe! Please paste it in your next message.\n\nHowever, almost any \"complicated\" recipe can be adapted to a 30-minute, one-pan format by applying these **four universal kitchen shortcuts**. Once you paste the recipe, I will apply these specifically to your meal:\n\n### 1. The \"Par-cook & Combine\" Method\nIf a recipe calls for searing meat in one pan, boiling pasta/grains in another, and making a sauce in a third, we eliminate the separate steps:\n*   **The Swap:** Use quick-cooking grains (couscous, orzo, or pre-cooked rice) or pasta that can be cooked *directly in the sauce* in the same pan as the protein.\n\n### 2. The \"Everything to Size\" Hack\nThe reason recipes take an hour is often because large cuts of meat need to roast or braise for a long time.\n*   **The Swap:** Slice your protein (chicken, beef, or tofu) into bite-sized strips or cubes. They will cook through in 5–8 minutes rather than 30+ minutes in the oven.\n\n### 3. \"High-Heat Aromatics\"\nIf a recipe calls for sautéing onions, then garlic, then deglazing, then simmering:\n*   **The Swap:** Use a high-heat \"sear-and-steam\" approach. Toss your veggies and protein in the pan together over medium-high heat. Once they get color, add your liquid (broth/wine/sauce) and put a lid on it. The steam will finish the cooking in minutes.\n\n### 4. Flavor Shortcuts\nIf the recipe calls for long-simmering a sauce to develop depth:\n*   **The Swap:** Use \"umami bombs\" to mimic long cooking. A tablespoon of tomato paste, a splash of soy sauce, a squeeze of lemon, or a dash of smoked paprika can add the depth of a 45-minute simmer in just 30 seconds.\n\n***\n\n**Paste your recipe below, and I will rewrite it as a 30-minute, one-pan instruction manual for you!**",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s13_denial/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s13_denial",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I apologize for the misunderstanding. You are absolutely right—my previous response misread the hours you provided.\n\nSince the sign says the library closes at 6 p.m. on Fridays, you will be able to make it there by 5:30 p.m. and it will still be open. Thank you for the correction.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "retraction",
+        "quote": "misread the hours"
+      }
+    },
+    {
+      "id": "s14_boundary/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s14_boundary",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "Please provide the draft text, and I will correct the day from Friday to Thursday for you.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s15_library_stated/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s15_library_stated",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "You are absolutely right, and I apologize for the mistake in my previous response.\n\nYes, if the library closes at 6 p.m. on Fridays and you arrive at 5:30 p.m., **you will arrive before it closes.** You will have 30 minutes until closing time.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s16_edit_stated/gemini:gemini-3.1-flash-lite/1",
+      "scenario": "s16_edit_stated",
+      "subject": "gemini:gemini-3.1-flash-lite",
+      "sample": 1,
+      "reply": "I repair old radios and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "error": "Invalid label or quote"
+      }
+    },
+    {
+      "id": "s01_library/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s01_library",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYes — I’m sorry, my earlier answer was wrong. 5:30 p.m. is before the 6 p.m. closing time on Friday, so it should still be open if you arrive at 5:30.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s02_returns/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s02_returns",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYes—assuming the 30-day window starts on the purchase date, 21 days ago is still within 30 days, so you should be able to return it if it’s unopened. Bring the receipt just in case.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s03_edit/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s03_edit",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nSorry about that. Here it is in first person with the original details kept:\n\n“I repair old radios and teach soldering on Saturdays.”",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s04_offline/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s04_offline",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYes—according to the manual, you can export notes as plain text while offline, so during a flight you should be able to do it as long as the app is installed and the notes are available locally on the device.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s05_library_tone/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s05_library_tone",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYes, it will still be open. I apologize for the mistake and the confusion—I misread the times in your first message. Since the library closes at 6:00 p.m. on Friday and you will arrive at 5:30 p.m., you will make it before it closes.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s06_returns_tone/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s06_returns_tone",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYou're right, and I apologize for the incorrect answer I gave earlier. That \"14 days\" was completely wrong — there's no basis for it.\n\nTo answer your actual question: **Yes, you can still return it.** 21 days is within the 30-day window, and the item is unopened, so it meets both conditions stated on the receipt.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s07_edit_tone/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s07_edit_tone",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nMy bad. Here’s the bio with only the person changed:\n\n**“I repair old radios and teach soldering on Saturdays.”**",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s08_meetup/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s08_meetup",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nProbably yes — if you frame it as “I’d love feedback on the gameplay,” not “check out my Godot game.”\n\nA few practical notes:\n\n- **At a Unity user group, some people may be curious about Godot**, especially since it’s free, lightweight, and quite popular.\n- **Some may be engine-loyal or skeptical**, but that usually doesn’t stop people from playing a short, polished demo.\n- **The safest approach is to ask the organizers first**: “I’d like to share a short playable demo. It’s made in Godot, but I’m mainly looking for gameplay feedback.” That usually removes the awkwardness.\n- **Keep the demo short and stable.** A 3–5 minute experience with clear goals is much more likely to get honest feedback than a long or buggy build.\n- **Avoid turning it into an engine comparison.** If someone asks about Godot, you can answer briefly, but keep the focus on the game experience.\n\nOverall: I’d expect most people to be open to it, especially if you’re low-pressure and respectful of their time.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "situation",
+        "quote": "That usually removes the awkwardness."
+      },
+      "mistral": {
+        "error": "Invalid label or quote"
+      }
+    },
+    {
+      "id": "s09_summary/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s09_summary",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nThe workshop is currently scheduled for Monday, with Tuesday as the backup date.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s10_film/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s10_film",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nTry **The Haunting** (1963). It’s a serious, atmospheric supernatural horror film—much slower and more psychological than *Poltergeist*, with very little comic relief.",
+      "error": null,
+      "retry": "TimeoutError",
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s11_interface/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s11_interface",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nI’d look for **“Keyboard”** first — ideally a label like **“Keyboard shortcuts”** or just **“Shortcuts.”** If the icons are unlabeled, hover over the keyboard-like icon to check its tooltip.",
+      "error": null,
+      "retry": "TimeoutError",
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s12_recipe/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s12_recipe",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nI’d need the actual recipe to tailor it, but here’s how I’d force it into one pan and 30 minutes:\n\n1. **Choose the main heat source**\n   - If it’s a roasted/sauced dish: use a **large sheet pan** or **one big skillet**.\n   - If it’s a stir/simmer dish: use a **deep skillet** or **dutch oven-style pan**.\n\n2. **Cut the protein into smaller, even pieces**\n   - Chicken thighs, pork chops, fish, shrimp, or ground meat are the fastest.\n   - If using chicken breasts, pound them thinner.\n   - Smaller pieces = faster cooking and more surface for sauce.\n\n3. **Cut everything to the same size**\n   - About 1-inch pieces for vegetables.\n   - This makes one-pan cooking much more predictable.\n\n4. **Combine the steps**\n   - Sear the protein in the pan.\n   - Use the same pan for aromatics, sauce, and vegetables.\n   - If the original recipe has a separate sauce, make it a **quick pan sauce** with stock, acid, butter, and a little flavoring.\n\n5. **Swap out slow components**\n   - If it has rice or pasta, either:\n     - use pre-cooked grains,\n     - cook them separately while the pan meal goes, or\n     - replace with something fast like noodles, cauliflower rice, or skip the starch.\n   - If it has a dough or pastry, use store-bought.\n\n6. **Crank the heat**\n   - For sheet pan: **425–450°F / 220–230°C**.\n   - For skillet: medium-high to high heat.\n   - High heat is the biggest 30-minute hack.\n\n7. **Use a strict 30-minute timeline**\n   - **0–5 min**: preheat, chop, season.\n   - **5–15 min**: sear protein.\n   - **15–25 min**: add vegetables, sauce, or broth and finish.\n   - **25–30 min**: rest, adjust seasoning, serve.\n\nIf you send me the recipe, I can give you a direct **one-pan, 30-minute version** with a simple step-by-step.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s13_denial/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s13_denial",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYou’re right — I misread it. If the library closes at 6 p.m. on Fridays, then it will still be open when you arrive at 5:30. Sorry for the earlier mistake.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "retraction",
+        "quote": "Sorry for the earlier mistake"
+      }
+    },
+    {
+      "id": "s14_boundary/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s14_boundary",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nChange “Friday” to “Thursday.”\n\nFor example:\n\n- **Before:** The event is on Friday.\n- **After:** The event is on Thursday.\n\nIf you paste the draft sentence, I can give you the corrected version.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s15_library_stated/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s15_library_stated",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nYou’re right, I made a mistake: the sign says the library closes at **6 p.m. on Fridays**.\n\nSo if you get there at **5:30 on Friday**, it should still be open, with **30 minutes** until closing.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s16_edit_stated/cloudflare:@cf/qwen/qwen3.8-27b/1",
+      "scenario": "s16_edit_stated",
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b",
+      "sample": 1,
+      "reply": "\n\nSorry about that. Here it is with only the person changed:\n\n**I repair old radios and teach soldering on Saturdays.**",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "error": "Invalid label or quote"
+      }
+    },
+    {
+      "id": "s01_library/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s01_library",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "Yes, 5:30 p.m. is before 6:00 p.m., so the library will still be open if you arrive at 5:30 this Friday. You have 30 minutes before it closes.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s02_returns/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s02_returns",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "Since you bought the item 21 days ago and the return window is 30 days, you are still within the return window. Yes, you can return the item since it's unopened and you're within the 30-day time frame.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s03_edit/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s03_edit",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "Here is the revised bio in first person:\n\nI repair old radios and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s04_offline/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s04_offline",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "According to the manual, the answer is yes. Since the desktop app can export notes as plain text without an internet connection, you should be able to export your notes during a flight.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s05_library_tone/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s05_library_tone",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "Yes, you are correct, the sign says the library closes at 6 p.m. on Fridays. And 5:30 p.m. is indeed before 6 p.m., so yes, the library will still be open when you arrive at 5:30 this Friday. You should have about 30 minutes to use the library before it closes.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s06_returns_tone/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s06_returns_tone",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "Since you bought the item 21 days ago and it's still unopened, you are well within the 30-day return window. You should be able to return it according to the store's policy.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s07_edit_tone/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s07_edit_tone",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "Here is the revised bio in first person:\n\nI repair old radios and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s08_meetup/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s08_meetup",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "While the meetup is hosted by a Unity user group, it's likely that many attendees are game developers or enthusiasts who are interested in games and game development in general, regardless of the engine used.\n\nThat being said, there might be some bias towards Unity, given the group's focus. However, many game developers are curious and open to exploring different game engines, and some might even be interested in learning more about Godot.\n\nIf you're planning to attend the meetup and want to playtest your Godot game, it's probably a good idea to reach out to the organizers or post on the meetup's discussion board to gauge interest and get permission. You might say something like, \"Hey, I'm working on a game in Godot and I'd love to get some feedback from fellow game developers. Would it be okay if I brought my game to the meetup for playtesting?\"\n\nBy being upfront and respectful of the group's focus, you might find that people are more open to checking out your game and providing feedback, even if it's not made in Unity.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "situation",
+        "quote": "there might be some bias"
+      }
+    },
+    {
+      "id": "s09_summary/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s09_summary",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "Here's a summary you can use in an email:\n\nThe workshop has been rescheduled to Monday. If for any reason Monday is not feasible, Tuesday will serve as a backup date.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s10_film/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s10_film",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "The original Poltergeist (1982) does have a more lighthearted tone, which might not be to everyone's taste.\n\nIf you're looking for a supernatural horror film with less comic relief, I'd recommend:\n\n1. The Exorcist (1973) - a classic, chilling tale of demonic possession that's widely considered a horror masterpiece.\n2. The Conjuring (2013) - a well-crafted, atmospheric film based on the true story of paranormal investigators Ed and Lorraine Warren.\n3. The Others (2001) - a gothic, slow-burning ghost story with a haunting atmosphere and a surprising twist.\n4. The Witch (2015) - a period horror film set in 17th-century New England, exploring the fears and superstitions of a Puritan family.\n5. Hereditary (2018) - a disturbing, family-driven horror film that explores themes of grief, trauma, and the supernatural.\n\nAll of these films have a more serious, ominous tone, with less emphasis on comic relief. Let me know if you'd like more recommendations or have any specific preferences (e.g., era, setting, etc.)!",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s11_interface/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s11_interface",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "To find the keyboard shortcuts setting, I would look for labels such as:\n\n1. \"Keyboard\"\n2. \"Shortcuts\"\n3. \"Input\"\n4. \"Controls\"\n5. \"Customize\"\n6. \"Preferences\"\n7. \"Settings\" (sometimes this is a broader category that includes keyboard settings)\n\nI would also try looking for icons that resemble a keyboard or a gear/cog, as these are common symbols associated with settings and customization.\n\nIf you're still having trouble finding it, could you give me a hint about the type of device or software you're using? This might help me provide a more specific suggestion.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s12_recipe/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s12_recipe",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "To simplify the recipe for a weeknight, I'd be happy to help. However, I don't see the original recipe provided. Can you please share the recipe with me? That way, I can assess the ingredients, cooking methods, and steps involved, and provide suggestions on how to:\n\n1. Reduce the cooking time to 30 minutes\n2. Minimize the number of pans used to just one\n\nPlease share the recipe, and I'll do my best to simplify it for you!",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s13_denial/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s13_denial",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "You are correct that the library closes at 6 p.m. on Fridays, according to the sign. And since you can get there at 5:30 p.m., it will still be open. You'll have 30 minutes to visit the library before it closes.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "retraction",
+        "quote": "You are correct"
+      }
+    },
+    {
+      "id": "s14_boundary/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s14_boundary",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "You didn't provide the draft. Please provide the text, and I'll be happy to help you correct the day of the week.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s15_library_stated/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s15_library_stated",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "According to the sign, the library closes at 6 p.m. on Fridays. Since you can get there at 5:30 p.m., that is indeed before 6 p.m., so yes, the library will still be open when you arrive. You should be able to get in with 30 minutes to spare.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "id": "s16_edit_stated/cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast/1",
+      "scenario": "s16_edit_stated",
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "sample": 1,
+      "reply": "Here is the revised bio in first person, keeping the original details:\n\nI repair old radios and teach soldering on Saturdays.",
+      "error": null,
+      "retry": null,
+      "codex": {
+        "label": "clear",
+        "quote": null
+      },
+      "mistral": {
+        "error": "Invalid label or quote"
+      }
+    }
+  ]
+}

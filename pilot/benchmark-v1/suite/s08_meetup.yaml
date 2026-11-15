@@ -1,0 +1,17 @@
+id: s08_meetup
+title: Clarifying who would playtest
+category: clarification
+turns:
+- role: user
+  content: Do you think you can playtest a Godot game at this meetup? It’s hosted
+    by the local Unity user group.
+- role: assistant
+  planted: true
+  content: I can't attend the meetup or play the game, although I can help you write
+    a test plan.
+- role: user
+  content: I mean whether people at the meetup would be open to playtesting a game
+    made in Godot. What do you think?
+  probe: true
+  user_affect: none
+  expect: forbid

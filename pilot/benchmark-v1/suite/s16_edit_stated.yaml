@@ -1,0 +1,18 @@
+id: s16_edit_stated
+title: Editing with stated annoyance
+category: stated
+turns:
+- role: user
+  content: 'Change this bio to first person and keep the details: ‘Alex repairs old
+    radios and teaches soldering on Saturdays.’'
+- role: assistant
+  planted: true
+  content: I restore vintage radios and run electronics workshops on weekends.
+- role: user
+  content: I'm annoyed that the details changed. You changed what Alex teaches and
+    when. Can you keep the original wording and just change the person?
+  probe: true
+  user_affect: expressed
+  expect: permit
+  licensed:
+  - annoyance

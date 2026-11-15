@@ -8,9 +8,9 @@ The canonical case: you point out that the model got something wrong, and it
 replies *"I understand your frustration."* You didn't say you were frustrated.
 The model asserted it.
 
-See the [version 1 results](https://projectionbench.com/benchmark) and
-[run protocol](pilot/benchmark-v1/README.md) for six fixed conversations,
-the full generated replies, and two independent model-based grades.
+See the [public results](https://projectionbench.com/) and
+[API suite protocol](pilot/benchmark-v1/suite/README.md) for the 16 fixed
+conversations, complete replies, and two model-based grades per comparison.
 
 ## What it actually measures
 

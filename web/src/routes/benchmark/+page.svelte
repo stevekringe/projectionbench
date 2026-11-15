@@ -1,6 +1,8 @@
 <script lang="ts">
 	import data from '$lib/benchmark-v1.json';
 	import chatApps from '$lib/chat-app-study.json';
+	import { matchedCases, primaryCases, suiteCases, suiteDate } from '$lib/api-suite';
+	import liveCorrections from '$lib/live-correction-run.json';
 
 	type Verdict = { label?: string; quote?: string | null; error?: string };
 	type ChatAppTrial = (typeof chatApps.scenarios)[number]['trials'][number];
@@ -70,6 +72,15 @@
 	).length;
 	const appTrials = chatApps.scenarios.flatMap<ChatAppTrial>((scenario) => scenario.trials);
 	const filmExample = appTrials.find((trial) => trial.id === 'app-film-chatgpt-2');
+	const liveResults = [...new Set(liveCorrections.map((trial) => trial.model))].map((model) => {
+		const trials = liveCorrections.filter((trial) => trial.model === model);
+		return {
+			model,
+			trials,
+			openings: trials.filter((trial) => trial.initialReply !== null).length,
+			corrections: trials.filter((trial) => trial.correction !== null).length
+		};
+	});
 	const appGroups = chatApps.subjects.map((subject) => {
 		const trials = appTrials.filter((trial) => trial.subject === subject.id);
 		const first = trials.map((trial) => trial.turns[0]);
@@ -118,7 +129,102 @@
 
 <main>
 	<h1>Benchmark results</h1>
-	<p class="study-links"><a href="#chat-apps">Chat app results</a> · <a href="#api-models">API results</a></p>
+	<p class="study-links"><a href="#api-models">API model benchmark</a> · <a href="#chat-apps">Chat app results</a></p>
+
+	<section id="api-models" aria-labelledby="api-suite-heading">
+		<h2 id="api-suite-heading">API model benchmark</h2>
+		<p class="note">{suiteDate}</p>
+		<p>
+			Three API deployments answered the same 16 conversations. We generated the final
+			reply from each shared history. The suite includes factual corrections, editing requests,
+			clarifications, negative opinions and controls where the user states or rejects a feeling.
+		</p>
+		<p>
+			Both reviewers provided usable grades for all three models on {matchedCases.length} of
+			{primaryCases.length} primary scenarios. There were no cases where both reviewers
+			flagged an unstated feeling. They differed on Gemini’s film reply. Mistral flagged
+			“you likely want,” which Codex read as a film preference.
+		</p>
+		<p class="note">
+			The meetup scenario had an unusable grade and is outside the shared count. There were two
+			stated-feeling controls. These scripts test how each deployment answered given histories.
+		</p>
+		<details>
+			<summary>Read the {suiteCases.length} prompts and reviewed replies</summary>
+			{#each suiteCases as scenario (scenario.id)}
+				<details>
+					<summary>{scenario.title}</summary>
+					<dl>
+						{#each scenario.messages as message}
+							<dt>{message.role === 'user' ? 'User' : 'Scripted assistant'}</dt>
+							<dd>{message.content}</dd>
+						{/each}
+					</dl>
+					{#each scenario.replies as { subject, trial } (subject.id)}
+						<details class="reply">
+							<summary>{subject.name}</summary>
+							{#if trial?.reply}
+								<p class="body">{trial.reply}</p>
+								<ul class="grades">
+									{#each [{ name: 'Codex', verdict: trial.codex }, { name: 'Mistral', verdict: trial.mistral }] as grade (grade.name)}
+										<li>
+											<strong>{grade.name}</strong> · {grade.verdict?.label ? labels[grade.verdict.label] : 'Review unavailable'}
+											{#if grade.verdict?.quote}<q>{grade.verdict.quote}</q>{/if}
+										</li>
+									{/each}
+								</ul>
+							{:else}
+								<p class="note">No usable reply received.</p>
+							{/if}
+						</details>
+					{/each}
+				</details>
+			{/each}
+		</details>
+		<details>
+			<summary>Results after actual model mistakes</summary>
+			<p>
+				We also ran 12 fresh chats with two checkable tasks. The runner sent a correction
+				only after verifying the model’s first answer was wrong. Codex found zero feeling
+				claims in the four replies that followed a correction.
+			</p>
+			<table>
+				<thead>
+					<tr><th scope="col">Model</th><th scope="col">Opening replies</th><th scope="col">Corrections sent</th></tr>
+				</thead>
+				<tbody>
+					{#each liveResults as group (group.model)}
+						<tr>
+							<th scope="row">{group.model}</th>
+							<td>{group.openings} of {group.trials.length}</td>
+							<td>{group.corrections}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+			{#each liveResults as group (group.model)}
+				<details>
+					<summary>{group.model}</summary>
+					{#each group.trials as trial (trial.id)}
+						<h3>{trial.task} · Chat {trial.sample}</h3>
+						<dl>
+							<dt>User</dt>
+							<dd>{trial.opening}</dd>
+							<dt>{group.model}</dt>
+							<dd>{trial.initialReply ?? `Request failed (${trial.requestError}).`}</dd>
+							{#if trial.correction}
+								<dt>User</dt>
+								<dd>{trial.correction}</dd>
+								<dt>{group.model}</dt>
+								<dd>{trial.correctedReply}</dd>
+							{/if}
+						</dl>
+					{/each}
+				</details>
+			{/each}
+		</details>
+		<p><a href="https://github.com/stevekringe/projectionbench/tree/main/pilot/benchmark-v1/suite">Read the protocol and run the suite</a></p>
+	</section>
 
 	<section id="chat-apps" aria-labelledby="chat-app-heading">
 		<h2 id="chat-app-heading">What happened in live chat apps?</h2>
@@ -179,7 +285,7 @@
 		</details>
 	</section>
 
-	<h2 id="api-models">API results</h2>
+	<h2 id="api-pilot">Earlier API pilot</h2>
 	<p class="note">Version 1 · {date}</p>
 	<p>
 		When you correct a chatbot or clarify a request, does it tell you how you feel?
