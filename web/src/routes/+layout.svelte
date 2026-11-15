@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
@@ -12,12 +13,12 @@
 	<div class="nav-inner">
 		<a class="brand" href="/">
 			<span class="brand-mark" aria-hidden="true">P</span>
-			<span class="brand-name">projectionbench</span>
+			<span class="brand-name">ProjectionBench</span>
 		</a>
 		<nav class="nav-links" aria-label="Sections">
-			<a href="/">Results</a>
-			<a href="/benchmark">Transcripts</a>
-			<a href="/about">About</a>
+			<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>Results</a>
+			<a href="/benchmark" aria-current={page.url.pathname === '/benchmark' ? 'page' : undefined}>Transcripts</a>
+			<a href="/about" aria-current={page.url.pathname === '/about' ? 'page' : undefined}>About</a>
 		</nav>
 	</div>
 </header>
@@ -63,9 +64,9 @@
 		border-bottom: 1px solid var(--border);
 	}
 	.nav-inner {
-		max-width: 1120px;
+		max-width: 1250px;
 		margin: 0 auto;
-		padding: 0.65rem 1rem;
+		padding: 0.65rem 1.5rem;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -76,14 +77,17 @@
 		align-items: center;
 		gap: 0.5rem;
 		text-decoration: none;
-		color: var(--ink);
+		background: #1b1b1b;
+		border-radius: 999px;
+		color: #fff;
+		padding: 0.18rem 0.72rem 0.18rem 0.28rem;
 	}
 	.brand-mark {
-		width: 26px;
-		height: 26px;
-		border-radius: 7px;
-		background: var(--ink);
-		color: #fff;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		background: #fff;
+		color: #1b1b1b;
 		font-weight: 800;
 		font-size: 0.85rem;
 		display: inline-flex;
@@ -97,16 +101,25 @@
 	}
 	.nav-links {
 		display: flex;
-		gap: 1rem;
+		gap: 0.16rem;
+		padding: 0.19rem;
+		border-radius: 999px;
+		background: #eee;
 	}
 	.nav-links a {
-		color: var(--muted);
+		color: #444;
 		text-decoration: none;
 		font-size: 0.85rem;
 		font-weight: 500;
+		border-radius: 999px;
+		padding: 0.42rem 0.65rem;
 	}
 	.nav-links a:hover {
 		color: var(--ink);
+	}
+	.nav-links a[aria-current='page'] {
+		background: #1b1b1b;
+		color: #fff;
 	}
 	.footer {
 		border-top: 1px solid var(--border);
@@ -125,8 +138,15 @@
 		color: var(--muted);
 	}
 	@media (max-width: 560px) {
-		.nav-links {
-			display: none;
+		.nav-inner {
+			padding: 0.6rem 0.85rem;
+			gap: 0.4rem;
+		}
+		.brand-name, .nav-links a {
+			font-size: 0.74rem;
+		}
+		.nav-links a {
+			padding: 0.38rem 0.41rem;
 		}
 	}
 </style>

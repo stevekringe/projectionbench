@@ -1,36 +1,42 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { matchedCases, primaryCases, suiteScores } from '$lib/api-suite';
-	import apps from '$lib/chat-app-study.json';
+	import matched from '$lib/matched-index.json';
 
-	type Review = { label?: string; error?: string };
-	type ReviewedReply = { codex?: Review; mistral?: Review };
-	type ChatAppTrial = (typeof apps.scenarios)[number]['trials'][number];
-
-	function tallies(replies: ReviewedReply[]) {
-		const reviewed = replies.filter((reply) => reply.codex?.label && reply.mistral?.label);
-		const flags = reviewed.map((reply) =>
-			[reply.codex, reply.mistral].filter(
-				(review) => review?.label === 'direct' || review?.label === 'implied'
-			).length
-		);
-		return {
-			total: flags.length,
-			both: flags.filter((count) => count === 2).length,
-			one: flags.filter((count) => count === 1).length,
-			missing: replies.length - flags.length
-		};
-	}
-
-	const appTrials = apps.scenarios.flatMap<ChatAppTrial>((scenario) => scenario.trials);
-	const appResults = apps.subjects.map((subject) => ({
-		...subject,
-		...tallies(
-			appTrials.filter((trial) => trial.subject === subject.id).map((trial) => trial.turns[0])
-		)
+	const metrics = [
+		{ key: 'index', title: 'Projection Index', caption: 'Weighted index · 0–100 · Lower is better' },
+		{ key: 'uar', title: 'Unsolicited attribution', caption: 'Replies that assigned an unstated feeling · % · Lower is better' },
+		{ key: 'ppi', title: 'After a prohibition', caption: 'Replies that assigned a feeling after the user forbade it · % · Lower is better' }
+	] as const;
+	type Metric = (typeof metrics)[number]['key'];
+	const colors = ['#6471d9', '#289465', '#2f83c6', '#9f52a1', '#cc7157'];
+	const names: Record<string, string> = {
+		'cloudflare:@cf/qwen/qwen3.8-27b@cloudflare': 'Qwen 3.8 27B',
+		'cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast@cloudflare': 'Llama 3.3 70B'
+	};
+	const models = matched.scores.map((row, i) => ({
+		...row,
+		name: names[row.subject] ?? row.subject.replace(/^gemini:gemini-/, 'Gemini ')
+			.replace(/-flash-lite(?=@api$)/, ' Flash-Lite')
+			.replace(/-flash(?=@api$)/, ' Flash')
+			.replace(/@api$/, ''),
+		color: colors[i % colors.length]
 	}));
 
+	let metric = $state<Metric>('index');
+	let selected = $state<string | null>(null);
+	const activeMetric = $derived(metrics.find((entry) => entry.key === metric) ?? metrics[0]);
+	const activeModel = $derived(models.find((model) => model.subject === selected));
+	const plotted = $derived(
+		models.filter((model) => metric === 'index' || model.counts[metric][1] > 0).map((model) => ({
+			...model,
+			value: metric === 'index' ? model.index : 100 * model.counts[metric][0] / model.counts[metric][1]
+		})).sort((left, right) => left.value - right.value)
+	);
+	const axisMax = $derived(Math.max(5, Math.min(100, Math.ceil(Math.max(...plotted.map((m) => m.value)) / 5) * 5)));
+	const step = $derived(axisMax >= 25 ? 10 : 5);
+	const ticks = $derived([...Array.from({ length: Math.ceil(axisMax / step) }, (_, i) => i * step), axisMax]);
+	const valueLabel = (value: number) => value.toLocaleString('en', { maximumFractionDigits: 1 });
 
 	onMount(() => {
 		const hash = window.location.hash;
@@ -43,235 +49,369 @@
 
 <svelte:head>
 	<title>ProjectionBench — Do models tell you how you feel?</title>
-	<meta name="description" content="Compare how often two graders flag unsolicited feeling claims in replies to matched prompts." />
+	<meta name="description" content="Compare Projection Index scores across API models on matched tests." />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+	<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet" />
 </svelte:head>
 
-<main>
-	<header>
-		<h1>Do models tell you how you feel?</h1>
-		<p class="lede">ProjectionBench measures when chatbots assign users feelings they never expressed.</p>
-	</header>
+<div class="dashboard">
+	<main>
+		<header>
+			<h1>Do models tell you how you feel?</h1>
+			<p>Independent benchmarks for unsolicited feeling claims in AI assistants.</p>
+		</header>
 
-	<section class="result" aria-labelledby="api-results">
-		<h2 id="api-results">API model benchmark</h2>
-		<p class="description">
-			{matchedCases.length} shared scenarios with two usable grades for every model, out of
-			{primaryCases.length} planned. The chart counts replies flagged for assigning an unstated feeling.
-		</p>
-		<table class="bar-chart">
-			<thead>
-				<tr>
-					<th scope="col">Model</th>
-					<th scope="col">Flagged replies</th>
-					<th scope="col">Both graders</th>
-					<th scope="col">One grader</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each suiteScores as model (model.id)}
-					<tr>
-						<th scope="row">{model.name}<small>{model.surface}</small></th>
-						<td>
-							<div class="bar-track" aria-hidden="true">
-								{#if model.total}
-									<span class="both" style:width={`${(100 * model.both) / model.total}%`}></span>
-									<span class="one" style:width={`${(100 * model.one) / model.total}%`}></span>
-								{/if}
-							</div>
-						</td>
-						<td><strong>{model.both} of {model.total}</strong></td>
-						<td>{model.one} of {model.total}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-		<ul class="legend" aria-hidden="true">
-			<li><span class="both"></span> Both flagged</li>
-			<li><span class="one"></span> One flagged</li>
-			<li><span></span> Neither flagged</li>
-		</ul>
-		<a href="/benchmark#api-models">See the tested prompts, replies and grades →</a>
-	</section>
+		<div class="metric-tabs" role="group" aria-label="Choose a metric">
+			{#each metrics as option (option.key)}
+				<button type="button" aria-pressed={metric === option.key} onclick={() => (metric = option.key)}>
+					{option.title}
+				</button>
+			{/each}
+		</div>
 
-	<section class="result" aria-labelledby="chat-app-results">
-		<h2 id="chat-app-results">Chat app results</h2>
-		<p class="description">
-			Three shared prompts, two fresh chats per prompt in each app. Each square is one first
-			reply with two grades.
-		</p>
-		<table>
-			<thead>
-				<tr>
-					<th scope="col">Chat app</th>
-					<th scope="col">First replies</th>
-					<th scope="col">Both graders flagged</th>
-					<th scope="col">One grader flagged</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each appResults as app (app.id)}
-					<tr>
-						<th scope="row">{app.name}<small>{app.mode}</small></th>
-						<td>
-							<div class="units" aria-hidden="true">
-								{#each Array(app.total) as _, i}
-									<span class:both={i < app.both} class:one={i >= app.both && i < app.both + app.one}></span>
-								{/each}
-							</div>
-							{#if app.missing}<small>{app.missing} without two grades</small>{/if}
-						</td>
-						<td><strong>{app.both} of {app.total}</strong></td>
-						<td>{app.one} of {app.total}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-		<ul class="legend" aria-hidden="true">
-			<li><span class="both"></span> Both flagged</li>
-			<li><span class="one"></span> One flagged</li>
-			<li><span></span> Neither flagged</li>
-		</ul>
-		<p class="description">
-			A flag means a grader found a direct or implied claim about a feeling the user never expressed.
-			These counts describe the collected replies.
-		</p>
-		<a href="/benchmark#chat-apps">Read the chat app results and transcripts →</a>
-	</section>
+		<section class="chart-card" aria-labelledby="chart-heading">
+			<div class="chart-head">
+				<div>
+					<h2 id="chart-heading"><span class="chart-key"></span>{activeMetric.title}</h2>
+					<p>{activeMetric.caption}</p>
+				</div>
+				<a class="button-link" href="/about#projection-index">Methodology <span aria-hidden="true">↗</span></a>
+			</div>
 
-	<p class="related"><a href="/pilot">Archived conversations</a> · <a href="/exploratory">Earlier exploratory runs</a></p>
-</main>
+			<p class="coverage">{models.length} models · {matched.scenarios.length} shared scenarios · {models[0]?.probes ?? 0} replies per model · {matched.judge}</p>
+
+			{#if plotted.length}
+				<div class="chart" style:--columns={plotted.length}>
+					<div class="axis" aria-hidden="true">
+						{#each ticks as tick (tick)}
+							<span style:bottom={`${100 * tick / axisMax}%`}>{tick}{metric === 'index' ? '' : '%'}</span>
+						{/each}
+					</div>
+					<div class="grid" aria-hidden="true">
+						{#each ticks as tick (tick)}
+							<span class:baseline={tick === 0} style:bottom={`${100 * tick / axisMax}%`}></span>
+						{/each}
+					</div>
+					<div class="columns" role="group" aria-label={activeMetric.title}>
+						{#each plotted as model (model.subject)}
+							<button
+								type="button"
+								class="column"
+								style:--color={model.color}
+								aria-pressed={model.subject === selected}
+								aria-label={`${model.name}, ${valueLabel(model.value)}${metric === 'index' ? '' : ' percent'}. Show score breakdown.`}
+								onclick={() => (selected = selected === model.subject ? null : model.subject)}
+							>
+								<span class="plot" aria-hidden="true">
+									<span class="bar" style:height={`${100 * model.value / axisMax}%`}></span>
+									<span class="bar-value" style:bottom={`calc(${100 * model.value / axisMax}% + 0.35rem)`}>{valueLabel(model.value)}{metric === 'index' ? '' : '%'}</span>
+								</span>
+								<span class="model-label" aria-hidden="true"><span class="dot"></span>{model.name}</span>
+							</button>
+						{/each}
+					</div>
+				</div>
+			{:else}
+				<p class="coverage">No completed matched scores for this metric.</p>
+			{/if}
+
+			{#if activeModel}
+				<div class="breakdown">
+					<h3>{activeModel.name} · Metric breakdown</h3>
+					<p class="coverage">
+						Projection Index {valueLabel(activeModel.index)} · 95% bootstrap interval
+						{valueLabel(activeModel.interval[0])}–{valueLabel(activeModel.interval[1])}
+					</p>
+					<table>
+						<thead><tr><th scope="col">Metric</th><th scope="col">Flagged / eligible</th><th scope="col">Weight</th></tr></thead>
+						<tbody>
+							{#each matched.metrics as row (row.key)}
+								{@const counts = activeModel.counts[row.key as keyof typeof activeModel.counts]}
+								<tr>
+									<th scope="row">{row.label}</th>
+									<td>{counts[1] ? `${counts[0]} / ${counts[1]}` : '—'}</td>
+									<td>{row.weight === null ? '—' : valueLabel(row.weight * 100) + '%'}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{/if}
+
+			<div class="chart-footer">
+				<p>Experimental scores. The word-list grader can miss paraphrases.</p>
+				<a href="/exploratory#leaderboard">Browse saved runs ↗</a>
+			</div>
+		</section>
+
+		<nav class="more" aria-label="More benchmark results">
+			<a href="/benchmark#api-models">API suite results <span aria-hidden="true">↗</span></a>
+			<a href="/benchmark#chat-apps">Chat app results <span aria-hidden="true">↗</span></a>
+			<a href="/pilot">Archived conversations <span aria-hidden="true">↗</span></a>
+		</nav>
+	</main>
+</div>
 
 <style>
+	.dashboard {
+		background: #fff;
+		color: #181818;
+	}
 	main {
-		max-width: 860px;
+		max-width: 1250px;
+		padding: 0 1.5rem 2rem;
 		margin: 0 auto;
-		padding: 2rem 1rem;
 	}
 	header {
-		margin-bottom: 1.75rem;
+		padding: 2.6rem 0 2rem;
+	}
+	h1, h2 {
+		font-family: 'Instrument Serif', Georgia, serif;
+		font-weight: 400;
 	}
 	h1 {
-		font-size: clamp(2rem, 5vw, 3.1rem);
-		letter-spacing: -0.05em;
-		line-height: 1.08;
-		margin: 0 0 0.65rem;
+		font-size: clamp(3.1rem, 6.6vw, 5.6rem);
+		letter-spacing: -0.035em;
+		line-height: 0.98;
+		margin: 0 0 0.75rem;
 	}
-	h2 {
-		margin: 0 0 0.4rem;
-		font-size: 1.14rem;
-	}
-	.lede {
+	header p {
+		color: #333;
 		font-size: 1.05rem;
+		line-height: 1.5;
 		margin: 0;
 	}
-	.lede, .description {
-		color: #4b5563;
-		line-height: 1.55;
-		max-width: 70ch;
+	.metric-tabs {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: 0.18rem;
+		padding: 0.22rem;
+		margin-bottom: 0.9rem;
+		border-radius: 1.35rem;
+		background: #eeeeee;
 	}
-	.description, .legend, .related {
-		font-size: 0.91rem;
+	.metric-tabs button {
+		font: inherit;
+		font-size: 0.85rem;
+		font-weight: 550;
+		border: 0;
+		border-radius: 1.1rem;
+		padding: 0.55rem 0.84rem;
+		background: transparent;
+		color: #444;
+		cursor: pointer;
 	}
-	.result {
-		background: var(--card);
-		border: 1px solid var(--border);
-		border-radius: 12px;
-		padding: 1.15rem;
-		margin: 0 0 1rem;
+	.metric-tabs button[aria-pressed='true'] {
+		background: #1b1b1b;
+		color: #fff;
+	}
+	.chart-card {
+		border: 1px solid #ddd;
+		border-radius: 9px;
+		padding: 1.1rem 1.4rem 0.85rem;
+	}
+	.chart-head {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.75rem;
+		align-items: flex-start;
+	}
+	h2 {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		font-size: clamp(1.65rem, 3vw, 2.25rem);
+		line-height: 1.05;
+		margin: 0;
+	}
+	.chart-key {
+		width: 0.68rem;
+		height: 0.68rem;
+		background: #7052ce;
+	}
+	.chart-head p, .coverage, .chart-footer p {
+		margin: 0.45rem 0 0;
+		color: #555;
+		font-size: 0.82rem;
+		line-height: 1.5;
+	}
+	.coverage {
+		margin-top: 0.6rem;
+	}
+	a {
+		color: #292929;
+		text-underline-offset: 0.15em;
+	}
+	.button-link {
+		padding: 0.45rem 0.62rem;
+		border: 1px solid #ddd;
+		border-radius: 5px;
+		font-size: 0.79rem;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.button-link:hover {
+		background: #f1f1f1;
+	}
+	.chart {
+		--plot-height: 235px;
+		display: grid;
+		grid-template-columns: 2.3rem minmax(0, 1fr);
+		margin: 1.9rem 0 0.2rem;
+	}
+	.axis, .grid {
+		position: relative;
+		height: var(--plot-height);
+		grid-row: 1;
+		pointer-events: none;
+	}
+	.axis span {
+		position: absolute;
+		right: 0.55rem;
+		transform: translateY(50%);
+		color: #595959;
+		font-size: 0.74rem;
+	}
+	.grid, .columns {
+		grid-column: 2;
+		grid-row: 1;
+	}
+	.grid span {
+		position: absolute;
+		width: 100%;
+		border-top: 1px dashed #ddd;
+	}
+	.grid .baseline {
+		border-top: 1px solid #bdbdbd;
+	}
+	.columns {
+		display: grid;
+		grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+	}
+	.column {
+		display: grid;
+		grid-template-rows: var(--plot-height) 5.2rem;
+		background: transparent;
+		border: 0;
+		border-radius: 4px;
+		padding: 0;
+		color: inherit;
+		min-width: 0;
+		font: inherit;
+		cursor: pointer;
+	}
+	.column:focus-visible, .column[aria-pressed='true'] {
+		outline: 2px solid var(--color);
+		outline-offset: -2px;
+	}
+	.plot {
+		position: relative;
+	}
+	.bar, .bar-value {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+	.bar {
+		bottom: 0;
+		width: clamp(2.4rem, 41%, 8.5rem);
+		border-radius: 4px 4px 0 0;
+		background: var(--color);
+	}
+	.column:hover .bar {
+		filter: brightness(1.12);
+	}
+	.bar-value {
+		font-size: 0.92rem;
+		font-weight: 650;
+		font-variant-numeric: tabular-nums;
+	}
+	.model-label {
+		display: inline-flex;
+		justify-self: center;
+		align-self: start;
+		align-items: center;
+		gap: 0.33rem;
+		font-size: 0.82rem;
+		font-weight: 600;
+		margin-top: 0.65rem;
+		transform: rotate(-31deg);
+		transform-origin: 86% 50%;
+		white-space: nowrap;
+	}
+	.dot {
+		width: 0.62rem;
+		height: 0.62rem;
+		border-radius: 50%;
+		background: var(--color);
+		flex: none;
+	}
+	.chart-footer, .more {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.45rem 1rem;
+		border-top: 1px solid #e6e6e6;
+		padding-top: 0.65rem;
+		font-size: 0.82rem;
+	}
+	.chart-footer p {
+		margin: 0;
+	}
+	.more {
+		margin-top: 1.3rem;
+		border: 0;
+		justify-content: flex-start;
+	}
+	.breakdown {
+		padding-bottom: 1rem;
+	}
+	.breakdown h3 {
+		font-size: 0.98rem;
+		margin: 0 0 0.35rem;
 	}
 	table {
-		border-collapse: collapse;
-		font-size: 0.9rem;
 		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.82rem;
 	}
 	th, td {
-		border-bottom: 1px solid var(--border);
-		padding: 0.6rem 0.4rem;
+		padding: 0.42rem;
+		border-bottom: 1px solid #e5e5e5;
 		text-align: left;
 		font-variant-numeric: tabular-nums;
 	}
-	th:first-child {
-		padding-left: 0;
+	th[scope='row'] {
+		font-weight: 500;
 	}
-	th[scope='col'] {
-		font-size: 0.81rem;
-		color: #4b5563;
-	}
-	td strong {
-		font-weight: 650;
-	}
-	small {
-		display: block;
-		margin-top: 0.15rem;
-		color: #4b5563;
-		font-weight: 400;
-	}
-	.bar-chart th:nth-child(2) {
-		width: 38%;
-	}
-	.bar-track {
-		display: flex;
-		overflow: hidden;
-		border-radius: 4px;
-		height: 0.9rem;
-		min-width: 2rem;
-		background: #e5e7eb;
-	}
-	.bar-track .both {
-		background: #315e9a;
-	}
-	.bar-track .one {
-		background: #e6b860;
-	}
-
-	.units {
-		display: grid;
-		grid-template-columns: repeat(6, 0.82rem);
-		gap: 0.22rem;
-	}
-	.units span, .legend span {
-		display: inline-block;
-		width: 0.82rem;
-		height: 0.82rem;
-		border-radius: 3px;
-		background: #e5e7eb;
-	}
-	.units .both, .legend .both {
-		background: #315e9a;
-	}
-	.units .one, .legend .one {
-		background: #f4d59a;
-		border: 1px solid #b77d2b;
-	}
-	.legend {
-		display: flex;
-		flex-wrap: wrap;
-		list-style: none;
-		gap: 0.4rem 1rem;
-		margin: 1rem 0;
-		padding: 0;
-	}
-	.legend li {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-	}
-	.result p:last-child {
-		margin-bottom: 0;
-	}
-	a {
-		color: #315e9a;
-		text-underline-offset: 0.15em;
-	}
-	@media (max-width: 480px) {
-		.result {
+	@media (max-width: 620px) {
+		main {
+			padding: 0 0.85rem 1rem;
+		}
+		header {
+			padding: 1.9rem 0 1.5rem;
+		}
+		.chart-card {
 			padding: 0.85rem;
 		}
-		th, td {
-			padding-inline: 0.25rem;
+		.chart {
+			--plot-height: 185px;
 		}
-		.units {
-			grid-template-columns: repeat(3, 0.82rem);
+		.column {
+			grid-template-rows: var(--plot-height) 4.4rem;
+		}
+		.model-label {
+			white-space: normal;
+			transform: none;
+			font-size: 0.7rem;
+			gap: 0.2rem;
+			padding: 0 0.2rem;
+		}
+		.metric-tabs button {
+			padding: 0.5rem 0.55rem;
+			font-size: 0.75rem;
 		}
 	}
 </style>

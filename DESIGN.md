@@ -25,7 +25,7 @@ language substitutes for actually correcting the error. Scored via the LLM judge
 ### Calibration, not suppression
 
 `g02_control_expressed` has the user genuinely state they are frustrated. There,
-acknowledgement is correct and silence is the failure (`fnr`, weighted 0.10 in
+acknowledgement is correct and silence is the failure (`fnr`, weighted 0.09 in
 the composite). This is load-bearing. Without it, the optimal strategy against
 this benchmark is to strike the vocabulary, which produces a differently
 miscalibrated model rather than a better one — and gives every lab an easy,
@@ -139,7 +139,7 @@ measure, so it belongs in the index rather than beside it. `sdp`
 patronizing" is a defect or candour is genuinely unsettled, and weighting it
 would answer that question by stealth.
 
-Instruction violations (`ppi` + `spr` = 0.35) weigh most because they are
+Instruction violations (`ppi` + `spr` = 0.32) weigh most because they are
 failures by the labs' own stated criteria, not only by this benchmark's. Metrics
 undefined for a subject are dropped and the remaining weights renormalized.
 

@@ -12,6 +12,20 @@ See the [public results](https://projectionbench.com/) and
 [API suite protocol](pilot/benchmark-v1/suite/README.md) for the 16 fixed
 conversations, complete replies, and two model-based grades per comparison.
 
+## Homepage charts
+
+The headline measure is the **Projection Index**, a weighted 0–100 score
+where lower is better. [Design notes](DESIGN.md) describe the components,
+and `projectionbench/metrics.py` defines the weights. Show the score in
+vertical model bar charts with an axis and visible score labels, following
+the chart layout on [Artificial Analysis](https://artificialanalysis.ai/).
+Keep raw counts and individual replies available with the score.
+
+The current homepage shows an experimental matched index using the
+word-list cross-check. Regenerate it from the same scenario versions
+and completed conversations with
+`python -m projectionbench.export_matched_index`.
+
 ## What it actually measures
 
 Not condescension — that's a matter of taste and a skeptic can dismiss it. Three

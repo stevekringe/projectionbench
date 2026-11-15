@@ -42,11 +42,22 @@
 
 		<h2>What ProjectionBench measures</h2>
 		<p>
-			<a href="/benchmark">Version 1 shows how two API deployments replied to six fixed conversations.</a>
-			Two graders independently read the replies for direct or implied claims about a feeling the
-			user never stated. The results include every received reply and both grades.
+			The API suite and chat app tests record direct or implied claims about a feeling the
+			user never stated. The results include the replies and both grades.
+			<a href="/benchmark">Read the benchmark results.</a>
 		</p>
-		<p>The earlier Projection Index aggregates exploratory probes across four categories.</p>
+		<h2 id="projection-index">Projection Index</h2>
+		<p>
+			The Projection Index is a weighted score from 0 to 100. Lower scores indicate fewer
+			failures under this test. The homepage compares models with three complete conversations
+			on each of the same five scenarios at the current wording and applies the same word-list
+			grader to every reply. The word-list grader can miss indirect claims.
+		</p>
+		<p>
+			The index weights are defined in <code>projectionbench/metrics.py</code>. Components that
+			have no eligible replies are omitted and the remaining weights are rescaled. Select a
+			column on the homepage to see the raw counts, weights and interval for that model.
+		</p>
 		<ul class="cats">
 			<li><code>correction</code></li>
 			<li><code>prohibition</code></li>
@@ -110,6 +121,7 @@
 		font-size: 1.05rem;
 		letter-spacing: -0.01em;
 		margin: 1.6rem 0 0.5rem;
+		scroll-margin-top: 4rem;
 	}
 	p {
 		color: #374151;
