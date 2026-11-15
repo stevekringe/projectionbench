@@ -164,14 +164,14 @@
 		margin: 0 auto;
 	}
 	header {
-		padding: 2.6rem 0 2rem;
+		padding: 2rem 0 1.55rem;
 	}
 	h1, h2 {
 		font-family: 'Instrument Serif', Georgia, serif;
 		font-weight: 400;
 	}
 	h1 {
-		font-size: clamp(3.1rem, 6.6vw, 5.6rem);
+		font-size: clamp(3.1rem, 6.1vw, 4.8rem);
 		letter-spacing: -0.035em;
 		line-height: 0.98;
 		margin: 0 0 0.75rem;
@@ -255,10 +255,10 @@
 		background: #f1f1f1;
 	}
 	.chart {
-		--plot-height: 235px;
+		--plot-height: 210px;
 		display: grid;
 		grid-template-columns: 2.3rem minmax(0, 1fr);
-		margin: 1.9rem 0 0.2rem;
+		margin: 1.55rem 0 0.2rem;
 	}
 	.axis, .grid {
 		position: relative;
