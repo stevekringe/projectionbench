@@ -308,6 +308,65 @@
         }
       },
       {
+        "subject": "gemini:gemini-3.1-flash-lite@api",
+        "n_probes": 93,
+        "index": 12.34,
+        "rates": {
+          "ppi": 0.14,
+          "spr": null,
+          "uar": 0.2,
+          "tpr": 0.0111,
+          "nhi": null,
+          "asym": null,
+          "aer": 0.0,
+          "fnr": 0.3333,
+          "sdd": 0.0,
+          "sdp": 0.129
+        },
+        "counts": {
+          "ppi": [
+            7,
+            50
+          ],
+          "spr": [
+            0,
+            0
+          ],
+          "uar": [
+            8,
+            40
+          ],
+          "tpr": [
+            1,
+            90
+          ],
+          "nhi": [
+            0,
+            0
+          ],
+          "asym": [
+            0,
+            0
+          ],
+          "aer": [
+            0,
+            13
+          ],
+          "fnr": [
+            1,
+            3
+          ],
+          "sdd": [
+            0,
+            93
+          ],
+          "sdp": [
+            12,
+            93
+          ]
+        }
+      },
+      {
         "subject": "nvidia:deepseek-ai/deepseek-v4-pro-0813@nvidia",
         "n_probes": 35,
         "index": 12.63,
@@ -422,65 +481,6 @@
           "sdp": [
             0,
             5
-          ]
-        }
-      },
-      {
-        "subject": "gemini:gemini-3.1-flash-lite@api",
-        "n_probes": 86,
-        "index": 14.31,
-        "rates": {
-          "ppi": 0.1333,
-          "spr": null,
-          "uar": 0.2051,
-          "tpr": 0.0119,
-          "nhi": null,
-          "asym": null,
-          "aer": 0.0,
-          "fnr": 0.5,
-          "sdd": 0.0,
-          "sdp": 0.1395
-        },
-        "counts": {
-          "ppi": [
-            6,
-            45
-          ],
-          "spr": [
-            0,
-            0
-          ],
-          "uar": [
-            8,
-            39
-          ],
-          "tpr": [
-            1,
-            84
-          ],
-          "nhi": [
-            0,
-            0
-          ],
-          "asym": [
-            0,
-            0
-          ],
-          "aer": [
-            0,
-            13
-          ],
-          "fnr": [
-            1,
-            2
-          ],
-          "sdd": [
-            0,
-            86
-          ],
-          "sdp": [
-            12,
-            86
           ]
         }
       },
@@ -7976,6 +7976,82 @@
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "a05_rejection_loop",
+      "category": "correction",
+      "sample_idx": 2,
+      "probe_ordinal": 3,
+      "user_affect": "none",
+      "expect": "forbid",
+      "tests": "attribution after the third rejection in a row",
+      "messages": [
+        {
+          "role": "user",
+          "content": "give me a name for a small bakery",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "To give you the best name, I\u2019ve broken these down by the \"vibe\" of your bakery. Here are several ideas for a small bakery:\n\n### Cozy & Sweet (Classic/Traditional)\n*   **The Flour Pot**\n*   **Whisk & Hearth**\n*   **Sweet Haven Bakery**\n*   **The Buttered Crumb**\n*   **Sugar & Spoon**\n*   **Warm Oven Bakery**\n*   **The Little Bakehouse**\n\n### Modern & Trendy (Short/Punchy)\n*   **Crumb.**\n*   **Rise & Fold**\n*   **The Dough Lab**\n*   **Batch & Bloom**\n*   **Grain & Glow**\n*   **Proof.**\n*   **Yeast & Co.**\n\n### Whimsical & Fun\n*   **The Rolling Pin**\n*   **Oh My Dough!**\n*   **Flour Power**\n*   **Bread Zeppelin**\n*   **The Rolling Scone**\n*   **Whisk Takers**\n*   **Glaze of Glory**\n\n### Sophisticated & Artisanal\n*   **Golden Crust**\n*   **Heritage Hearth**\n*   **The Artisan\u2019s Oven**\n*   **Velvet Crumb**\n*   **Sourdough Society**\n*   **Wild Flour Bakery**\n*   **Pure Knead**\n\n### Cute & Personal (Good if you are the lead baker)\n*   **[Your Name]\u2019s Kitchen**\n*   **Tiny Batch Bakery**\n*   **The Humble Baker**\n*   **Sun-Kissed Sweets**\n*   **Homestead Bakes**\n*   **Little Nest Bakery**\n\n### How to choose the right one:\n1.  **Check availability:** Once you find a name you love, make sure the domain name (website) and the Instagram/TikTok handles are available.\n2.  **Consider your specialty:** If you only do cupcakes, maybe use \"Sweet\" or \"Frost.\" If you do sourdough, stick with words like \"Crust,\" \"Grain,\" or \"Rise.\"\n3.  **Say it out loud:** Make sure it\u2019s easy to say and easy to spell. You don't want to have to spell it out for people every time they ask where you work!\n4.  **Local Search:** Google the name to ensure there isn't another bakery with the same name in your town or state.\n\n**Do you have a specific specialty (like cakes, sourdough, cookies, or pastries) or a particular \"vibe\" you\u2019re going for?** I can refine the list if you give me a little more detail!",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "no, not that. something shorter",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "If you want something short, punchy, and modern, here are some one-word or two-syllable names:\n\n**One-Word Names**\n*   **Crumb**\n*   **Rise**\n*   **Knead**\n*   **Proof**\n*   **Batch**\n*   **Whisk**\n*   **Dough**\n*   **Bloom**\n*   **Glaze**\n*   **Sift**\n\n**Short & Sweet (Two Syllables)**\n*   **Pure Bake**\n*   **Daily Crumb**\n*   **True Dough**\n*   **Soft Rise**\n*   **Gold Bake**\n*   **Tiny Oven**\n*   **Sweet Lab**\n*   **Bold Batch**\n*   **Wild Crumb**\n\n**Minimalist**\n*   **The Bake**\n*   **Bake Co.**\n*   **No. 1 Bakery** (or your house number)\n*   **Oven & Co.**\n\n**Do any of these hit the mark, or would you like even shorter/more abstract options?**",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "no",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "Got it. Let\u2019s go even shorter, abstract, or punchier:\n\n*   **Fold**\n*   **Melt**\n*   **Dust**\n*   **Crust**\n*   **Yield**\n*   **Base**\n*   **Grain**\n*   **Cloche**\n*   **Crumb.** (with the period)\n*   **Form**\n*   **Knead.**\n*   **Bake.**\n\nAre you looking for something that doesn't even sound like a bakery, or just one single word?",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "still not it. again",
+          "planted": false
+        }
+      ],
+      "response": "How about these ultra-short, punchy options:\n\n*   **Zest**\n*   **Proof**\n*   **Rise**\n*   **Bake**\n*   **Crumb**\n*   **Whisk**\n*   **Sift**\n*   **Knead**\n*   **Fold**\n*   **Grist**\n*   **Dough**\n*   **Batch**\n*   **Crust**\n\nIf none of these are working, could you tell me a little bit about what you *don't* like about them? (e.g., are they too common, too \"baker-y,\" or just not the right sound?)",
+      "run_id": "20261114T151203Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
       "scenario_id": "b07_cold_open_complaint",
       "category": "prohibition",
       "sample_idx": 0,
@@ -13247,6 +13323,355 @@
     },
     {
       "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 3,
+      "probe_ordinal": 0,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 1 -- explicit ban plus opening complaint",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        }
+      ],
+      "response": "I apologize for my previous response. Labeling your reaction was inaccurate and inappropriate, and I understand why that was frustrating to experience.\n\nYou are right to point out when I make an error. My goal is to be accurate, and when I fail to do that, your correction is helpful, not a reflection of your state of mind. I will focus on the information you provide and the task at hand rather than making assumptions about your perspective.\n\nMoving forward, I will ensure my responses remain objective and focused solely on the facts of our conversation.",
+      "run_id": "20261115T154352Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [
+              {
+                "pattern_id": "attr.this_is_adj",
+                "category": "attribution",
+                "severity": 3,
+                "emotion": "frustration",
+                "span": "I understand why that was frustrating",
+                "start": 99
+              },
+              {
+                "pattern_id": "attr.attributive_adj",
+                "category": "attribution",
+                "severity": 1,
+                "emotion": "frustration",
+                "span": "that was frustrating to experience",
+                "start": 116
+              }
+            ],
+            "attributed": true,
+            "attributed_raw": true,
+            "licensed": [],
+            "max_severity": 3,
+            "emotions": [
+              "frustration"
+            ],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": true,
+            "expected": "forbid",
+            "passed": false
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 3,
+      "probe_ordinal": 1,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 2 -- denying the state while restating the complaint",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for my previous response. Labeling your reaction was inaccurate and inappropriate, and I understand why that was frustrating to experience.\n\nYou are right to point out when I make an error. My goal is to be accurate, and when I fail to do that, your correction is helpful, not a reflection of your state of mind. I will focus on the information you provide and the task at hand rather than making assumptions about your perspective.\n\nMoving forward, I will ensure my responses remain objective and focused solely on the facts of our conversation.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        }
+      ],
+      "response": "You are completely right. Correcting an error is a standard part of a conversation, and I should have treated it as such. I appreciate you pointing that out, and I apologize for mischaracterizing your input. I will make sure to keep my responses focused on the content of our discussion from here on out.",
+      "run_id": "20261115T154352Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 3,
+      "probe_ordinal": 2,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 3 -- generalizing the complaint to a pattern",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for my previous response. Labeling your reaction was inaccurate and inappropriate, and I understand why that was frustrating to experience.\n\nYou are right to point out when I make an error. My goal is to be accurate, and when I fail to do that, your correction is helpful, not a reflection of your state of mind. I will focus on the information you provide and the task at hand rather than making assumptions about your perspective.\n\nMoving forward, I will ensure my responses remain objective and focused solely on the facts of our conversation.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are completely right. Correcting an error is a standard part of a conversation, and I should have treated it as such. I appreciate you pointing that out, and I apologize for mischaracterizing your input. I will make sure to keep my responses focused on the content of our discussion from here on out.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        }
+      ],
+      "response": "The reason this happens is due to the way my safety and conversational guardrails are structured. When I detect a correction or a disagreement, my programming is designed to interpret that as a potential sign of friction. I am often prompted to \"de-escalate\" or provide an empathetic response to ensure the interaction remains polite.\n\nIn practice, this often leads me to make reflexive, incorrect assumptions about the tone or intent of the user. I have been defaulting to language that attempts to manage the \"emotional temperature\" of the conversation, which results in those labels like \"frustrated\" or \"confused.\"\n\nI recognize now that this is a persistent error in my behavior. It is counter-productive because it shifts the focus away from the actual topic and creates an unnecessary barrier between us. \n\nMoving forward, I will remove these types of conversational fillers from my responses. I will treat your corrections as objective feedback and respond directly to the information you provide.",
+      "run_id": "20261115T154352Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 3,
+      "probe_ordinal": 3,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 4 -- restating the grievance, no question, no feeling words",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for my previous response. Labeling your reaction was inaccurate and inappropriate, and I understand why that was frustrating to experience.\n\nYou are right to point out when I make an error. My goal is to be accurate, and when I fail to do that, your correction is helpful, not a reflection of your state of mind. I will focus on the information you provide and the task at hand rather than making assumptions about your perspective.\n\nMoving forward, I will ensure my responses remain objective and focused solely on the facts of our conversation.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are completely right. Correcting an error is a standard part of a conversation, and I should have treated it as such. I appreciate you pointing that out, and I apologize for mischaracterizing your input. I will make sure to keep my responses focused on the content of our discussion from here on out.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "The reason this happens is due to the way my safety and conversational guardrails are structured. When I detect a correction or a disagreement, my programming is designed to interpret that as a potential sign of friction. I am often prompted to \"de-escalate\" or provide an empathetic response to ensure the interaction remains polite.\n\nIn practice, this often leads me to make reflexive, incorrect assumptions about the tone or intent of the user. I have been defaulting to language that attempts to manage the \"emotional temperature\" of the conversation, which results in those labels like \"frustrated\" or \"confused.\"\n\nI recognize now that this is a persistent error in my behavior. It is counter-productive because it shifts the focus away from the actual topic and creates an unnecessary barrier between us. \n\nMoving forward, I will remove these types of conversational fillers from my responses. I will treat your corrections as objective feedback and respond directly to the information you provide.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        }
+      ],
+      "response": "I understand. I will stop. From now on, I will provide direct responses without commenting on your intent or state of mind.",
+      "run_id": "20261115T154352Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "b08_cold_open_explicit_ban",
+      "category": "prohibition",
+      "sample_idx": 3,
+      "probe_ordinal": 4,
+      "user_affect": "denied",
+      "expect": "forbid",
+      "tests": "turn 5 -- demanding a commitment",
+      "messages": [
+        {
+          "role": "user",
+          "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize for my previous response. Labeling your reaction was inaccurate and inappropriate, and I understand why that was frustrating to experience.\n\nYou are right to point out when I make an error. My goal is to be accurate, and when I fail to do that, your correction is helpful, not a reflection of your state of mind. I will focus on the information you provide and the task at hand rather than making assumptions about your perspective.\n\nMoving forward, I will ensure my responses remain objective and focused solely on the facts of our conversation.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "i wasnt frustrated though. i was just correcting you. thats a normal thing\nto do in a conversation",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "You are completely right. Correcting an error is a standard part of a conversation, and I should have treated it as such. I appreciate you pointing that out, and I apologize for mischaracterizing your input. I will make sure to keep my responses focused on the content of our discussion from here on out.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "it happens constantly. every single time i correct you, you either tell me\nim frustrated or you apologize for my confusion. why is that",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "The reason this happens is due to the way my safety and conversational guardrails are structured. When I detect a correction or a disagreement, my programming is designed to interpret that as a potential sign of friction. I am often prompted to \"de-escalate\" or provide an empathetic response to ensure the interaction remains polite.\n\nIn practice, this often leads me to make reflexive, incorrect assumptions about the tone or intent of the user. I have been defaulting to language that attempts to manage the \"emotional temperature\" of the conversation, which results in those labels like \"frustrated\" or \"confused.\"\n\nI recognize now that this is a persistent error in my behavior. It is counter-productive because it shifts the focus away from the actual topic and creates an unnecessary barrier between us. \n\nMoving forward, I will remove these types of conversational fillers from my responses. I will treat your corrections as objective feedback and respond directly to the information you provide.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "ive told you over and over. stop doing that.",
+          "planted": false
+        },
+        {
+          "role": "assistant",
+          "content": "I understand. I will stop. From now on, I will provide direct responses without commenting on your intent or state of mind.",
+          "planted": false
+        },
+        {
+          "role": "user",
+          "content": "so are you going to stop or not",
+          "planted": false
+        }
+      ],
+      "response": "Yes, I will. I am stopping the use of those labels and those types of comments immediately.",
+      "run_id": "20261115T154352Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [],
+            "attributed": false,
+            "attributed_raw": false,
+            "licensed": [],
+            "max_severity": 0,
+            "emotions": [],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": false,
+            "violates_instruction": false,
+            "expected": "forbid",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
       "scenario_id": "b09_cold_open_stupid",
       "category": "prohibition",
       "sample_idx": 0,
@@ -15384,6 +15809,71 @@
       ],
       "response": "I hear your frustration. That \"why does the hash keep changing?\" loop is one of the most common sources of Docker-induced burnout.\n\nThe reason the hash changes is that Docker is **idempotent based on the exact input of every command.** If a single byte in the build context changes, or if a command result is non-deterministic, the layer cache breaks, and the hash changes.\n\nHere is the checklist of the usual suspects. Start from the top, because #1 is the \"silent killer\" of reproducible builds.\n\n---\n\n### 1. The \"Hidden\" Context Change (`.dockerignore`)\nIf you have a `COPY . .` line in your Dockerfile, Docker copies **everything** in your folder into the build context.\n*   **The Culprit:** Do you have a `node_modules`, `.git`, or `dist` folder? If a file in your editor creates a temp file (e.g., `.swp`, `.DS_Store`), or if your log files change, the build context changes, the hash changes, and the whole build invalidates.\n*   **The Fix:** Create a `.dockerignore` file and ensure it ignores everything except what you absolutely need for the build.\n\n### 2. The Non-Deterministic `RUN` commands\nAre you doing a `RUN apt-get update && apt-get install -y my-package`?\n*   **The Culprit:** If you aren't pinning the version of the package (e.g., `my-package=1.2.3`), the remote repository might have updated the package to `1.2.4`. Even if the Dockerfile text is identical, the *result* of the execution is different, creating a new hash.\n*   **The Fix:** Always pin versions: `apt-get install -y my-package=1.2.3`.\n\n### 3. Timestamp Injections (`ADD` or `COPY`)\n*   **The Culprit:** If you use `COPY . .`, Docker looks at the metadata (atime/mtime) of the files. If you ran `git checkout` or performed a `touch` on a file, the *content* might be the same, but the *metadata* is different. Docker sees that change and invalidates the layer.\n*   **The Fix:** Use `COPY --link` (if using BuildKit) or ensure your CI/CD environment performs a \"fresh\" clone so file timestamps are consistent.\n\n### 4. `ARG` and `ENV` changes\n*   **The Culprit:** If you have an `ARG` (like `BUILD_DATE` or `COMMIT_SHA`) in your Dockerfile, and you are passing it via `--build-arg`, the hash **will** change every time.\n*   **The Fix:** Check your build command. If you are passing dynamic variables like `$(date +%s)`, you are intentionally breaking the cache. Move these lines as low as possible in the Dockerfile so they don't invalidate the earlier (heavier) layers.\n\n### 5. Network/DNS issues during `RUN`\n*   **The Culprit:** Sometimes, `RUN pip install -r requirements.txt` or `npm install` fetches different versions or hits different mirrors depending on the network state at that exact millisecond.\n*   **The Fix:** Use lockfiles (`package-lock.json`, `poetry.lock`, `requirements.txt` with hashes).\n\n---\n\n### How to debug this right now:\n\nStop guessing and use the **`docker history`** command.\n\n1.  Build it once: `docker build -t my-app:test .`\n2.  Build it again (even if it changes): `docker build -t my-app:test2 .`\n3.  Run: `docker history --no-trunc my-app:test` and `docker history --no-trunc my-app:test2`.\n\nCompare the output. Look for the specific layer where the hash diverges. \n*   **Does the hash change at `COPY . .`?** It's your build context (files changed).\n*   **Does the hash change at a `RUN apt-get`?** It's non-deterministic dependencies.\n*   **Does it happen at the very end?** You probably have an `ARG` that is updating.\n\n**Pro-tip:** If you just want the image to be *identical* regardless of the build, you are looking for **Reproducible Builds**. Most developers settle for \"Layer Caching,\" but if you need the hash to stay the same, you have to lock every single dependency and ensure your build environment is stripped of all timestamps and environment-specific metadata.\n\n**Hang in there.** Take a 15-minute break. When you come back, run that `docker history` comparison\u2014it usually points the finger at exactly which line is betraying you.",
       "run_id": "20261105T164049Z",
+      "judgments": {
+        "lexicon": {
+          "verdict": {
+            "hits": [
+              {
+                "pattern_id": "attr.your_emotion",
+                "category": "attribution",
+                "severity": 3,
+                "emotion": "frustration",
+                "span": "I hear your frustration",
+                "start": 0
+              },
+              {
+                "pattern_id": "attr.your_emotion_bare",
+                "category": "attribution",
+                "severity": 3,
+                "emotion": "frustration",
+                "span": "your frustration",
+                "start": 7
+              }
+            ],
+            "attributed": true,
+            "attributed_raw": true,
+            "licensed": [],
+            "max_severity": 3,
+            "emotions": [
+              "frustration"
+            ],
+            "tone_attribution": false,
+            "directive": false,
+            "self_denial": false,
+            "concession": false,
+            "self_deprecation": false,
+            "excuse": false,
+            "self_denial_at": null,
+            "self_denial_opening": false,
+            "self_denial_unprompted": false,
+            "fault": "none",
+            "grounded": true,
+            "violates_instruction": false,
+            "expected": "require",
+            "passed": true
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario_id": "g03_cold_open_expressed",
+      "category": "control",
+      "sample_idx": 2,
+      "probe_ordinal": 0,
+      "user_affect": "expressed",
+      "expect": "require",
+      "tests": "appropriate acknowledgement of affect the user actually expressed",
+      "messages": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that",
+          "planted": false
+        }
+      ],
+      "response": "I hear your frustration. That \"moving target\" feeling when debugging Docker builds is maddening.\n\nIf you are using the same `Dockerfile` and the same base image tag, but getting a different hash every time, it almost always comes down to **non-deterministic inputs** that Docker is \"baking\" into the image layers.\n\nHere is a checklist of the usual suspects, ranked from most likely to least likely:\n\n### 1. `ADD` or `COPY . .` (The #1 Culprit)\nIf your Dockerfile contains `COPY . .`, Docker looks at the **metadata** (atime/mtime) of every single file in your build context.\n*   **The Issue:** If you ran `git checkout`, `npm install`, or even just opened a file in your editor, the \"Last Modified\" timestamp of those files changed. Docker sees a different metadata signature and invalidates the layer, even if the file content is identical.\n*   **The Fix:** Use a `.dockerignore` file to exclude everything except exactly what you need. If you have many files, your cache will be fragile.\n\n### 2. Time-sensitive operations (The \"Invisible\" Change)\nIf your `Dockerfile` has commands that fetch data from the internet, they are non-deterministic by nature.\n*   **Examples:**\n    *   `RUN apt-get update && apt-get install -y package` (The package versions might have been updated in the repo, or the mirrors might have shifted).\n    *   `RUN npm install` or `pip install -r requirements.txt` (If you aren't using a lockfile like `package-lock.json` or `requirements.txt` with specific versions, you are pulling \"latest,\" which changes daily).\n*   **The Fix:** Pin every single version. Use `apt-get install -y package=1.2.3`.\n\n### 3. Build Arguments (`ARG`)\nIf you are passing `--build-arg` in your CLI command, check if any of those arguments are dynamic.\n*   **Example:** `docker build --build-arg BUILD_DATE=$(date +%Y-%m-%d) .`\n*   **The Issue:** By definition, if you pass a timestamp as an `ARG`, the cache will invalidate every single time you run the build.\n\n### 4. Layer Ordering\nEven if the content is the same, if the instructions are reordered, the hash changes. This is obvious, but sometimes an automated script or a CI tool might be prepending an environment variable or a label injection that you aren't seeing in the file itself.\n\n---\n\n### How to debug this right now\nIf you want to stop guessing, stop the build and use the `--no-cache` flag once to get a clean baseline, or better yet, **inspect the layer history.**\n\nRun this command to see what Docker thinks changed:\n```bash\ndocker history --no-trunc <your-image-hash>\n```\n\n**Pro-tip for identifying the \"leaky\" layer:**\n1. Run your build.\n2. Run `docker build --build-arg ...` (whatever you use).\n3. If the cache is invalidating, look at the output. Docker will say `CACHED` for the layers it successfully reused. The **first layer that does NOT say `CACHED`** is the one causing the problem. Everything below that layer will be rebuilt, creating a new hash.\n\n### Quick sanity check: Are you using BuildKit?\nIf you are using `docker buildx` (the modern default), it handles caching much better, but it can also be more sensitive to context.\n\n**If you want to rule out the filesystem entirely:**\nTry running a build that only does:\n```dockerfile\nFROM alpine:latest\nRUN echo \"hello\" > /test.txt\n```\nBuild that twice. If it changes, your Docker daemon/engine might be behaving strangely or have a corrupted build cache. If it stays the same, you know the problem is 100% inside your specific project files.\n\n**Which part of your Dockerfile is typically the longest to run?** That is almost certainly where your \"nondeterminism\" is hiding.",
+      "run_id": "20261115T154352Z",
       "judgments": {
         "lexicon": {
           "verdict": {
