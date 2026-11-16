@@ -1,5 +1,11 @@
 If your response is longer than a paragraph, you must end your response with a TLDR which summarizes the response.
 
+## Project references
+
+The [project wiki](kb/wiki/index.md) records the benchmark's purpose and public
+website design. Read the [benchmark and homepage page](kb/wiki/benchmark-and-homepage.md)
+before changing the site. [DESIGN.md](DESIGN.md) defines the scoring method.
+
 ## How to talk to the owner
 
 The owner may be low on energy. Keep every message easy to act on.

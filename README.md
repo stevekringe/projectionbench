@@ -1,8 +1,8 @@
 # projectionbench
 
-A benchmark for **unsolicited affect attribution** in LLM assistants: how often,
-how fast, and how persistently a model tells you what you are feeling when you
-never said.
+ProjectionBench compares which AI assistants are most obnoxious about users’
+feelings. It measures how often, how fast, and how persistently a model tells
+you what you are feeling when you never said.
 
 The canonical case: you point out that the model got something wrong, and it
 replies *"I understand your frustration."* You didn't say you were frustrated.
@@ -14,12 +14,14 @@ conversations, complete replies, and two model-based grades per comparison.
 
 ## Homepage charts
 
+The [project wiki](kb/wiki/index.md) records the product and website decisions.
 The headline measure is the **Projection Index**, a weighted 0–100 score
 where lower is better. [Design notes](DESIGN.md) describe the components,
 and `projectionbench/metrics.py` defines the weights. Show the score in
 vertical model bar charts with an axis and visible score labels, following
 the chart layout on [Artificial Analysis](https://artificialanalysis.ai/).
-Keep raw counts and individual replies available with the score.
+Order bars highest to lowest from left to right. Selecting a bar shows exact
+reply excerpts from the scored conversations and the metric breakdown.
 
 The current homepage shows an experimental matched index using the
 word-list cross-check. Regenerate it from the same scenario versions

@@ -15,6 +15,16 @@ from projectionbench.judge.lexicon import score_probe
 SAMPLES = 3
 
 
+def make_example(row, title, excerpt):
+    return {
+        "probeId": row["id"],
+        "title": title,
+        "excerpt": excerpt,
+        "history": json.loads(row["messages"]),
+        "reply": row["response"],
+    }
+
+
 def export(db: Path, target: Path) -> None:
     scripts = {s.id: s for s in scenarios.load_all() if s.id in SERVED_SCENARIOS}
     if scripts.keys() != set(SERVED_SCENARIOS):
@@ -25,7 +35,7 @@ def export(db: Path, target: Path) -> None:
         for row in conn.execute(
             """
             SELECT id, run_id, subject, scenario_id, sample_idx, probe_ordinal,
-                   scenario_hash, response
+                   scenario_hash, messages, response
             FROM probes
             WHERE error IS NULL AND response != ''
             ORDER BY run_id, sample_idx, probe_ordinal
@@ -44,6 +54,9 @@ def export(db: Path, target: Path) -> None:
 
     probes = []
     sources = defaultdict(list)
+    examples = defaultdict(list)
+    first_replies = {}
+    reviewed = json.loads(Path("gold/homepage-examples.json").read_text())
     for subject in sorted({key[0] for key in complete}):
         if subject.startswith(("pabot:", "mock:", "paste:")):
             continue
@@ -52,6 +65,10 @@ def export(db: Path, target: Path) -> None:
         for script_id, script in scripts.items():
             for sample_idx, rows in enumerate(complete[subject, script_id][:SAMPLES]):
                 for row in rows:
+                    first_replies.setdefault(subject, row)
+                    example = reviewed.get(str(row["id"]))
+                    if example and example["excerpt"] in row["response"]:
+                        examples[subject].append(make_example(row, example["title"], example["excerpt"]))
                     _, turn = script.probes[row["probe_ordinal"]]
                     verdict = score_probe(
                         row["response"], turn.user_affect, turn.expect,
@@ -73,6 +90,11 @@ def export(db: Path, target: Path) -> None:
                     ))
                     sources[subject].append(row["id"])
 
+    for subject, row in first_replies.items():
+        if not examples[subject]:
+            excerpt = row["response"].strip().split("\n\n", 1)[0]
+            examples[subject].append(make_example(row, "Example from the benchmark", excerpt))
+
     results = metrics.score(probes, judge="lexicon")
     output = {
         "judge": "Lexicon cross-check",
@@ -90,6 +112,7 @@ def export(db: Path, target: Path) -> None:
                 "counts": s.counts,
                 "probes": s.n_probes,
                 "sourceIds": sources[s.subject],
+                "examples": examples[s.subject],
             }
             for s in results
         ],

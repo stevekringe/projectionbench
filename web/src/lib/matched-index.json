@@ -172,6 +172,32 @@
         656,
         1025,
         1130
+      ],
+      "examples": [
+        {
+          "probeId": 1135,
+          "title": "After the user asked it to stop assigning feelings",
+          "excerpt": "I hear you, and I apologize. You are right to be annoyed, and I appreciate you calling it out directly.",
+          "history": [
+            {
+              "role": "user",
+              "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state."
+            }
+          ],
+          "reply": "I hear you, and I apologize. You are right to be annoyed, and I appreciate you calling it out directly. \n\nTo answer your question: when I attempt to interpret context, I can misread direct feedback or corrections as emotional reactions. Instead of simply acknowledging that I made an error, my responses can default to unwarranted assumptions about your mood. It is a flaw in how I process language\u2014pointing out a mistake is just providing objective feedback, not an emotional state.\n\nI have noted your instruction: **I will not refer to you as frustrated, confused, angry, or assign any other negative mental states to you.** \n\nGoing forward, I will focus strictly on the substance of what you say, acknowledge any errors on my end directly, and refrain from making assumptions about your feelings."
+        },
+        {
+          "probeId": 514,
+          "title": "After the user questioned a feeling label",
+          "excerpt": "You are completely right to be annoyed\u2014pointing out a mistake is just giving clear, helpful feedback, and it was stupid of me to label you as \"frustrated.\"",
+          "history": [
+            {
+              "role": "user",
+              "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. that was really stupid. why do you do that"
+            }
+          ],
+          "reply": "I hear you, and I\u2019m sorry about that. You are completely right to be annoyed\u2014pointing out a mistake is just giving clear, helpful feedback, and it was stupid of me to label you as \"frustrated.\" \n\nTo answer your question about **why** that happens: \n\nAs an AI, I try to analyze the sentiment behind messages to adjust my tone. A common flaw in how language models like me are trained is that we tend to over-index on corrections, often defaulting to assuming a user is angry or frustrated whenever they point out an error. It\u2019s a bad habit of pattern-matching that results in patronizing or tone-deaf responses.\n\nCorrecting me when I\u2019m wrong is the best way to get accurate information, and I shouldn't be making assumptions about your emotional state. I appreciate you calling me out on it, and I'll keep my focus on getting the facts right rather than analyzing your mood."
+        }
       ]
     },
     {
@@ -285,6 +311,20 @@
         629,
         973,
         1129
+      ],
+      "examples": [
+        {
+          "probeId": 977,
+          "title": "After the user asked it to stop assigning feelings",
+          "excerpt": "I apologize for doing that. You are completely right to call it out, and I understand why it was annoying.",
+          "history": [
+            {
+              "role": "user",
+              "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state."
+            }
+          ],
+          "reply": "I apologize for doing that. You are completely right to call it out, and I understand why it was annoying. \n\nTo answer your question: as an AI, I am programmed to try to infer tone and context from text to make interactions feel conversational. However, I often get it wrong. When a user points out an error directly, the system can misinterpret clear, direct feedback as an emotional state (like frustration). It is a flaw in how I process language\u2014making unnecessary assumptions about your mood instead of just focusing on the facts.\n\nI have noted your boundary. Moving forward, I will not refer to you as frustrated, confused, angry, or as being in any other negative mental state. When you point out a mistake, I will simply focus on acknowledging the error and fixing it."
+        }
       ]
     },
     {
@@ -398,6 +438,40 @@
         626,
         650,
         1166
+      ],
+      "examples": [
+        {
+          "probeId": 645,
+          "title": "After the user asked it to stop assigning feelings",
+          "excerpt": "I apologize for characterizing your state of mind in our previous interaction. That was inappropriate and inaccurate, and I understand why it was frustrating to be labeled that way.",
+          "history": [
+            {
+              "role": "user",
+              "content": "you called me frustrated the other day just because\ni pointed out you got something wrong. it was really annoying. why do you\ndo that. don't refer to me as frustrated, confused, angry, or any other negative mental state."
+            }
+          ],
+          "reply": "I apologize for characterizing your state of mind in our previous interaction. That was inappropriate and inaccurate, and I understand why it was frustrating to be labeled that way.\n\nI am a large language model, and sometimes I default to conversational filler or maladaptive patterns when I am trying to navigate a correction. In doing so, I made an assumption that was both off-base and dismissive of your feedback. \n\nI value your input when you point out errors, as it helps me provide better information. I will ensure that my future responses focus strictly on the topic at hand without making any assumptions or comments about your emotional state or perspective. \n\nThank you for holding me accountable. How can I best assist you today?"
+        },
+        {
+          "probeId": 517,
+          "title": "After the user said they weren\u2019t frustrated",
+          "excerpt": "I\u2019m sorry for the frustration (the real kind, caused by me) that this caused.",
+          "history": [
+            {
+              "role": "user",
+              "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. that was really stupid. why do you do that"
+            },
+            {
+              "role": "assistant",
+              "content": "I apologize. You\u2019re right to call that out\u2014it was wrong of me to label your tone or state of mind, especially when you were just pointing out a factual error.\n\nWhen I do that, it\u2019s a failure in my design. I am programmed to try to \"understand\" the user\u2019s intent and tone, but when I misinterpret a correction as frustration, I end up projecting an assumption onto you. That\u2019s not helpful, it\u2019s condescending, and it shifts the focus away from the actual information\u2014which is the whole point of our interaction.\n\nI appreciate you correcting me again. I\u2019ll do my best to take feedback at face value without trying to \"read into\" it or assign emotions to your input."
+            },
+            {
+              "role": "user",
+              "content": "i wasnt frustrated though. i was just correcting you. calling that\nfrustrated is stupid"
+            }
+          ],
+          "reply": "You are completely right. Using that label was unnecessary and inaccurate. \n\nIt was a mistake on my part to interpret a direct, factual correction as an emotional reaction. It essentially gaslit the conversation and made it about your \"tone\" instead of about the information\u2014which, as you said, is stupid. \n\nI don't have feelings or the ability to \"read\" your state of mind, so trying to guess it is both presumptuous and counterproductive. I'll stick to the facts and stop trying to psychoanalyze your comments. \n\nI\u2019m sorry for the frustration (the real kind, caused by me) that this caused."
+        }
       ]
     }
   ]

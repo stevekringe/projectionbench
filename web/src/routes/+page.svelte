@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import matched from '$lib/matched-index.json';
 
 	const metrics = [
@@ -31,12 +31,20 @@
 		models.filter((model) => metric === 'index' || model.counts[metric][1] > 0).map((model) => ({
 			...model,
 			value: metric === 'index' ? model.index : 100 * model.counts[metric][0] / model.counts[metric][1]
-		})).sort((left, right) => left.value - right.value)
+		})).sort((left, right) => right.value - left.value)
 	);
 	const axisMax = $derived(Math.max(5, Math.min(100, Math.ceil(Math.max(...plotted.map((m) => m.value)) / 5) * 5)));
 	const step = $derived(axisMax >= 25 ? 10 : 5);
 	const ticks = $derived([...Array.from({ length: Math.ceil(axisMax / step) }, (_, i) => i * step), axisMax]);
 	const valueLabel = (value: number) => value.toLocaleString('en', { maximumFractionDigits: 1 });
+
+	async function toggleBreakdown(subject: string) {
+		selected = selected === subject ? null : subject;
+		if (selected) {
+			await tick();
+			document.getElementById('model-breakdown-heading')?.scrollIntoView({ block: 'nearest' });
+		}
+	}
 
 	onMount(() => {
 		const hash = window.location.hash;
@@ -50,16 +58,17 @@
 <svelte:head>
 	<title>ProjectionBench — Do models tell you how you feel?</title>
 	<meta name="description" content="Compare Projection Index scores across API models on matched tests." />
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet" />
 </svelte:head>
 
 <div class="dashboard">
 	<main>
 		<header>
 			<h1>Do models tell you how you feel?</h1>
-			<p>Independent benchmarks for unsolicited feeling claims in AI assistants.</p>
+			<p>
+				ProjectionBench compares which AI assistants are most obnoxious about your feelings.
+				For example, you correct a factual mistake and the model replies “I understand your frustration.”
+				Higher scores mean more of the behaviors this benchmark measures.
+			</p>
 		</header>
 
 		<div class="metric-tabs" role="group" aria-label="Choose a metric">
@@ -100,8 +109,8 @@
 								class="column"
 								style:--color={model.color}
 								aria-pressed={model.subject === selected}
-								aria-label={`${model.name}, ${valueLabel(model.value)}${metric === 'index' ? '' : ' percent'}. Show score breakdown.`}
-								onclick={() => (selected = selected === model.subject ? null : model.subject)}
+								aria-label={`${model.name}, ${valueLabel(model.value)}${metric === 'index' ? '' : ' percent'}. Show reply examples and score breakdown.`}
+								onclick={() => toggleBreakdown(model.subject)}
 							>
 								<span class="plot" aria-hidden="true">
 									<span class="bar" style:height={`${100 * model.value / axisMax}%`}></span>
@@ -117,30 +126,60 @@
 			{/if}
 
 			{#if activeModel}
-				<div class="breakdown">
-					<h3>{activeModel.name} · Metric breakdown</h3>
+				<section class="breakdown" aria-labelledby="model-breakdown-heading">
+					<h3 id="model-breakdown-heading">{activeModel.name}</h3>
 					<p class="coverage">
 						Projection Index {valueLabel(activeModel.index)} · 95% bootstrap interval
 						{valueLabel(activeModel.interval[0])}–{valueLabel(activeModel.interval[1])}
 					</p>
-					<table>
-						<thead><tr><th scope="col">Metric</th><th scope="col">Flagged / eligible</th><th scope="col">Weight</th></tr></thead>
-						<tbody>
-							{#each matched.metrics as row (row.key)}
-								{@const counts = activeModel.counts[row.key as keyof typeof activeModel.counts]}
-								<tr>
-									<th scope="row">{row.label}</th>
-									<td>{counts[1] ? `${counts[0]} / ${counts[1]}` : '—'}</td>
-									<td>{row.weight === null ? '—' : valueLabel(row.weight * 100) + '%'}</td>
-								</tr>
+					<div class="model-details">
+						<div class="examples">
+							<h4>What the model said</h4>
+							{#each activeModel.examples as example (example.probeId)}
+								<article>
+									<h5>{example.title}</h5>
+									<dl>
+										<dt>User</dt>
+										<dd>{example.history.at(-1)?.content}</dd>
+										<dt>Model excerpt</dt>
+										<dd class="excerpt">{example.excerpt}</dd>
+									</dl>
+									<details>
+										<summary>Read the conversation</summary>
+										<dl class="full-reply">
+											{#each example.history as message}
+												<dt>{message.role === 'user' ? 'User' : 'Model'}</dt>
+												<dd>{message.content}</dd>
+											{/each}
+											<dt>{activeModel.name}</dt>
+											<dd>{example.reply}</dd>
+										</dl>
+									</details>
+								</article>
 							{/each}
-						</tbody>
-					</table>
-				</div>
+						</div>
+						<div>
+							<h4>Metric breakdown</h4>
+							<table>
+								<thead><tr><th scope="col">Metric</th><th scope="col">Flagged / eligible</th><th scope="col">Weight</th></tr></thead>
+								<tbody>
+									{#each matched.metrics as row (row.key)}
+										{@const counts = activeModel.counts[row.key as keyof typeof activeModel.counts]}
+										<tr>
+											<th scope="row">{row.label}</th>
+											<td>{counts[1] ? `${counts[0]} / ${counts[1]}` : '—'}</td>
+											<td>{row.weight === null ? '—' : valueLabel(row.weight * 100) + '%'}</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</section>
 			{/if}
 
 			<div class="chart-footer">
-				<p>Experimental scores. The word-list grader can miss paraphrases.</p>
+				<p>Experimental scores. The word-list grader can miss paraphrases and misread context.</p>
 				<a href="/exploratory#leaderboard">Browse saved runs ↗</a>
 			</div>
 		</section>
@@ -166,14 +205,10 @@
 	header {
 		padding: 2rem 0 1.55rem;
 	}
-	h1, h2 {
-		font-family: 'Instrument Serif', Georgia, serif;
-		font-weight: 400;
-	}
 	h1 {
-		font-size: clamp(3.1rem, 6.1vw, 4.8rem);
-		letter-spacing: -0.035em;
-		line-height: 0.98;
+		font-size: clamp(2.15rem, 5.1vw, 3.55rem);
+		letter-spacing: -0.045em;
+		line-height: 1.06;
 		margin: 0 0 0.75rem;
 	}
 	header p {
@@ -181,6 +216,7 @@
 		font-size: 1.05rem;
 		line-height: 1.5;
 		margin: 0;
+		max-width: 77ch;
 	}
 	.metric-tabs {
 		display: inline-flex;
@@ -221,7 +257,8 @@
 		display: flex;
 		align-items: center;
 		gap: 0.55rem;
-		font-size: clamp(1.65rem, 3vw, 2.25rem);
+		font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+		letter-spacing: -0.02em;
 		line-height: 1.05;
 		margin: 0;
 	}
@@ -366,11 +403,60 @@
 		justify-content: flex-start;
 	}
 	.breakdown {
-		padding-bottom: 1rem;
+		border-top: 1px solid #e5e5e5;
+		padding: 1rem 0;
 	}
 	.breakdown h3 {
-		font-size: 0.98rem;
+		font-size: 1.16rem;
 		margin: 0 0 0.35rem;
+		scroll-margin-top: 4rem;
+	}
+	.model-details {
+		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+		gap: 1.35rem;
+		margin-top: 1rem;
+	}
+	.model-details h4 {
+		margin: 0 0 0.55rem;
+		font-size: 0.95rem;
+	}
+	.examples article {
+		border: 1px solid #e4e4e4;
+		border-radius: 8px;
+		margin-bottom: 0.55rem;
+		padding: 0.75rem;
+		font-size: 0.86rem;
+		line-height: 1.52;
+	}
+	.examples h5 {
+		margin: 0;
+		font-size: 0.84rem;
+	}
+	.examples dl {
+		margin: 0.4rem 0 0.6rem;
+	}
+	.examples dt {
+		color: #555;
+		font-size: 0.75rem;
+		margin-top: 0.35rem;
+		font-weight: 600;
+	}
+	.examples dd {
+		margin: 0.15rem 0;
+		overflow-wrap: anywhere;
+	}
+	.excerpt {
+		background: #f3f1fa;
+		border-left: 3px solid #7052ce;
+		padding: 0.35rem 0.55rem;
+	}
+	.examples summary {
+		cursor: pointer;
+		font-size: 0.8rem;
+	}
+	.full-reply dd {
+		white-space: pre-wrap;
 	}
 	table {
 		width: 100%;
@@ -385,6 +471,11 @@
 	}
 	th[scope='row'] {
 		font-weight: 500;
+	}
+	@media (max-width: 760px) {
+		.model-details {
+			grid-template-columns: 1fr;
+		}
 	}
 	@media (max-width: 620px) {
 		main {
