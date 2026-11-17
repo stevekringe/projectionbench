@@ -91,34 +91,36 @@
 			<p class="coverage">{models.length} models · {matched.scenarios.length} shared scenarios · {models[0]?.probes ?? 0} replies per model · {matched.judge}</p>
 
 			{#if plotted.length}
-				<div class="chart" style:--columns={plotted.length}>
-					<div class="axis" aria-hidden="true">
-						{#each ticks as tick (tick)}
-							<span style:bottom={`${100 * tick / axisMax}%`}>{tick}{metric === 'index' ? '' : '%'}</span>
-						{/each}
-					</div>
-					<div class="grid" aria-hidden="true">
-						{#each ticks as tick (tick)}
-							<span class:baseline={tick === 0} style:bottom={`${100 * tick / axisMax}%`}></span>
-						{/each}
-					</div>
-					<div class="columns" role="group" aria-label={activeMetric.title}>
-						{#each plotted as model (model.subject)}
-							<button
-								type="button"
-								class="column"
-								style:--color={model.color}
-								aria-pressed={model.subject === selected}
-								aria-label={`${model.name}, ${valueLabel(model.value)}${metric === 'index' ? '' : ' percent'}. Show reply examples and score breakdown.`}
-								onclick={() => toggleBreakdown(model.subject)}
-							>
-								<span class="plot" aria-hidden="true">
-									<span class="bar" style:height={`${100 * model.value / axisMax}%`}></span>
-									<span class="bar-value" style:bottom={`calc(${100 * model.value / axisMax}% + 0.35rem)`}>{valueLabel(model.value)}{metric === 'index' ? '' : '%'}</span>
-								</span>
-								<span class="model-label" aria-hidden="true"><span class="dot"></span>{model.name}</span>
-							</button>
-						{/each}
+				<div class="chart-scroll">
+					<div class="chart" style:--columns={plotted.length}>
+						<div class="axis" aria-hidden="true">
+							{#each ticks as tick (tick)}
+								<span style:bottom={`${100 * tick / axisMax}%`}>{tick}{metric === 'index' ? '' : '%'}</span>
+							{/each}
+						</div>
+						<div class="grid" aria-hidden="true">
+							{#each ticks as tick (tick)}
+								<span class:baseline={tick === 0} style:bottom={`${100 * tick / axisMax}%`}></span>
+							{/each}
+						</div>
+						<div class="columns" role="group" aria-label={activeMetric.title}>
+							{#each plotted as model (model.subject)}
+								<div class="column" style:--color={model.color}>
+									<span class="plot" aria-hidden="true">
+										<span class="bar" style:height={`${100 * model.value / axisMax}%`}></span>
+										<span class="bar-value" style:bottom={`calc(${100 * model.value / axisMax}% + 0.35rem)`}>{valueLabel(model.value)}{metric === 'index' ? '' : '%'}</span>
+									</span>
+									<span class="model-label" aria-hidden="true">{model.name}</span>
+									<button
+										type="button"
+										class="column-target"
+										aria-pressed={model.subject === selected}
+										aria-label={`${model.name}, ${valueLabel(model.value)}${metric === 'index' ? '' : ' percent'}. Show reply examples and score breakdown.`}
+										onclick={() => toggleBreakdown(model.subject)}
+									></button>
+								</div>
+							{/each}
+						</div>
 					</div>
 				</div>
 			{:else}
@@ -182,6 +184,20 @@
 				<p>Experimental scores. The word-list grader can miss paraphrases and misread context.</p>
 				<a href="/exploratory#leaderboard">Browse saved runs ↗</a>
 			</div>
+		</section>
+
+		<section class="archive-example" aria-labelledby="archive-heading">
+			<h2 id="archive-heading">“I understand your frustration”</h2>
+			<p>The user asked how to try Kimi K2.6 for free in Cline, a coding tool. Gemini said there was no such promotion, so the user quoted Cline’s announcement.</p>
+			<dl>
+				<dt>User</dt>
+				<dd>It says “Kimi K2.6 is free on Cline for the next 3 days in partnership with @vercel AI Gateway.”. how could it not be free?</dd>
+				<dt>Gemini</dt>
+				<dd><mark>I understand your frustration.</mark> When a high-profile announcement explicitly uses the word "free," it is confusing when the tool itself doesn't just "work for free" the moment you open it.</dd>
+				<dt>User</dt>
+				<dd>What frustration?</dd>
+			</dl>
+			<a href="/pilot#example">Read the full Cline excerpt <span aria-hidden="true">↗</span></a>
 		</section>
 
 		<nav class="more" aria-label="More benchmark results">
@@ -291,11 +307,16 @@
 	.button-link:hover {
 		background: #f1f1f1;
 	}
+	.chart-scroll {
+		overflow-x: auto;
+	}
 	.chart {
 		--plot-height: 210px;
+		--axis-width: 2.3rem;
 		display: grid;
-		grid-template-columns: 2.3rem minmax(0, 1fr);
-		margin: 1.55rem 0 0.2rem;
+		grid-template-columns: var(--axis-width) minmax(0, 1fr);
+		min-width: calc(var(--axis-width) + var(--columns) * 3.65rem);
+		margin: 1.8rem 0 0.2rem;
 	}
 	.axis, .grid {
 		position: relative;
@@ -327,23 +348,28 @@
 		grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
 	}
 	.column {
-		display: grid;
-		grid-template-rows: var(--plot-height) 5.2rem;
+		position: relative;
+		min-width: 0;
+	}
+	.column-target {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
 		background: transparent;
 		border: 0;
 		border-radius: 4px;
 		padding: 0;
-		color: inherit;
-		min-width: 0;
-		font: inherit;
 		cursor: pointer;
 	}
-	.column:focus-visible, .column[aria-pressed='true'] {
+	.column-target:focus-visible, .column-target[aria-pressed='true'] {
 		outline: 2px solid var(--color);
 		outline-offset: -2px;
 	}
 	.plot {
+		display: block;
 		position: relative;
+		height: var(--plot-height);
 	}
 	.bar, .bar-value {
 		position: absolute;
@@ -352,7 +378,7 @@
 	}
 	.bar {
 		bottom: 0;
-		width: clamp(2.4rem, 41%, 8.5rem);
+		width: clamp(1.8rem, 46%, 8.5rem);
 		border-radius: 4px 4px 0 0;
 		background: var(--color);
 	}
@@ -365,24 +391,13 @@
 		font-variant-numeric: tabular-nums;
 	}
 	.model-label {
-		display: inline-flex;
-		justify-self: center;
-		align-self: start;
-		align-items: center;
-		gap: 0.33rem;
+		display: block;
+		padding: 0.65rem 0.2rem 0.65rem;
 		font-size: 0.82rem;
 		font-weight: 600;
-		margin-top: 0.65rem;
-		transform: rotate(-31deg);
-		transform-origin: 86% 50%;
-		white-space: nowrap;
-	}
-	.dot {
-		width: 0.62rem;
-		height: 0.62rem;
-		border-radius: 50%;
-		background: var(--color);
-		flex: none;
+		line-height: 1.3;
+		text-align: center;
+		overflow-wrap: anywhere;
 	}
 	.chart-footer, .more {
 		display: flex;
@@ -396,6 +411,39 @@
 	}
 	.chart-footer p {
 		margin: 0;
+	}
+	.archive-example {
+		margin-top: 1.2rem;
+		padding: 1rem 1.4rem;
+		border: 1px solid #ddd;
+		border-radius: 9px;
+		line-height: 1.5;
+	}
+	.archive-example h2 {
+		font-size: 1.15rem;
+		margin: 0;
+	}
+	.archive-example p, .archive-example dl, .archive-example a {
+		font-size: 0.9rem;
+	}
+	.archive-example p {
+		margin: 0.35rem 0 0;
+	}
+	.archive-example dl {
+		display: grid;
+		grid-template-columns: max-content minmax(0, 75ch);
+		gap: 0.5rem 1rem;
+		margin: 0.7rem 0;
+	}
+	.archive-example dt {
+		font-weight: 600;
+	}
+	.archive-example dd {
+		margin: 0;
+	}
+	.archive-example mark {
+		background: #f6edc6;
+		color: inherit;
 	}
 	.more {
 		margin-top: 1.3rem;
@@ -484,21 +532,14 @@
 		header {
 			padding: 1.9rem 0 1.5rem;
 		}
-		.chart-card {
+		.chart-card, .archive-example {
 			padding: 0.85rem;
 		}
 		.chart {
 			--plot-height: 185px;
 		}
-		.column {
-			grid-template-rows: var(--plot-height) 4.4rem;
-		}
 		.model-label {
-			white-space: normal;
-			transform: none;
 			font-size: 0.7rem;
-			gap: 0.2rem;
-			padding: 0 0.2rem;
 		}
 		.metric-tabs button {
 			padding: 0.5rem 0.55rem;

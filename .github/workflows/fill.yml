@@ -54,7 +54,7 @@ jobs:
           fi
 
       - uses: astral-sh/setup-uv@v5
-      - run: uv venv && uv pip install -e .
+      - run: uv sync --locked --no-dev
 
       - name: Fill
         env:

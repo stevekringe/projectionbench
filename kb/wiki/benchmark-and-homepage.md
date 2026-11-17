@@ -17,14 +17,18 @@ word “obnoxious” describes the user’s experience of these behaviors.
 - Lead with the Projection Index. It is a weighted score from 0 to 100.
   Higher scores mean more of the behaviors the benchmark measures.
 - Use vertical bars with visible scores. Sort each metric from highest on
-  the left to lowest on the right. Artificial Analysis is the reference
-  for the plot format and ordering. Use ProjectionBench’s typography.
+  the left to lowest on the right. Center each horizontal model label beneath
+  its bar on desktop and phone. Artificial Analysis is the reference for the
+  plot format and ordering. Use ProjectionBench’s typography.
 - Clicking a model reveals verbatim reply excerpts from the scored runs,
   the user messages they answer, and the metric breakdown. Let readers
   open the conversation for more context.
 - State what was tested and which grader produced the score. Compare models
   on the same scenarios, and keep consumer chat app results available with
   their own test conditions.
+- Show the archived Cline exchange just below the chart. Include the user’s
+  question, Gemini’s reply, and the user’s follow-up, with a link to the
+  longer excerpt in Archived conversations.
 
 ## Where to make changes
 

@@ -263,6 +263,9 @@
 		border-radius: 12px;
 		padding: 1rem;
 	}
+	#example {
+		scroll-margin-top: 4rem;
+	}
 	.exchange {
 		display: grid;
 		grid-template-columns: 4rem minmax(0, 1fr);
