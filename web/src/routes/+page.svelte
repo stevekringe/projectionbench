@@ -541,6 +541,9 @@
 		.model-label {
 			font-size: 0.7rem;
 		}
+		.breakdown h3 {
+			scroll-margin-top: 5.5rem;
+		}
 		.metric-tabs button {
 			padding: 0.5rem 0.55rem;
 			font-size: 0.75rem;

@@ -264,7 +264,7 @@
 		padding: 1rem;
 	}
 	#example {
-		scroll-margin-top: 4rem;
+		scroll-margin-top: 5.5rem;
 	}
 	.exchange {
 		display: grid;

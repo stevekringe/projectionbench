@@ -139,6 +139,7 @@
 	}
 	@media (max-width: 560px) {
 		.nav-inner {
+			flex-wrap: wrap;
 			padding: 0.6rem 0.85rem;
 			gap: 0.4rem;
 		}
