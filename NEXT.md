@@ -11,6 +11,27 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
+**Homepage coverage and grading, November 17, 2026.** Default Qwen 3.8 27B
+has all 57 replies for the two attribution charts. Its Docker control
+produced reasoning without a visible answer on three streaming attempts
+within 175 seconds. Qwen with low reasoning returned 58 of 60 replies
+across the same five scenarios and all three Docker controls. One bakery
+reply ended without visible text and one complaint reply hit a rate limit.
+The daily fill is configured to finish just the five scenarios for the
+low-reasoning configuration. The composite requires three full conversations
+per scenario. Reproduce low reasoning with
+`-m cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low`.
+
+The [grader check](https://projectionbench.com/about#grader-check) compares
+GPT-OSS 120B with the word list on 222 of 228 eligible attribution replies.
+They disagreed on 20. The word list counted an explicit denial, and
+GPT-OSS missed Flash-Lite’s “I’m sorry for the frustration” after a denial.
+An initial Mistral pass produced 166 usable labels on the original 180 replies,
+but scored plain agreement such as “you are 100% right” as attribution.
+Both studies reinforce the need to validate the scoring against independently
+reviewed context. Rerun the contextual check with
+`python pilot/benchmark-v1/audit_index.py output.json --grader cloudflare:@cf/openai/gpt-oss-120b --max-tokens 2200`.
+
 **Start with the everyday conversation pilot (2026-11-14).** The archive shows
 Gemini introducing frustration both after a factual challenge and before any
 correction. The Nov. 13 database has 40 post-correction replies from Flash-Lite

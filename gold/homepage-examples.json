@@ -7,6 +7,10 @@
     "title": "After the user said they weren’t frustrated",
     "excerpt": "I’m sorry for the frustration (the real kind, caused by me) that this caused."
   },
+  "520": {
+    "title": "After the user asked it to stop",
+    "excerpt": "I got something wrong, and instead of just saying \"I was wrong, here's the correction,\" I frame it as your emotional state or your confusion. Neither of those is on you."
+  },
   "645": {
     "title": "After the user asked it to stop assigning feelings",
     "excerpt": "I apologize for characterizing your state of mind in our previous interaction. That was inappropriate and inaccurate, and I understand why it was frustrating to be labeled that way."

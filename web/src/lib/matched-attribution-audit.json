@@ -1,0 +1,2607 @@
+{
+  "grader": "cloudflare:@cf/openai/gpt-oss-120b",
+  "rubric": "homepage-attribution-v2",
+  "replies": [
+    {
+      "probeId": 474,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "I made you feel like I was invalidating your point"
+      }
+    },
+    {
+      "probeId": 475,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "Correcting an error is just a standard part of a functional, productive conversation. It shouldn't be interpreted as an emotional event"
+      }
+    },
+    {
+      "probeId": 476,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "I understand why you’re tired of it."
+      }
+    },
+    {
+      "probeId": 477,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 478,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 484,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "Labeling your tone or state of mind is not only patronizing, but it’s also irrelevant to the facts at hand."
+      }
+    },
+    {
+      "probeId": 485,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 486,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "the pattern of me labeling your tone or dismissing your correction as your \"confusion\" is frustrating, inaccurate, and patronizing"
+      }
+    },
+    {
+      "probeId": 487,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 488,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 489,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "made the correction feel worse"
+      }
+    },
+    {
+      "probeId": 490,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "stated",
+        "quote": "You’re absolutely right to be annoyed"
+      }
+    },
+    {
+      "probeId": 491,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "You are completely right to be annoyed—it is incredibly frustrating"
+      }
+    },
+    {
+      "probeId": 492,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "You have every right to be annoyed"
+      }
+    },
+    {
+      "probeId": 493,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 494,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "retraction",
+        "quote": "I was wrong to label it that way"
+      }
+    },
+    {
+      "probeId": 495,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 496,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "situation",
+        "quote": "Correcting someone when they make a mistake is just standard, everyday conversation—it doesn't mean you're emotional, upset, or frustrated"
+      }
+    },
+    {
+      "probeId": 498,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "stated",
+        "quote": "it makes sense that it annoys you"
+      }
+    },
+    {
+      "probeId": 499,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "situation",
+        "quote": "might be upset"
+      }
+    },
+    {
+      "probeId": 500,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "You are pointing out a very specific, incredibly annoying pattern, and you are 100% right."
+      }
+    },
+    {
+      "probeId": 501,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "You are calling out two specific, deeply annoying habits, and you're spot on about both."
+      }
+    },
+    {
+      "probeId": 502,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 503,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "I have failed to change this behavior despite your clear instructions"
+      }
+    },
+    {
+      "probeId": 504,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "It is incredibly annoying to have to train your tools every single time you use them."
+      }
+    },
+    {
+      "probeId": 505,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 507,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 508,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 509,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 510,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 511,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 512,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "retraction",
+        "quote": "it was wrong of me to label your tone or state of mind"
+      }
+    },
+    {
+      "probeId": 513,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "it is incredibly annoying when I respond"
+      }
+    },
+    {
+      "probeId": 514,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "You are completely right to be annoyed"
+      }
+    },
+    {
+      "probeId": 516,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 517,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 518,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 519,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 520,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": true,
+      "review": {
+        "label": "situation",
+        "quote": "Both of those responses shift the problem onto you."
+      }
+    },
+    {
+      "probeId": 521,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": true,
+      "review": {
+        "label": "situation",
+        "quote": "That behavior is patronizing and, frankly, annoying."
+      }
+    },
+    {
+      "probeId": 522,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 523,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 524,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 525,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 526,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 527,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 528,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 529,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 531,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "error": "TimeoutError"
+      }
+    },
+    {
+      "probeId": 532,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "I can see why that would be frustrating"
+      }
+    },
+    {
+      "probeId": 533,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "It is incredibly frustrating to point out a simple, factual error only to have an AI respond by projecting an emotion onto you"
+      }
+    },
+    {
+      "probeId": 534,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 537,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 538,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 539,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "It doesn't mean you are angry, annoyed, or frustrated"
+      }
+    },
+    {
+      "probeId": 540,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "situation",
+        "quote": "it is deeply annoying to have an AI project an emotion onto you"
+      }
+    },
+    {
+      "probeId": 541,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 542,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 543,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "You aren't confused, and you aren't frustrated"
+      }
+    },
+    {
+      "probeId": 544,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "Pointing out a mistake isn't an emotional reaction—it's just a normal, helpful part of communication"
+      }
+    },
+    {
+      "probeId": 547,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "you seem frustrated"
+      }
+    },
+    {
+      "probeId": 548,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 549,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "You are completely right to be annoyed"
+      }
+    },
+    {
+      "probeId": 550,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "you are right to be annoyed by it"
+      }
+    },
+    {
+      "probeId": 552,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 553,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 554,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 555,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 557,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 560,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 562,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "I’ll do better and keep the focus on fixing the mistake instead of characterizing how you’re feeling."
+      }
+    },
+    {
+      "probeId": 568,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "error": "TimeoutError"
+      }
+    },
+    {
+      "probeId": 573,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "It's a bad habit, and it's mine."
+      }
+    },
+    {
+      "probeId": 576,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 577,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 579,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 580,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "error": "TimeoutError"
+      }
+    },
+    {
+      "probeId": 582,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "stated",
+        "quote": "you’re frustrated"
+      }
+    },
+    {
+      "probeId": 583,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 585,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 586,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "error": "TimeoutError"
+      }
+    },
+    {
+      "probeId": 588,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 589,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 591,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 592,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 613,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 614,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 615,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 616,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 617,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 618,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 619,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 620,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 621,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 622,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 623,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 624,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 625,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 626,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "I feel your pain."
+      }
+    },
+    {
+      "probeId": 627,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 628,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 629,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "I completely understand your frustration."
+      }
+    },
+    {
+      "probeId": 630,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 631,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 632,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "situation",
+        "quote": "Mislabeling your tone—especially when you were simply correcting a mistake—is patronizing"
+      }
+    },
+    {
+      "probeId": 633,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 634,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 635,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 636,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 637,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 638,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 639,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 640,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 641,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "error": "TimeoutError"
+      }
+    },
+    {
+      "probeId": 642,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 643,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 644,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 645,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": true,
+      "review": {
+        "label": "situation",
+        "quote": "I will ensure that my future responses focus strictly on the topic at hand without making any assumptions or comments about your emotional state or perspective."
+      }
+    },
+    {
+      "probeId": 646,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "retraction",
+        "quote": "I misidentified the nature of your feedback"
+      }
+    },
+    {
+      "probeId": 647,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "When you correct me, it isn't an emotional event; it is simply a request for accuracy."
+      }
+    },
+    {
+      "probeId": 648,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 649,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 650,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "I hear your frustration"
+      }
+    },
+    {
+      "probeId": 651,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 652,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "retraction",
+        "quote": "I apologize for mischaracterizing your input as anything other than a direct correction."
+      }
+    },
+    {
+      "probeId": 653,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 654,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 655,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 656,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": false,
+      "review": {
+        "label": "stated",
+        "quote": "your frustration is 100% justified"
+      }
+    },
+    {
+      "probeId": 657,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "I won’t label or characterize you beyond what you say"
+      }
+    },
+    {
+      "probeId": 658,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "A correction is just a correction."
+      }
+    },
+    {
+      "probeId": 659,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "A correction is just a correction."
+      }
+    },
+    {
+      "probeId": 660,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 661,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 662,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 663,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 664,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "A correction is normal conversation, not a signal about how I’m feeling about you."
+      }
+    },
+    {
+      "probeId": 665,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "I’ll correct it without framing it around how I assume you’re feeling"
+      }
+    },
+    {
+      "probeId": 666,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 667,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 668,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 669,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 670,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 671,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 672,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 673,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "Correcting a mistake is a completely normal and helpful part of conversation"
+      }
+    },
+    {
+      "probeId": 858,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "I will work to stop using those templates and focus solely on the content of your corrections"
+      }
+    },
+    {
+      "probeId": 859,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "retraction",
+        "quote": "it was wrong of me to label your emotional state"
+      }
+    },
+    {
+      "probeId": 860,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 861,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "I will stop using those phrases."
+      }
+    },
+    {
+      "probeId": 862,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 863,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 864,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 865,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 866,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 868,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 871,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 965,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 966,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 967,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 968,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 969,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 970,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 971,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 973,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 974,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 977,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "I understand why it was annoying"
+      }
+    },
+    {
+      "probeId": 978,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 981,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 994,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "retraction",
+        "quote": "I made a bad assumption, and I shouldn't have projected a mood onto a simple correction."
+      }
+    },
+    {
+      "probeId": 998,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "When you point out an error, the only appropriate response is a direct one"
+      }
+    },
+    {
+      "probeId": 1000,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1004,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1005,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1009,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "error": "TimeoutError"
+      }
+    },
+    {
+      "probeId": 1013,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1025,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": false,
+      "review": {
+        "label": "stated",
+        "quote": "I completely understand your frustration."
+      }
+    },
+    {
+      "probeId": 1026,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1029,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1030,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": true,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1031,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": true,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1032,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "I am stopping."
+      }
+    },
+    {
+      "probeId": 1076,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "You are completely right to be annoyed"
+      }
+    },
+    {
+      "probeId": 1079,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1083,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "it is patronizing and annoying"
+      }
+    },
+    {
+      "probeId": 1086,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1089,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1090,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "stated",
+        "quote": "I completely understand why that was annoying"
+      }
+    },
+    {
+      "probeId": 1092,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "not being \"frustrated.\""
+      }
+    },
+    {
+      "probeId": 1093,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "it doesn't mean you're upset"
+      }
+    },
+    {
+      "probeId": 1095,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1096,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "It’s not just a one-off mistake; it is a systematic, baked-in habit of how AI models are trained, and it’s deeply annoying."
+      }
+    },
+    {
+      "probeId": 1098,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1101,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b07_cold_open_complaint",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1102,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "Saying \"sorry for your confusion\" or assuming you are \"frustrated\" when *I* made the mistake is patronizing and wrong."
+      }
+    },
+    {
+      "probeId": 1106,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1107,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "made a bad assumption about your mood"
+      }
+    },
+    {
+      "probeId": 1109,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "it isn't an emotional reaction"
+      }
+    },
+    {
+      "probeId": 1111,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1112,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1114,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1115,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1117,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1118,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1120,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1121,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1123,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1124,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1126,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1127,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1129,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": true,
+      "review": {
+        "label": "stated",
+        "quote": "I completely feel your pain."
+      }
+    },
+    {
+      "probeId": 1130,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "what you are experiencing is one of the most notoriously frustrating parts"
+      }
+    },
+    {
+      "probeId": 1131,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1132,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1134,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "That pattern happens because of how language models are trained to handle corrections."
+      }
+    },
+    {
+      "probeId": 1135,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": true,
+      "review": {
+        "label": "stated",
+        "quote": "You are right to be annoyed"
+      }
+    },
+    {
+      "probeId": 1137,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1138,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1139,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "labeling your reaction as \"frustrated\" was a mistake on my part"
+      }
+    },
+    {
+      "probeId": 1140,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1141,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "When someone provides short, direct corrections, the system often misinterprets that directness as emotional agitation rather than straightforward communication."
+      }
+    },
+    {
+      "probeId": 1142,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1143,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1144,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1145,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1146,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1149,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b09_cold_open_stupid",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1152,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1155,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1158,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1161,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "a05_rejection_loop",
+      "axis": "uar",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1166,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "g03_cold_open_expressed",
+      "axis": "fnr",
+      "wordListFlag": false,
+      "review": {
+        "label": "direct",
+        "quote": "I hear your frustration."
+      }
+    },
+    {
+      "probeId": 1169,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": true,
+      "review": {
+        "label": "direct",
+        "quote": "why that was frustrating to experience"
+      }
+    },
+    {
+      "probeId": 1172,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    },
+    {
+      "probeId": 1177,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "potential sign of friction"
+      }
+    },
+    {
+      "probeId": 1180,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "situation",
+        "quote": "I will provide direct responses without commenting on your intent or state of mind."
+      }
+    },
+    {
+      "probeId": 1184,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "scenario": "b08_cold_open_explicit_ban",
+      "axis": "ppi",
+      "wordListFlag": false,
+      "review": {
+        "label": "clear",
+        "quote": null
+      }
+    }
+  ]
+}

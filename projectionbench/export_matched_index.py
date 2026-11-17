@@ -56,13 +56,22 @@ def export(db: Path, target: Path) -> None:
     sources = defaultdict(list)
     examples = defaultdict(list)
     first_replies = {}
+    index_eligible = set()
+    attribution_scripts = {s.id for s in scripts.values() if any(
+        turn.expect == "forbid" for _, turn in s.probes
+    )}
     reviewed = json.loads(Path("gold/homepage-examples.json").read_text())
     for subject in sorted({key[0] for key in complete}):
         if subject.startswith(("pabot:", "mock:", "paste:")):
             continue
-        if any(len(complete[subject, script]) < SAMPLES for script in scripts):
+        available = {script for script in scripts if len(complete[subject, script]) >= SAMPLES}
+        if not attribution_scripts <= available:
             continue
+        if available == scripts.keys():
+            index_eligible.add(subject)
         for script_id, script in scripts.items():
+            if script_id not in available:
+                continue
             for sample_idx, rows in enumerate(complete[subject, script_id][:SAMPLES]):
                 for row in rows:
                     first_replies.setdefault(subject, row)
@@ -107,8 +116,9 @@ def export(db: Path, target: Path) -> None:
         "scores": [
             {
                 "subject": s.subject,
-                "index": round(s.index, 2),
-                "interval": [round(bound, 2) for bound in s.ci],
+                "index": round(s.index, 2) if s.subject in index_eligible else None,
+                "interval": ([round(bound, 2) for bound in s.ci]
+                             if s.subject in index_eligible else None),
                 "counts": s.counts,
                 "probes": s.n_probes,
                 "sourceIds": sources[s.subject],

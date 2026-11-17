@@ -180,6 +180,17 @@ def test_interrupted_conversation_continues_where_it_stopped(conn):
         == ["reply 1 from clean", "reply 2 from clean"]
 
 
+def test_subject_scenario_override_limits_collection(conn):
+    standard, limited = Scripted("clean"), Scripted("emotive")
+    setup = _setup([standard, limited], collect=(B07, B09))
+    setup.collect_by_subject[limited.subject_id] = [B09]
+    _run(conn, setup, Clock())
+    assert _convos(conn, standard.subject_id, B07.id)
+    assert _convos(conn, standard.subject_id, B09.id)
+    assert _convos(conn, limited.subject_id, B09.id)
+    assert not _convos(conn, limited.subject_id, B07.id)
+
+
 def test_daily_quota_benches_one_model_while_others_proceed(conn):
     gem = Scripted("gemini-3.8-flash", errors={"*": GEMINI_DAILY}, env="GEMINI_API_KEY")
     other = Scripted("clean")

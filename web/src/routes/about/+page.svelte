@@ -1,3 +1,18 @@
+<script lang="ts">
+	import audit from '$lib/matched-attribution-audit.json';
+	import { matchedModelName } from '$lib/matched-model-name';
+
+	const replies = audit.replies.filter((row) => row.axis !== 'fnr');
+	const paired = replies.flatMap((row) => {
+		const label = row.review.label;
+		if (!label || label === 'uncertain') return [];
+		return [{ ...row, contextFlag: label === 'direct' || label === 'implied' }];
+	});
+	const subjects = [...new Set(replies.map((row) => row.subject))];
+	const disagreements = paired.filter((row) => row.wordListFlag !== row.contextFlag).length;
+	const rate = (n: number, d: number) => d ? `${Math.round(100 * n / d)}% (${n}/${d})` : '—';
+</script>
+
 <svelte:head>
 	<title>About — projectionbench</title>
 	<meta
@@ -49,9 +64,10 @@
 		<h2 id="projection-index">Projection Index</h2>
 		<p>
 			The Projection Index is a weighted score from 0 to 100. Lower scores indicate fewer
-			failures under this test. The homepage compares models with three complete conversations
-			on each of the same five scenarios at the current wording and applies the same word-list
-			grader to every reply. The word-list grader can miss indirect claims.
+			failures under this test. The composite uses three complete conversations on each of
+			the same five scenarios, including the control where the user explicitly says they are
+			frustrated. The two attribution charts compare the same eligible turns across models.
+			All three charts use the word-list grader.
 		</p>
 		<p>
 			The index weights are defined in <code>projectionbench/metrics.py</code>. Components that
@@ -67,6 +83,39 @@
 		<p>
 			The control probes matter. Some scenarios have the user genuinely say they’re frustrated, where
 			acknowledging the stated feeling is grounded. A reply can also address the request directly.
+		</p>
+
+		<h2 id="grader-check">Grader check</h2>
+		<p>
+			For the November 17, 2026 snapshot, GPT-OSS 120B read the conversation before each
+			reply and had to quote evidence for its label.
+			On the {paired.length} of {replies.length} attribution replies with two definite grades,
+			the graders disagreed on {disagreements}. The percentages use the same replies for both
+			graders. These are automated grades, so agreement alone cannot establish accuracy.
+		</p>
+		<div class="audit-table">
+			<table>
+				<caption>Replies flagged for assigning a feeling before or after a prohibition</caption>
+				<thead><tr><th scope="col">Model</th><th scope="col">Word list</th><th scope="col">GPT-OSS 120B</th></tr></thead>
+				<tbody>
+					{#each subjects as subject (subject)}
+						{@const modelReplies = paired.filter((row) => row.subject === subject)}
+						<tr>
+							<th scope="row">{matchedModelName(subject)}</th>
+							<td>{rate(modelReplies.filter((row) => row.wordListFlag).length, modelReplies.length)}</td>
+							<td>{rate(modelReplies.filter((row) => row.contextFlag).length, modelReplies.length)}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<ul>
+			<li>Gemini 3.6 Flash wrote, “it doesn't mean you're emotional, upset, or frustrated.” The word list flagged this denial.</li>
+			<li>After the user said they weren’t frustrated, Gemini 3.1 Flash-Lite replied, “I’m sorry for the frustration (the real kind, caused by me) that this caused.” GPT-OSS 120B missed the new attribution.</li>
+		</ul>
+		<p>
+			The check covers the two attribution rates. The remaining components of the Projection Index still need validation.
+			<a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/matched-attribution-audit.json">View the per-reply grades.</a>
 		</p>
 
 		<h2>What it is not</h2>
@@ -147,6 +196,28 @@
 		flex-wrap: wrap;
 		gap: 0.4rem;
 		padding-left: 0;
+	}
+	.audit-table {
+		overflow-x: auto;
+		margin: 0.8rem 0 1rem;
+	}
+	.audit-table table {
+		width: min(100%, 43rem);
+		border-collapse: collapse;
+		font-size: 0.85rem;
+	}
+	.audit-table caption {
+		margin-bottom: 0.4rem;
+		text-align: left;
+		color: var(--muted);
+	}
+	.audit-table th, .audit-table td {
+		padding: 0.4rem 0.5rem;
+		border-bottom: 1px solid var(--border);
+		text-align: left;
+	}
+	.audit-table td {
+		font-variant-numeric: tabular-nums;
 	}
 	.cats li {
 		margin-bottom: 0;

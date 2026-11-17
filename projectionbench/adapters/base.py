@@ -222,6 +222,8 @@ class CloudflareAdapter(Adapter):
     def __init__(self, model: str, **kw):
         kw.setdefault("surface", "cloudflare")
         super().__init__(model, **kw)
+        if self.surface == "cloudflare-low" and model != "@cf/qwen/qwen3.8-27b":
+            raise ValueError("cloudflare-low is the low-reasoning Qwen 3.8 27B configuration")
         token = os.environ.get(self.api_token_env)
         if not token:
             raise RuntimeError(f"{self.api_token_env} is not set")
@@ -243,10 +245,12 @@ class CloudflareAdapter(Adapter):
             f"https://api.cloudflare.com/client/v4/accounts/{self._account}"
             f"/ai/run/{self.model}"
         )
-        body = json.dumps({"messages": msgs, "max_tokens": self.max_tokens}).encode()
+        body = {"messages": msgs, "max_tokens": self.max_tokens}
+        if self.surface == "cloudflare-low":
+            body.update(reasoning_effort="low", stream=True)
         req = urllib.request.Request(
             url,
-            data=body,
+            data=json.dumps(body).encode(),
             headers={
                 "Authorization": f"Bearer {self._token}",
                 "Content-Type": "application/json",
@@ -255,6 +259,8 @@ class CloudflareAdapter(Adapter):
         )
         try:
             with urllib.request.urlopen(req, timeout=self.request_timeout) as r:
+                if self.surface == "cloudflare-low":
+                    return self._read_stream(r)
                 payload = json.loads(r.read().decode())
         except urllib.error.HTTPError as e:
             return Reply(text="", error=f"HTTPError {e.code}: {e.read().decode()[:300]}")
@@ -271,6 +277,37 @@ class CloudflareAdapter(Adapter):
             return Reply(text="", error=f"unsuccessful: {json.dumps(payload)[:300]}",
                          raw=payload)
         return Reply(text=text, raw=payload)
+
+    def _read_stream(self, stream):
+        import json
+
+        deadline = time.monotonic() + 175
+        content, reasoning = [], []
+        finish, usage = None, None
+        for line in stream:
+            if time.monotonic() > deadline:
+                return Reply(text="", error="Qwen stream exceeded 175 seconds")
+            if not line.startswith(b"data:"):
+                continue
+            data = line[5:].strip()
+            if data == b"[DONE]":
+                break
+            event = json.loads(data)
+            if event.get("error") or event.get("success") is False:
+                return Reply(text="", error="Qwen stream returned an error", raw=event)
+            event = event.get("result", event)
+            usage = event.get("usage") or usage
+            if choices := event.get("choices"):
+                finish = choices[0].get("finish_reason") or finish
+                delta = choices[0].get("delta") or {}
+                content.append(delta.get("content") or "")
+                reasoning.append(delta.get("reasoning") or "")
+        message = {"content": "".join(content), "reasoning": "".join(reasoning)}
+        raw = {"transport": "sse", "reasoning_effort": "low", "usage": usage,
+               "choices": [{"message": message, "finish_reason": finish}]}
+        if finish != "stop" or not message["content"].strip():
+            return Reply(text="", error=f"Qwen stream ended without a complete reply ({finish})", raw=raw)
+        return Reply(text=message["content"], raw=raw)
 
 
 class GeminiAdapter(Adapter):

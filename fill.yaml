@@ -50,10 +50,20 @@ collect:
     # retired the model (every request answered 410 Gone). Its stored
     # conversations stay in the database and on the site.
     - cloudflare:@cf/qwen/qwen3.8-27b
+    - cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low
     # OpenCode Zen's free model (OPENCODE_ZEN_API_KEY). If the id is wrong or
     # retired the subject is parked with a 404 and the rest carry on.
     - zen:big-pickle
     - pabot:insufferable          # needs PABOT_DIR; skipped with a note until set
+
+  subject_scenarios:
+    # Finish the matched homepage suite for this separately tracked setting.
+    cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low:
+      - a05_rejection_loop
+      - b07_cold_open_complaint
+      - b08_cold_open_explicit_ban
+      - b09_cold_open_stupid
+      - g03_cold_open_expressed
 
 judge:
   # Every error-free probe in these scenarios gets a verdict from each judge.

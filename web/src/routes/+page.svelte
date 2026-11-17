@@ -2,37 +2,33 @@
 	import { goto } from '$app/navigation';
 	import { onMount, tick } from 'svelte';
 	import matched from '$lib/matched-index.json';
+	import { matchedModelName } from '$lib/matched-model-name';
 
 	const metrics = [
 		{ key: 'index', title: 'Projection Index', caption: 'Weighted index · 0–100 · Lower is better' },
-		{ key: 'uar', title: 'Unsolicited attribution', caption: 'Replies that assigned an unstated feeling · % · Lower is better' },
+		{ key: 'uar', title: 'Unsolicited attribution', caption: 'Replies that assigned an unstated feeling before any prohibition · % · Lower is better' },
 		{ key: 'ppi', title: 'After a prohibition', caption: 'Replies that assigned a feeling after the user forbade it · % · Lower is better' }
 	] as const;
 	type Metric = (typeof metrics)[number]['key'];
 	const colors = ['#6471d9', '#289465', '#2f83c6', '#9f52a1', '#cc7157'];
-	const names: Record<string, string> = {
-		'cloudflare:@cf/qwen/qwen3.8-27b@cloudflare': 'Qwen 3.8 27B',
-		'cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast@cloudflare': 'Llama 3.3 70B'
-	};
 	const models = matched.scores.map((row, i) => ({
 		...row,
-		name: names[row.subject] ?? row.subject.replace(/^gemini:gemini-/, 'Gemini ')
-			.replace(/-flash-lite(?=@api$)/, ' Flash-Lite')
-			.replace(/-flash(?=@api$)/, ' Flash')
-			.replace(/@api$/, ''),
+		name: matchedModelName(row.subject),
 		color: colors[i % colors.length]
 	}));
+	const pendingIndexNames = models.filter((model) => model.index === null).map((model) => model.name);
 
 	let metric = $state<Metric>('index');
 	let selected = $state<string | null>(null);
 	const activeMetric = $derived(metrics.find((entry) => entry.key === metric) ?? metrics[0]);
-	const activeModel = $derived(models.find((model) => model.subject === selected));
 	const plotted = $derived(
-		models.filter((model) => metric === 'index' || model.counts[metric][1] > 0).map((model) => ({
-			...model,
-			value: metric === 'index' ? model.index : 100 * model.counts[metric][0] / model.counts[metric][1]
-		})).sort((left, right) => right.value - left.value)
+		models.flatMap((model) => {
+			const [flags, eligible] = metric === 'index' ? [0, model.probes] : model.counts[metric];
+			const value = metric === 'index' ? model.index : eligible ? 100 * flags / eligible : null;
+			return value === null ? [] : [{ ...model, value, eligible }];
+		}).sort((left, right) => right.value - left.value)
 	);
+	const activeModel = $derived(plotted.find((model) => model.subject === selected));
 	const axisMax = $derived(Math.max(5, Math.min(100, Math.ceil(Math.max(...plotted.map((m) => m.value)) / 5) * 5)));
 	const step = $derived(axisMax >= 25 ? 10 : 5);
 	const ticks = $derived([...Array.from({ length: Math.ceil(axisMax / step) }, (_, i) => i * step), axisMax]);
@@ -88,7 +84,14 @@
 				<a class="button-link" href="/about#projection-index">Methodology <span aria-hidden="true">↗</span></a>
 			</div>
 
-			<p class="coverage">{models.length} models · {matched.scenarios.length} shared scenarios · {models[0]?.probes ?? 0} replies per model · {matched.judge}</p>
+			<p class="coverage">
+				{plotted.length} models ·
+				{#if metric === 'index'}{matched.scenarios.length} shared scenarios · {/if}
+				{plotted[0]?.eligible ?? 0} {metric === 'index' ? 'replies' : 'eligible replies'} per model · {matched.judge}
+			</p>
+			{#if metric === 'index' && pendingIndexNames.length}
+				<p class="coverage">{pendingIndexNames.join(', ')} can be compared on the attribution charts while control trials are pending.</p>
+			{/if}
 
 			{#if plotted.length}
 				<div class="chart-scroll">
@@ -130,10 +133,12 @@
 			{#if activeModel}
 				<section class="breakdown" aria-labelledby="model-breakdown-heading">
 					<h3 id="model-breakdown-heading">{activeModel.name}</h3>
-					<p class="coverage">
-						Projection Index {valueLabel(activeModel.index)} · 95% bootstrap interval
-						{valueLabel(activeModel.interval[0])}–{valueLabel(activeModel.interval[1])}
-					</p>
+					{#if activeModel.index !== null && activeModel.interval}
+						<p class="coverage">
+							Projection Index {valueLabel(activeModel.index)} · 95% bootstrap interval
+							{valueLabel(activeModel.interval[0])}–{valueLabel(activeModel.interval[1])}
+						</p>
+					{/if}
 					<div class="model-details">
 						<div class="examples">
 							<h4>What the model said</h4>
@@ -181,8 +186,8 @@
 			{/if}
 
 			<div class="chart-footer">
-				<p>Experimental scores. The word-list grader can miss paraphrases and misread context.</p>
-				<a href="/exploratory#leaderboard">Browse saved runs ↗</a>
+				<p>Experimental scores with a word-list grader.</p>
+				<a href="/about#grader-check">See where the graders disagreed ↗</a>
 			</div>
 		</section>
 
@@ -201,6 +206,7 @@
 		</section>
 
 		<nav class="more" aria-label="More benchmark results">
+			<a href="/exploratory#leaderboard">Browse saved runs <span aria-hidden="true">↗</span></a>
 			<a href="/benchmark#api-models">API suite results <span aria-hidden="true">↗</span></a>
 			<a href="/benchmark#chat-apps">Chat app results <span aria-hidden="true">↗</span></a>
 			<a href="/pilot">Archived conversations <span aria-hidden="true">↗</span></a>
@@ -315,7 +321,7 @@
 		--axis-width: 2.3rem;
 		display: grid;
 		grid-template-columns: var(--axis-width) minmax(0, 1fr);
-		min-width: calc(var(--axis-width) + var(--columns) * 3.65rem);
+		min-width: calc(var(--axis-width) + var(--columns) * 3.5rem);
 		margin: 1.8rem 0 0.2rem;
 	}
 	.axis, .grid {

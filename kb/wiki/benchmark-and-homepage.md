@@ -26,9 +26,15 @@ word “obnoxious” describes the user’s experience of these behaviors.
 - State what was tested and which grader produced the score. Compare models
   on the same scenarios, and keep consumer chat app results available with
   their own test conditions.
+- Require all five scenarios for the Projection Index. The two attribution
+  charts can include a model that completed all four attribution scenarios
+  while its stated-feeling control is pending. Keep separate inference
+  settings, such as low reasoning, under distinct model identifiers.
 - Show the archived Cline exchange just below the chart. Include the user’s
   question, Gemini’s reply, and the user’s follow-up, with a link to the
   longer excerpt in Archived conversations.
+- Link to the grader check from the chart. Give it a date, compare the same
+  replies across graders, and quote reviewed mistakes from both graders.
 
 ## Where to make changes
 

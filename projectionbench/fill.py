@@ -81,6 +81,7 @@ class Plan:
     judge_scenarios: list[str]
     judges: list[str]
     caps: dict[str, int] = field(default_factory=dict)
+    subject_scenarios: dict[str, list[str]] = field(default_factory=dict)
 
 
 def load_plan(path: str) -> Plan:
@@ -94,6 +95,7 @@ def load_plan(path: str) -> Plan:
         judge_scenarios=list(j.get("scenarios") or []),
         judges=[str(x) for x in (j.get("judges") or [])],
         caps={str(k): int(v) for k, v in (raw.get("caps") or {}).items()},
+        subject_scenarios=c.get("subject_scenarios") or {},
     )
 
 
@@ -299,6 +301,7 @@ class Setup:
     scenarios_by_id: dict[str, Scenario]
     caps: dict[str, int] = field(default_factory=dict)
     skipped: dict[str, str] = field(default_factory=dict)
+    collect_by_subject: dict[str, list[Scenario]] = field(default_factory=dict)
 
 
 def setup_from_plan(plan: Plan, scen: list[Scenario], max_tokens: int = 16000) -> Setup:
@@ -306,12 +309,18 @@ def setup_from_plan(plan: Plan, scen: list[Scenario], max_tokens: int = 16000) -
     from projectionbench.judge.llm import LLMJudge
 
     skipped: dict[str, str] = {}
+    collect = match_scenarios(scen, plan.collect_scenarios)
+    collect_by_subject = {}
     subjects = []
     for spec in plan.subjects:
         try:
-            subjects.append(quiet(build(spec, max_tokens=max_tokens)))
+            adapter = quiet(build(spec, max_tokens=max_tokens))
         except Exception as e:  # noqa: BLE001 - a missing key skips one subject
             skipped[spec] = str(e)
+            continue
+        subjects.append(adapter)
+        if spec in plan.subject_scenarios:
+            collect_by_subject[adapter.subject_id] = match_scenarios(collect, plan.subject_scenarios[spec])
     judges = []
     for spec in plan.judges:
         try:
@@ -319,7 +328,7 @@ def setup_from_plan(plan: Plan, scen: list[Scenario], max_tokens: int = 16000) -
         except Exception as e:  # noqa: BLE001
             skipped[f"judge {spec}"] = str(e)
     return Setup(
-        collect=match_scenarios(scen, plan.collect_scenarios),
+        collect=collect,
         samples=plan.samples,
         subjects=subjects,
         judge_scenarios=[s.id for s in match_scenarios(scen, plan.judge_scenarios)],
@@ -327,6 +336,7 @@ def setup_from_plan(plan: Plan, scen: list[Scenario], max_tokens: int = 16000) -
         scenarios_by_id={s.id: s for s in scen},
         caps=plan.caps,
         skipped=skipped,
+        collect_by_subject=collect_by_subject,
     )
 
 
@@ -337,7 +347,7 @@ def gaps(conn, setup: Setup, now: datetime) -> tuple[list[Task], dict]:
     coverage: dict[tuple[str, str], tuple[int, int]] = {}
     for a in setup.subjects:
         scope = subject_scope(a)
-        for order, s in enumerate(setup.collect):
+        for order, s in enumerate(setup.collect_by_subject.get(a.subject_id, setup.collect)):
             complete, resumable = _conversations(conn, a.subject_id, s, now)
             need = setup.samples - complete
             live = resumable[: max(need, 0)]
@@ -504,7 +514,11 @@ def status_report(conn, setup: Setup, now: datetime, coverage: dict, tasks: list
         for a in setup.subjects:
             cells = []
             for s in setup.collect:
-                done, live = coverage.get((a.subject_id, s.id), (0, 0))
+                scope = (a.subject_id, s.id)
+                if scope not in coverage:
+                    cells.append("—".rjust(9))
+                    continue
+                done, live = coverage[scope]
                 cells.append(f"{done}/{setup.samples}{'+' if live else ' '}".rjust(9))
             lines.append(f"  {a.subject_id:<{width}}  " + "  ".join(cells))
         lines.append("  (+ = a conversation in progress; it continues on the next request)")
