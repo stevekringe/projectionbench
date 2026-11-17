@@ -1,8 +1,8 @@
-projectionbench fill -- status at Tue 19:11 UTC
+projectionbench fill -- status at Tue 19:35 UTC
 
 collect: complete conversations at current wording (target 3)
                                                     b07        b09        a05        g03        b08        r01        r02        r03        r04        r05        r05        r05        r06        r06        r06        r07        r07        r07        r08        r08        r08
-  gemini:gemini-3.1-flash-lite@api                 4/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3 
+  gemini:gemini-3.1-flash-lite@api                 4/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3        2/3 
   gemini:gemini-3.5-flash@api                      3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        2/3        2/3 
   gemini:gemini-3.6-flash@api                      3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        2/3        2/3        2/3        2/3        2/3        2/3 
   gemini:gemini-3.7-flash@api                      1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3 
@@ -11,22 +11,18 @@ collect: complete conversations at current wording (target 3)
   zen:big-pickle@zen                               0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3 
   (+ = a conversation in progress; it continues on the next request)
 
-judge llm:openrouter:google/gemma-4-31b-it:free:v7: 2/777 probes judged
+judge llm:openrouter:google/gemma-4-31b-it:free:v7: 2/778 probes judged
 
 cooling down:
+  GEMINI_API_KEY|gemini-3.5-flash  unavailable until Tue 19:36 UTC  -- ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high de
+  GEMINI_API_KEY|gemini-3.7-flash  unavailable until Tue 19:37 UTC  -- ServerError: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation coul
+  GEMINI_API_KEY|gemini-3.6-flash  unavailable until Tue 19:38 UTC  -- ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high de
   OPENROUTER_API_KEY|google/gemma-4-31b-it:free  rate until Tue 19:41 UTC  -- RateLimitError: Error code: 429 - Provider returned error
-
-parked this session (fix the config, then run fill again):
-  GEMINI_API_KEY|gemini-3.1-flash-lite  -- ModuleNotFoundError: No module named 'httpx'
-  GEMINI_API_KEY|gemini-3.5-flash  -- ModuleNotFoundError: No module named 'httpx'
-  GEMINI_API_KEY|gemini-3.6-flash  -- ModuleNotFoundError: No module named 'httpx'
-  GEMINI_API_KEY|gemini-3.7-flash  -- ModuleNotFoundError: No module named 'httpx'
-  GEMINI_API_KEY|gemini-3.8-flash  -- ModuleNotFoundError: No module named 'httpx'
-  OPENCODE_ZEN_API_KEY|big-pickle  -- AuthenticationError 401: Error code: 401 - This API key has expired. Create a new API key in OpenCode Console and replace it in your client 
+  CLOUDFLARE_API_TOKEN|@cf/qwen/qwen3.8-27b  transient until Tue 19:44 UTC  -- TimeoutError: The read operation timed out
 
 not started (could not build):
   pabot:insufferable  -- PABOT_DIR is not set -- point it at your local pabot checkout
 
-still to do: 85 conversation step(s) queued, 775 probe(s) to judge
+still to do: 84 conversation step(s) queued, 776 probe(s) to judge
 
-stopped: everything left is cooling down; next retry Tue 19:41 UTC
+stopped: time limit reached
