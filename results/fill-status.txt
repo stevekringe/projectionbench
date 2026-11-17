@@ -1,4 +1,4 @@
-projectionbench fill -- status at Mon 20:11 UTC
+projectionbench fill -- status at Tue 19:11 UTC
 
 collect: complete conversations at current wording (target 3)
                                                     b07        b09        a05        g03        b08        r01        r02        r03        r04        r05        r05        r05        r06        r06        r06        r07        r07        r07        r08        r08        r08
@@ -14,7 +14,7 @@ collect: complete conversations at current wording (target 3)
 judge llm:openrouter:google/gemma-4-31b-it:free:v7: 2/777 probes judged
 
 cooling down:
-  OPENROUTER_API_KEY|google/gemma-4-31b-it:free  rate until Mon 20:41 UTC  -- RateLimitError: Error code: 429 - Provider returned error
+  OPENROUTER_API_KEY|google/gemma-4-31b-it:free  rate until Tue 19:41 UTC  -- RateLimitError: Error code: 429 - Provider returned error
 
 parked this session (fix the config, then run fill again):
   GEMINI_API_KEY|gemini-3.1-flash-lite  -- ModuleNotFoundError: No module named 'httpx'
@@ -29,4 +29,4 @@ not started (could not build):
 
 still to do: 85 conversation step(s) queued, 775 probe(s) to judge
 
-stopped: everything left is cooling down; next retry Mon 20:41 UTC
+stopped: everything left is cooling down; next retry Tue 19:41 UTC
