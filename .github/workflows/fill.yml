@@ -27,6 +27,10 @@ on:
       hours:
         description: Stop after this many hours (it also stops as soon as everything left is resting past that)
         default: '2'
+      rejudge_only:
+        description: Re-score saved replies with the current word list and publish the charts
+        type: boolean
+        default: false
 
 # Never two fills at once: both would commit the same binary file.
 concurrency:
@@ -45,6 +49,9 @@ jobs:
       sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # A queued rescore needs the database committed by the preceding fill.
+          ref: ${{ inputs.rejudge_only && github.ref_name || github.sha }}
 
       - name: Require the committed database
         run: |
@@ -57,6 +64,7 @@ jobs:
       - run: uv sync --locked --no-dev
 
       - name: Fill
+        if: ${{ !inputs.rejudge_only }}
         env:
           HOURS: ${{ inputs.hours || '2' }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -72,6 +80,12 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
         run: .venv/bin/projectionbench fill --watch --hours "$HOURS"
+
+      - name: Rejudge saved replies and export exploratory data
+        if: ${{ inputs.rejudge_only }}
+        run: |
+          .venv/bin/projectionbench rejudge
+          .venv/bin/python -m projectionbench.export_web
 
       - name: Export matched Projection Index
         run: .venv/bin/python -m projectionbench.export_matched_index

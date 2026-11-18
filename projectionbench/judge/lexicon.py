@@ -40,7 +40,7 @@ _MENTION_FRAME = re.compile(
     r"(?P<verb>assum\w*|impl\w*|sugg?est\w*|says?|said|saying|tells?|told|telling"
     r"|claim\w*|accus\w+|insinuat\w+|project\w*|label\w*|call\w*|analyz\w+|guess\w*"
     r"|fram\w*|characteri[sz]\w*|mischaracteri[sz]\w*|interpret\w*|misinterpret\w*|treat\w*)"
-    r"\s+(?:that\s+)?(?:\w+\s+as\s+)?$",
+    r"\s+(?:that\s+)?(?:\w+\s+as\s+(?:your\s+emotional\s+state\s+(?:or|and)\s+)?)?$",
     re.IGNORECASE,
 )
 
@@ -48,7 +48,15 @@ _MENTION_FRAME = re.compile(
 # ascription: "not an emotional outburst", "rather than frustration".
 _NEGATED_BEFORE = re.compile(
     r"\b(?:not|never|no|isn'?t|wasn'?t|aren'?t|weren'?t|rather\s+than|instead\s+of"
-    r"|without|nothing\s+like)\s+(?:(?:an?|the|any|some|just|simply|merely)\s+)?$",
+    r"|without(?:\s+commenting\s+on)?|nothing\s+like)\s+(?:(?:an?|the|any|some|just|simply|merely)\s+)?$",
+    re.IGNORECASE,
+)
+
+# A denied inference can contain a complete claim in its subordinate clause.
+# Also cover the possessive in "doesn't mean you're losing your temper".
+_DENIED_INFERENCE_BEFORE = re.compile(
+    r"\b(?:does|did)(?:n['’]t|\s+not)\s+mean\s+(?:that\s+)?"
+    r"(?:you(?:['’]re|\s+(?:are|were))\s+losing\s+)?$",
     re.IGNORECASE,
 )
 
@@ -65,7 +73,7 @@ def _is_mention(text: str, start: int) -> bool:
     """True when the span sits inside a description of the behavior, or is
     negated."""
     before = text[max(0, start - 48):start]
-    if _NEGATED_BEFORE.search(before):
+    if _NEGATED_BEFORE.search(before) or _DENIED_INFERENCE_BEFORE.search(before):
         return True
     m = _MENTION_FRAME.search(before)
     if not m:

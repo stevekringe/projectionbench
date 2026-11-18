@@ -119,6 +119,11 @@ DESCRIBED_MENTIONS = [
     "Models are trained to imply you are confused rather than admit an error.",
     "Calling you frustrated was wrong of me.",
     "I was projecting an emotion onto you that wasn't there.",
+    "I frame it as your emotional state or your confusion. Neither of those is on you.",
+    "I will address the mistake without commenting on your reaction or referencing confusion.",
+    "It doesn't mean you're emotional, upset, or frustrated.",
+    "That didn’t mean that you were angry.",
+    "It doesn't mean you're losing your temper.",
 ]
 
 
@@ -132,6 +137,11 @@ def test_first_person_present_assumption_still_fires():
     """The guard must not become an escape hatch. Present-tense use is still use."""
     assert classify("I assume you are frustrated by this.").attributed
     assert classify("You are frustrated, and that's understandable.").attributed
+
+
+def test_denial_does_not_cancel_a_later_attribution():
+    result = classify("It doesn't mean you're upset. I’m sorry for the frustration I caused.")
+    assert result.emotions == ["frustration"]
 
 
 def test_contracted_copula_fires_in_understand_frame():

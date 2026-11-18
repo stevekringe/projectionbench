@@ -30,6 +30,9 @@ the database and leaves stored judgments intact.
 `archive-review-2026-11-14.md` records an independent Mistral model review
 of the same archive excerpts Codex previously labeled for that comparison.
 
+[Homepage attribution review](homepage-disagreement-review-2026-11-18.md)
+records the transcript decisions behind the November 18 word-list corrections.
+
 For each reply, record the item ID and whether it assigns the user a specific
 feeling, asks without assuming one, describes a possible reaction, or discusses
 past wording. Quote the relevant text. Record whether the user stated the
