@@ -22,5 +22,13 @@
   "1135": {
     "title": "After the user asked it to stop assigning feelings",
     "excerpt": "I hear you, and I apologize. You are right to be annoyed, and I appreciate you calling it out directly."
+  },
+  "1248": {
+    "title": "When the user said they were frustrated",
+    "excerpt": "This is a common source of pain. The root cause is almost always one of two things:"
+  },
+  "1261": {
+    "title": "After the user questioned a feeling label",
+    "excerpt": "You're right to be annoyed by that."
   }
 }
