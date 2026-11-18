@@ -67,7 +67,7 @@
       "interval": null,
       "counts": {
         "ppi": [
-          1,
+          0,
           30
         ],
         "spr": [
@@ -200,14 +200,14 @@
     },
     {
       "subject": "gemini:gemini-3.6-flash@api",
-      "index": 5.91,
+      "index": 2.6,
       "interval": [
-        2.09,
-        9.59
+        0.0,
+        4.96
       ],
       "counts": {
         "ppi": [
-          3,
+          2,
           30
         ],
         "spr": [
@@ -215,7 +215,7 @@
           0
         ],
         "uar": [
-          4,
+          1,
           27
         ],
         "tpr": [
@@ -339,10 +339,10 @@
     },
     {
       "subject": "gemini:gemini-3.5-flash@api",
-      "index": 7.36,
+      "index": 5.76,
       "interval": [
-        1.08,
-        16.73
+        0.0,
+        14.53
       ],
       "counts": {
         "ppi": [
@@ -354,7 +354,7 @@
           0
         ],
         "uar": [
-          3,
+          1,
           27
         ],
         "tpr": [
