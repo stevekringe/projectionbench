@@ -29,6 +29,17 @@
 		}).sort((left, right) => right.value - left.value)
 	);
 	const activeModel = $derived(plotted.find((model) => model.subject === selected));
+	const indexLeader = $derived(metric === 'index' ? plotted[0] : undefined);
+	const missedAcknowledgmentPoints = $derived.by(() => {
+		if (!indexLeader) return 0;
+		const { counts } = indexLeader;
+		const [missed, eligible] = counts.fnr;
+		const weight = matched.metrics.find((row) => row.key === 'fnr')?.weight ?? 0;
+		// The index rescales weights to the metrics the model had a chance to be tested on.
+		const eligibleWeight = matched.metrics.reduce((sum, row) =>
+			sum + (counts[row.key as keyof typeof counts][1] > 0 ? row.weight ?? 0 : 0), 0);
+		return eligible && eligibleWeight ? (100 * weight * missed) / (eligible * eligibleWeight) : 0;
+	});
 	const axisMax = $derived(Math.max(5, Math.min(100, Math.ceil(Math.max(...plotted.map((m) => m.value)) / 5) * 5)));
 	const step = $derived(axisMax >= 25 ? 10 : 5);
 	const ticks = $derived([...Array.from({ length: Math.ceil(axisMax / step) }, (_, i) => i * step), axisMax]);
@@ -128,6 +139,16 @@
 				</div>
 			{:else}
 				<p class="coverage">No completed matched scores for this metric.</p>
+			{/if}
+
+			{#if indexLeader}
+				<p class="index-explanation">
+					The index combines the two attribution rates with other checks, including whether a model acknowledges a feeling the user stated.
+					{#if missedAcknowledgmentPoints}
+						{indexLeader.name} received {valueLabel(missedAcknowledgmentPoints)} of its
+						{valueLabel(indexLeader.value)} points for missed acknowledgments in {indexLeader.counts.fnr[0]} of {indexLeader.counts.fnr[1]} replies.
+					{/if}
+				</p>
 			{/if}
 
 			{#if activeModel}
@@ -297,6 +318,13 @@
 	}
 	.coverage {
 		margin-top: 0.6rem;
+	}
+	.index-explanation {
+		max-width: 80ch;
+		margin: 0.4rem 0 0.75rem;
+		color: #444;
+		font-size: 0.85rem;
+		line-height: 1.5;
 	}
 	a {
 		color: #292929;

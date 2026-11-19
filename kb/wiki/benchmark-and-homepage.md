@@ -17,7 +17,9 @@ word “obnoxious” describes the user’s experience of these behaviors.
   compares how often assistants do this. Use About for what the benchmark
   measures and how scoring works.
 - Lead with the Projection Index. It is a weighted score from 0 to 100.
-  Higher scores mean more of the behaviors the benchmark measures.
+  Higher scores mean more of the behaviors the benchmark measures. Explain
+  that the two attribution rates are part of the index and show how many
+  points missed acknowledgments add to the leading score.
 - Use vertical bars with visible scores. Sort each metric from highest on
   the left to lowest on the right. Center each horizontal model label beneath
   its bar on desktop and phone. Artificial Analysis is the reference for the

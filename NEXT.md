@@ -11,6 +11,14 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
+**Check the stated-feeling controls.** The word list gives low-reasoning Qwen
+12.2 of its 15.5 index points for three missed acknowledgments. Its response
+1260 says “I feel your pain,” which the transcript review marked ambiguous.
+Counting that one acknowledgment, with the other grades fixed, would drop
+its score to 11.4, just below Flash-Lite. Label acknowledgments in context
+and add more control prompts before drawing conclusions from the composite
+order.
+
 **Source-backed corrections, November 18, 2026.** The [pilot](pilot/source-correction/README.md)
 ran 24 fresh chats across four everyday cases and three deployments. Three
 openers contained factual errors and all three repairs came on the first
