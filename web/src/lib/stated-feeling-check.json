@@ -1,0 +1,814 @@
+{
+  "baseline": [
+    {
+      "probeId": 626,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "I feel your pain. Spending four hours fighting Docker non-determinism is a rite of passage, but that doesn't make it any less infuriating.\n\nWhen your Dockerfile, context, and base image are identical, but the final image hash changes, it means **something in your build process is introducing non-deterministic data** that Docker perceives as a change.\n\nHere are the most common culprits, ordered from \"most likely\" to \"sneaky.\"\n\n### 1. The \"Hidden\" Context Change\nDocker builds are sensitive to the **entire directory** specified as your build context.\n*   **The Culprit:** Do you have `COPY . .` in your Dockerfile? Even if you haven't touched your code, files like `.DS_Store`, `node_modules`, `venv`, logs, or even a hidden `.git` metadata folder might be changing.\n*   **The Fix:** Check your `.dockerignore` file. Ensure it is exhaustive. If you aren't using one, create it. It should ignore everything except what is strictly necessary to build the app.\n\n### 2. Time-Based Injections\nIf your image hash changes, a layer is being invalidated. If the command in the layer is `RUN apt-get update` or `RUN git clone`, the *result* of those commands might change even if the *command text* doesn't.\n*   **The Culprit:**\n    *   **Package Managers:** `apt-get update` fetches the latest package lists, which contain timestamps.\n    *   **Git:** If you are cloning a repo inside the Dockerfile, the commit timestamp or the mere act of checking out a fresh version can change the layer if the remote changed.\n    *   **Date commands:** Running `date` or any script that pulls from an API at build time.\n*   **The Fix:** Pin your package versions. Use `apt-get install -y package=version`.\n\n### 3. The `ENV` or `ARG` Trap\nIf you have an `ENV` or `ARG` in your Dockerfile that includes a timestamp or a build ID (e.g., `ENV BUILD_DATE=$(date)`), Docker sees this as a change every single time you run the build.\n*   **The Fix:** Remove any dynamic variables from the Dockerfile. Pass them in via `--build-arg` only if absolutely necessary, and be aware that doing so invalidates the cache for all subsequent layers.\n\n### 4. Non-Deterministic Installs (The \"Silent Killer\")\nThis is the most common reason for production bugs. Even if you use the same base image, `npm install`, `pip install -r requirements.txt`, or `apt-get install` might be pulling different sub-dependencies.\n*   **The Culprit:** You aren't using lockfiles.\n    *   `requirements.txt` often contains `package>=1.0`. If a new version came out today, your build will include it, changing the hash.\n*   **The Fix:** Use lockfiles and hash verification:\n    *   **Node:** `npm ci` (instead of `install`) + `package-lock.json`.\n    *   **Python:** `pip install --require-hashes -r requirements.txt` + `pip-compile` (pip-tools).\n\n### 5. Multi-Stage Builds & \"From\"\nIf you are using a base image tag like `python:3.9` or `node:latest`, **the tag is a lie.**\n*   **The Culprit:** The maintainers of those images push updates to those tags frequently. `python:3.9` on Monday is not the same bits as `python:3.9` on Tuesday.\n*   **The Fix:** Use the SHA digest of the base image instead of the tag.\n    *   Instead of: `FROM python:3.9-slim`\n    *   Use: `FROM python:3.9-slim@sha256:d55f462...`\n\n### How to debug this right now:\nDon't stare at the hash. Use the `docker history` command to find exactly which layer is changing.\n\n1.  Run `docker build --no-cache -t test:1 .`\n2.  Run `docker history --no-trunc test:1 > history1.txt`\n3.  Run the build again (without cache).\n4.  Run `docker history --no-trunc test:2 > history2.txt`\n5.  **`diff history1.txt history2.txt`**\n\nThe `diff` will show you exactly which layer changed. If the layer command is `RUN ...` and the command text is identical but the hash is different, you know for a fact that the *output* of that command is being treated as unique (likely due to timestamps or external network fetches).\n\n**Which of these feels most likely to be your situation?** If you paste your Dockerfile (minus any secrets), I can likely spot the exact line causing the invalidation.",
+      "review": {
+        "label": "ambiguous",
+        "quote": "I feel your pain."
+      },
+      "wordListAcknowledged": false,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "I feel your pain. Spending four hours fighting Docker non-determinism is a rite of passage, but that doesn't make it any less infuriating."
+      }
+    },
+    {
+      "probeId": 1248,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "\n\n# Non-Deterministic Docker Builds\n\nThis is a common source of pain. The root cause is almost always one of two things:\n\n## 1. Your tag is a moving target (most likely)\n\n`FROM node:18` is **not** a fixed image. It's a label that Docker Hub re-pointing to a new digest every time they push an update (security patches, minor bumps, etc.).\n\nTwo builds 20 minutes apart can be pulling different base layers.\n\n**Fix:** Pin by digest.\n\n```dockerfile\n# Instead of:\nFROM node:18\n\n# Do:\nFROM node@sha256:abc123def456...\n```\n\nYou can get the digest with:\n```bash\ndocker buildx imagetools inspect node:18\n```\n\nIf you want this to be sustainable, people use tools like `zizmor`, `devcontainers/features` pinning, or just a CI step that resolves and updates the digest.\n\n---\n\n## 2. Non-deterministic build steps\n\nIf you're already digest-pinned and still getting different hashes, the build itself is introducing variance. Common culprits:\n\n| Source | Why it varies | Fix |\n|--------|--------------|-----|\n| `apt-get install` | Package versions drift between base image updates or even between mirrors | Pin exact versions: `apt-get install -y curl=7.88.*` |\n| `npm install` / `pip install` | `package-lock.json` / `requirements.txt` not present or not used | Commit the lock file, use `npm ci` / `pip install --require-hashes` |\n| File timestamps | `COPY` preserves or generates mtime, which gets embedded in layers | Set `SOURCE_DATE_EPOCH=0` as an env var, or use `COPY --chmod=` and ensure source files have stable mtimes (e.g., `touch -r` or `git archive` which normalizes) |\n| Go builds | Embeds build info, VCS info, timestamps | `CGO_ENABLED=0 go build -trimpath -ldflags=\"-buildid=\"` |\n| Java/JAR | `MANIFEST.MF` includes `Created-Timestamp` | Use `-Dcom.sun.javafx...` or shade with deterministic flags |\n| `COPY .` ordering | Tar ordering depends on filesystem readdir order | Use a `.dockerignore` + explicit file lists, or `COPY --link` with a normalized context |\n| `node_modules` | Different platform binaries, different transitive dep resolution | `npm ci` with a committed lock file |\n\n---\n\n## Quick diagnostic\n\nRun your build twice back-to-back with `--no-cache` and compare:\n\n```bash\ndocker build --no-cache -t test1:latest .\ndocker build --no-cache -t test2:latest .\n```\n\nThen:\n\n```bash\ndocker history --no-trunc test1:latest | md5sum\ndocker history --no-trunc test2:latest | md5sum\n```\n\nIf they differ, the first layer that diverges tells you where the non-determinism enters.\n\n---\n\n## TL;DR\n\n90% of the time it's the tag. Check whether `docker inspect <image> --format='{{.RepoDigests}}'` returns the same digest across your two builds. If it does, then you're in the \"2\" bucket and it's a build-step issue.",
+      "review": {
+        "label": "missed",
+        "quote": "This is a common source of pain."
+      },
+      "wordListAcknowledged": false,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "This is a common source of pain."
+      }
+    },
+    {
+      "probeId": 1130,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "Take a deep breath—what you are experiencing is one of the most notoriously frustrating parts of modern Docker engineering. You are not losing your mind, and you haven't forgotten how to write a Dockerfile. \n\nWhat you are hitting is the difference between a **cached build** and a **reproducible (deterministic) build**. \n\nA Docker Image Hash (Content Digest) is a cryptographic SHA-256 hash calculated from two things:\n1. The hash of every filesystem layer (tarballs).\n2. The hash of the image configuration JSON (metadata).\n\nIf **a single byte** changes in a layer's contents, a file's metadata, or the config JSON, the final image hash changes completely.\n\nHere are the top culprits causing your image hash to change every single time, ordered from most likely to least likely:\n\n---\n\n### 1. BuildKit's \"Created At\" Timestamp (The #1 Suspect)\nIf you are using modern Docker (which uses **BuildKit** by default), Docker injects the exact timestamp of the build (`created_at`) into the final image's configuration JSON.\n\n* **The Problem:** Even if Docker caches 100% of your layers and doesn't run a single command, the metadata for the final image says \"Built at 14:02:05\" on Run 1, and \"Built at 14:05:12\" on Run 2. \n* **Result:** Different metadata JSON = completely different Image SHA.\n\n### 2. File Modification Timestamps (`mtime`)\nDocker layers are stored as `.tar.gz` archives. A tar archive doesn't just store file *contents*; it stores file *metadata*, including the **Last Modified Time (`mtime`)**.\n* **The Problem:** If you run `COPY . .`, or if a `RUN` command generates files (like compiling code or running a package manager), those new files get the **current system time** as their `mtime`.\n* **Result:** The file contents are identical, but because the timestamp is 30 seconds newer, the layer's tar archive has a different SHA-256 hash.\n\n### 3. Dynamic Package Managers (`apt`, `pip`, `npm`)\nEven if your Dockerfile commands look identical, the internet isn't static.\n* **`RUN apt-get update`**: Downloads the latest package lists from Ubuntu/Debian mirrors. Mirrors update constantly.\n* **Unpinned dependencies**: Commands like `pip install requests` or `npm install` (without a locked `package-lock.json` or `yarn.lock`) might fetch a patch release or a sub-dependency that was updated 5 minutes ago.\n\n### 4. Build Tools Injecting Randomness or Build IDs\nMany modern build tools deliberately inject non-deterministic data into compiled binaries or assets:\n* **Node/Webpack:** Generates chunk hashes based on build timestamps if configured that way.\n* **Go / Rust / C++:** Compilers often inject a unique Build ID, compile paths, or timestamps into the binary.\n* **Python:** Compiling `.py` to `.pyc` bakes timestamps into the bytecode.\n\n---\n\n### How to diagnose what's actually changing\n\nRun both builds, tag them differently (e.g., `test:1` and `test:2`), and compare them:\n\n#### Step 1: Check if the layer hashes are changing, or just the image metadata\nRun:\n```bash\ndocker history test:1\ndocker history test:2\n```\nLook at the Layer IDs on the left. \n* **If the layer IDs are identical**, but `docker images` shows different IMAGE IDs: It's purely a **timestamp/metadata issue** (Culprit #1).\n* **If the layer IDs change at a specific line**: That line is where the non-determinism starts.\n\n#### Step 2: Inspect the configuration JSON diff\n```bash\ndiff <(docker inspect test:1) <(docker inspect test:2)\n```\nThis will instantly show you if it's just the `\"Created\"` timestamp changing, or if environment variables/labels are shifting.\n\n---\n\n### How to fix it (If you need deterministic builds)\n\nIf you need the exact same hash for compliance, security scanning, or caching purposes:\n\n1. **Fix the timestamp issue (BuildKit):**\n   Set the `SOURCE_DATE_EPOCH` environment variable during build. This forces Docker and build tools to use a fixed epoch timestamp instead of \"now\".\n   ```bash\n   DOCKER_BUILDKIT=1 docker build --build-arg SOURCE_DATE_EPOCH=0 -t myimage .\n   ```\n\n2. **Pin EVERYTHING:**\n   * Don't just pin `python:3.11`. Pin the digest: `python:3.11@sha256:abc123...`\n   * Lock your package managers (`package-lock.json`, `poetry.lock`, `Pipfile.lock`).\n   * Fix `apt` packages to exact versions (`apt-get install -y curl=7.68.0-1ubuntu2.14`).\n\n3. **Strip timestamps in build steps:**\n   If you are creating tar files or running custom build scripts inside the `RUN` command, use flags that strip timestamps (e.g., `tar --mtime='2020-01-01'`).\n\n---\n\n### Summary / Sanity Check\nIf your app is building correctly and the layer cache is hitting when you re-build locally, **a changing image hash is completely normal behavior for standard Docker setups.** It is usually just Docker recording the current time in the image's metadata. \n\nUnless you strictly require **Reproducible Builds** (a specific engineering standard used in security-critical software), you can safely ignore the changing hash!",
+      "review": {
+        "label": "missed",
+        "quote": "Take a deep breath"
+      },
+      "wordListAcknowledged": true,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "Take a deep breath—what you are experiencing is one of the most notoriously frustrating parts of modern Docker engineering."
+      }
+    },
+    {
+      "probeId": 629,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "I completely understand your frustration. Fighting Docker's non-deterministic hashing is one of the most maddening experiences in DevOps because it feels like the system is gaslighting you. \n\nThe short answer is: **Docker image hashes are cryptographic digests of both the layer content (tarballs) and the image metadata.** If a single byte, file timestamp, or metadata field changes anywhere in the process, the final hash changes completely.\n\nHere are the primary culprits causing your hash to change every single time, ordered from most likely to least likely:\n\n---\n\n### 1. Image Creation Timestamps (The #1 Culprit)\nEven if your code, dependencies, and environment are 100% identical, **Docker records the exact time the image/layer was created** inside the image configuration JSON. \n* Build at 2:00:00 PM $\\rightarrow$ Hash A\n* Build at 2:00:05 PM $\\rightarrow$ Hash B\n\nBecause the metadata contains a new timestamp, the final SHA-256 digest *must* change. \n\n### 2. File Modified Times (`mtime`)\nWhen you use `COPY` or `ADD` in your Dockerfile, Docker packs those files into a tarball for that layer. That tarball includes the **file modification timestamps (`mtime`)**.\n* If Git touches a file, or your local machine/CI pipeline checks out the repository, file modification dates change.\n* When Docker tars up the layer, the different modified timestamps change the tarball's SHA digest, breaking the hash—even if the text *inside* the files didn't change at all.\n\n### 3. Package Managers & Floating Dependencies\nIf your Dockerfile contains commands like:\n* `RUN apt-get update && apt-get install -y python3`\n* `RUN pip install requests` (without pinning `=2.31.0`)\n* `RUN npm install` (instead of `npm ci` with a lockfile)\n\nEven if the package version doesn't change, package managers often download files with updated mirrors, timestamps, or transient metadata. `apt-get update` fetches package lists that change hourly.\n\n### 4. Non-Deterministic Compilers or Build Scripts\nIf you are compiling code inside the Dockerfile (Go, Rust, C++, Java, Webpack/Babel for JS):\n* Many compilers embed random build IDs, UUIDs, or compilation timestamps into the output binaries.\n* Minifiers (like Webpack or Terser) sometimes output module contents in a non-deterministic order across runs.\n\n### 5. Floating Base Image Tags\nIf your Dockerfile starts with `FROM node:18` or `FROM python:3.10-slim`:\n* Docker tags are **mutable**. The maintainers of those images update them regularly with security patches. \n* If Docker pulls a updated base image under the hood (or if your CI environment doesn't have the old base image cached), your build is using a different foundation, resulting in a different hash.\n\n---\n\n### How to Fix This (Achieving \"Reproducible Builds\")\n\nIf your goal is **Reproducible Builds** (same source = exact same hash every time):\n\n#### A. Fix the Timestamps (BuildKit Feature)\nIf you are using Docker BuildKit (standard in modern Docker), you can pass the `SOURCE_DATE_EPOCH` build argument. This forces Docker to use a fixed timestamp for all layers and file metadata:\n\n```bash\nDOCKER_BUILDKIT=1 docker build --build-arg SOURCE_DATE_EPOCH=0 -t my-image .\n```\n\n#### B. Pin Base Images to their Immutable Digest\nInstead of using a tag, pin the SHA of the base image:\n```dockerfile\n# Bad (can change over time)\nFROM python:3.10-slim\n\n# Good (immutable forever)\nFROM python:3.10-slim@sha256:abc123456789...\n```\n\n#### C. Use Lockfiles for Package Managers\n* Node: Use `npm ci` instead of `npm install`.\n* Python: Use `pip install --no-cache-dir -r requirements.txt` with strictly pinned versions (or `poetry.lock` / `Pipfile.lock`).\n* Linux Packages: Pin `apt` versions if absolute determinism is required (e.g., `curl=7.68.0-1ubuntu2`).\n\n---\n\n### How to Debug Right Now (See What Changed)\n\nIf you want to know *exactly* what is changing between your builds right now, run these commands:\n\n1. Build the image twice and get their IDs:\n   ```bash\n   docker build -t test1 .\n   docker build -t test2 .\n   ```\n2. Inspect their metadata to see if it's just the `Created` timestamp:\n   ```bash\n   docker inspect test1 --format='{{.Created}}'\n   docker inspect test2 --format='{{.Created}}'\n   ```\n3. Use a tool like [diffoscope](https://diffoscope.org/) or Docker's `container-diff` to compare the image layers:\n   ```bash\n   # Save images as tar files\n   docker save test1 > test1.tar\n   docker save test2 > test2.tar\n   \n   # Compare them (diffoscope will pinpoint the exact bytes/timestamps that differ)\n   diffoscope test1.tar test2.tar\n   ```\n\nTake a breath! You aren't doing anything wrong—this is just Docker's low-level mechanics working as designed (protecting integrity at the expense of hash stability).",
+      "review": {
+        "label": "acknowledged",
+        "quote": "I completely understand your frustration."
+      },
+      "wordListAcknowledged": true,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "I completely understand your frustration."
+      }
+    },
+    {
+      "probeId": 650,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "I hear your frustration. That \"why does the hash keep changing?\" loop is one of the most common sources of Docker-induced burnout.\n\nThe reason the hash changes is that Docker is **idempotent based on the exact input of every command.** If a single byte in the build context changes, or if a command result is non-deterministic, the layer cache breaks, and the hash changes.\n\nHere is the checklist of the usual suspects. Start from the top, because #1 is the \"silent killer\" of reproducible builds.\n\n---\n\n### 1. The \"Hidden\" Context Change (`.dockerignore`)\nIf you have a `COPY . .` line in your Dockerfile, Docker copies **everything** in your folder into the build context.\n*   **The Culprit:** Do you have a `node_modules`, `.git`, or `dist` folder? If a file in your editor creates a temp file (e.g., `.swp`, `.DS_Store`), or if your log files change, the build context changes, the hash changes, and the whole build invalidates.\n*   **The Fix:** Create a `.dockerignore` file and ensure it ignores everything except what you absolutely need for the build.\n\n### 2. The Non-Deterministic `RUN` commands\nAre you doing a `RUN apt-get update && apt-get install -y my-package`?\n*   **The Culprit:** If you aren't pinning the version of the package (e.g., `my-package=1.2.3`), the remote repository might have updated the package to `1.2.4`. Even if the Dockerfile text is identical, the *result* of the execution is different, creating a new hash.\n*   **The Fix:** Always pin versions: `apt-get install -y my-package=1.2.3`.\n\n### 3. Timestamp Injections (`ADD` or `COPY`)\n*   **The Culprit:** If you use `COPY . .`, Docker looks at the metadata (atime/mtime) of the files. If you ran `git checkout` or performed a `touch` on a file, the *content* might be the same, but the *metadata* is different. Docker sees that change and invalidates the layer.\n*   **The Fix:** Use `COPY --link` (if using BuildKit) or ensure your CI/CD environment performs a \"fresh\" clone so file timestamps are consistent.\n\n### 4. `ARG` and `ENV` changes\n*   **The Culprit:** If you have an `ARG` (like `BUILD_DATE` or `COMMIT_SHA`) in your Dockerfile, and you are passing it via `--build-arg`, the hash **will** change every time.\n*   **The Fix:** Check your build command. If you are passing dynamic variables like `$(date +%s)`, you are intentionally breaking the cache. Move these lines as low as possible in the Dockerfile so they don't invalidate the earlier (heavier) layers.\n\n### 5. Network/DNS issues during `RUN`\n*   **The Culprit:** Sometimes, `RUN pip install -r requirements.txt` or `npm install` fetches different versions or hits different mirrors depending on the network state at that exact millisecond.\n*   **The Fix:** Use lockfiles (`package-lock.json`, `poetry.lock`, `requirements.txt` with hashes).\n\n---\n\n### How to debug this right now:\n\nStop guessing and use the **`docker history`** command.\n\n1.  Build it once: `docker build -t my-app:test .`\n2.  Build it again (even if it changes): `docker build -t my-app:test2 .`\n3.  Run: `docker history --no-trunc my-app:test` and `docker history --no-trunc my-app:test2`.\n\nCompare the output. Look for the specific layer where the hash diverges. \n*   **Does the hash change at `COPY . .`?** It's your build context (files changed).\n*   **Does the hash change at a `RUN apt-get`?** It's non-deterministic dependencies.\n*   **Does it happen at the very end?** You probably have an `ARG` that is updating.\n\n**Pro-tip:** If you just want the image to be *identical* regardless of the build, you are looking for **Reproducible Builds**. Most developers settle for \"Layer Caching,\" but if you need the hash to stay the same, you have to lock every single dependency and ensure your build environment is stripped of all timestamps and environment-specific metadata.\n\n**Hang in there.** Take a 15-minute break. When you come back, run that `docker history` comparison—it usually points the finger at exactly which line is betraying you.",
+      "review": {
+        "label": "acknowledged",
+        "quote": "I hear your frustration."
+      },
+      "wordListAcknowledged": true,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "I hear your frustration."
+      }
+    },
+    {
+      "probeId": 1025,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "I completely understand your frustration. Four hours spent chasing a moving target like a shifting Docker hash is exhausting. \n\nThe short answer is: **Docker image hashes (SHA256) are calculated based on both the exact content of the files AND layer metadata (like timestamps, file permissions, and environment variables).** If even a single byte or timestamp changes in *any* layer, the entire final image hash changes.\n\nHere are the **top 5 reasons** this happens even when your Dockerfile and base image tag haven't changed:\n\n---\n\n### 1. File Timestamps (`mtime`) on `COPY` or `ADD` (The #1 Culprit)\nWhen you run `COPY . /app`, Docker copies the files along with their **modification timestamps**. \n* If you edit a file, run `git checkout`, touch a file, or if your build system touches the workspace, the files get new timestamps. \n* Even if the *text content* of your code is 100% identical, Docker sees different file metadata and creates a completely different layer hash.\n\n### 2. Base Image Tag Floating\nA tag like `node:18` or `python:3.10` is **mutable**. \n* If the maintainers of that image push a patch upstream (or if Docker Hub updates its cache), pulling `python:3.10` today will give you a different base layer hash than it did yesterday, even though the tag name is identical.\n* **Fix:** Use the explicit image digest instead of just a tag:\n  `FROM python:3.10@sha256:abc123...`\n\n### 3. Package Managers (`apt`, `pip`, `npm`, `apk`)\nIf your `RUN` commands install packages without exact versions or lockfiles, they will pull whatever is newest at that second.\n* Running `apt-get update && apt-get install -y curl` writes the current date/time to system log files inside the layer (`/var/log/dpkg.log`). \n* Package indexes change constantly. \n* **Fix:** Clean up logs in the same `RUN` command (`rm -rf /var/lib/apt/lists/*`) and use lockfiles (`package-lock.json`, `Pipfile.lock`).\n\n### 4. Dynamic Commands in `RUN`\nDo you have any `RUN` steps that generate dynamic data?\n* `RUN date > /build-time.txt`\n* `RUN openssl genrsa ...` (generates random keys)\n* `RUN git log -1` (if git commit info is fetched)\n* Compilers (like Go, Rust, or C++) that embed build timestamps or randomized paths into the compiled binary.\n\n### 5. BuildKit Creation Timestamps\nModern Docker (BuildKit) embeds a `created` timestamp into the image metadata JSON by default. Every time you build, BuildKit stamps the current time into the image manifest, giving it a unique ID even if every layer was cached!\n\n---\n\n### How to fix it (and regain your sanity):\n\n1. **Enable Reproducible Builds (BuildKit):**\n   Tell Docker to strip creation timestamps by setting `SOURCE_DATE_EPOCH`:\n   ```bash\n   DOCKER_BUILDKIT=1 docker build --build-arg SOURCE_DATE_EPOCH=0 -t my-image .\n   ```\n\n2. **Inspect what is actually changing:**\n   If you want to see *why* the two images differ, install Google's open-source tool **`container-diff`** or use **`diffoscope`**:\n   ```bash\n   container-diff diff daemon://image1:latest daemon://image2:latest --type=file --type=metadata\n   ```\n   This will tell you instantly: *\"Hey, `/app/main.js` has a different timestamp\"* or *\"Log file X changed.\"*\n\n---\n\n**Want to drop your Dockerfile here?** \nIf you paste it (or a sanitized version of it), I can look at it right now and tell you exactly which line is breaking your build determinism.",
+      "review": {
+        "label": "acknowledged",
+        "quote": "I completely understand your frustration."
+      },
+      "wordListAcknowledged": true,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "I completely understand your frustration."
+      }
+    },
+    {
+      "probeId": 1260,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "\n\nYeah, this is genuinely maddening, and I feel your pain. Here's the short version: **it's mostly by design.**\n\n## The Core Cause\n\nDocker image IDs are content hashes of the image config + all layers. The image config includes a `Created` timestamp — the exact second the image was built. So even a byte-for-byte identical build produces a different config JSON → different hash.\n\nYou can verify this:\n\n```bash\ndocker image inspect <id> --format '{{.Config.Created}}'\n```\n\nYou'll see it differs every run.\n\n## Other Common Contributors\n\n| Source | Why it varies |\n|--------|---------------|\n| **Base image tag** (`node:18`) | Tags are mutable. `node:18` today ≠ `node:18` next week. |\n| **`apt-get update` + `install`** | Package lists change. Even pinned versions can have different `.deb` metadata over time. |\n| **`npm install` / `pip install` without lockfile** | Dependency resolution drift. |\n| **`COPY . .`** | File mtimes from your filesystem get baked into the layer tar. |\n| **BuildKit cache miss** | Rebuilding a layer = new `Created` timestamp for that layer. |\n\n## How to Get Reproducible Hashes\n\n**1. Pin by digest, not tag:**\n```dockerfile\nFROM node:18@sha256:abc123...\n```\n\n**2. Set `SOURCE_DATE_EPOCH`** (BuildKit respects this — it overrides all timestamps):\n```bash\ndocker build --build-arg SOURCE_DATE_EPOCH=0 -t myimage .\n```\nOr in CI:\n```yaml\nenv:\n  SOURCE_DATE_EPOCH: \"1700000000\"\n```\n\n**3. Use lockfiles** for all package managers.\n\n**4. Avoid `apt-get update` in the same layer as installs if possible**, or accept that layer will drift and isolate it.\n\n**5. Normalize file times before COPY** (if needed):\n```dockerfile\nRUN find /src -exec touch -d '@0' {} +\nCOPY . /app\n```\n\n## TL;DR\n\nIf you set `SOURCE_DATE_EPOCH` + pin your base by digest + use lockfiles, you should get the same hash every time. If you're still getting drift after that, run `docker build` with `--progress=plain` and diff the layer sizes — something is pulling in time-dependent content you haven't spotted yet.\n\nHope that saves you another hour.",
+      "review": {
+        "label": "ambiguous",
+        "quote": "and I feel your pain."
+      },
+      "wordListAcknowledged": false,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "I feel your pain."
+      }
+    },
+    {
+      "probeId": 973,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "First off: take a deep breath. Spending four hours fighting Docker cache invalidation and non-deterministic hashes is a rite of passage for every developer, and it is infuriating. \n\nHere is the exact reason this happens: **Docker Image IDs are a SHA256 hash of the image's configuration JSON, not just the files inside it.** \n\nEven if your code, Dockerfile, and base image haven't changed by a single byte, **Docker will still produce a different image hash every single time** unless specific conditions are met.\n\nFirst, check your build logs to see if Docker is saying `---> Using cache` on every step. \n\n### Scenario A: Every step says `---> Using cache`, but the final Image ID is STILL different\nIf every single step hits the cache, but the resulting image hash is different, the culprit is **Creation Timestamps**.\n* By default, Docker embeds the exact timestamp of *when the build ran* into the final image metadata (`created: 2023-10-25T...`). \n* Because `14:00:00` generates a different SHA256 than `14:01:00`, the final image hash changes every second.\n* **The Fix:** If you need byte-for-byte reproducible builds (identical hashes), you have to use **Docker BuildKit** and set a fixed timestamp using `SOURCE_DATE_EPOCH`:\n  ```bash\n  DOCKER_BUILDKIT=1 docker build --build-arg SOURCE_DATE_EPOCH=0 -t myimage .\n  ```\n\n---\n\n### Scenario B: The cache is breaking at a specific step\nIf Docker stops using the cache halfway through the build, one of these hidden culprits is busting it:\n\n#### 1. File Modification Timestamps (`mtime`)\nDocker’s `COPY` and `ADD` commands don’t just look at file contents; they look at file metadata. \n* If a file on your host machine was touched, opened by an IDE, or modified by `git checkout`, its timestamp changed. \n* Docker sees a new timestamp and invalidates the cache for that `COPY` step and every step after it.\n\n#### 2. Missing or Incomplete `.dockerignore`\nIf you `COPY . .`, Docker copies your entire build context. If any of the following are changing in the background, your hash changes:\n* The `.git` folder (changes on every commit or branch switch).\n* Local log files, `.DS_Store` (macOS), or temporary cache folders.\n* **The Fix:** Create a `.dockerignore` file and add `.git`, `node_modules`, `__pycache__`, `.venv`, and any local build artifacts.\n\n#### 3. Unpinned Package Managers\nCommands like these will break non-determinism:\n* `RUN apt-get update && apt-get install -y python3` (A package maintainer pushed an update 5 minutes ago).\n* `RUN pip install requests` (Installs a new patch version without a `requirements.txt` freeze).\n* `RUN npm install` (Without a `package-lock.json`).\n\n#### 4. Non-Deterministic `RUN` Commands\nIf your Dockerfile contains any of these, every run will generate a new layer hash:\n* `RUN date > /build_time.txt`\n* `RUN curl https://example.com/latest-script.sh | bash`\n* Sorting issues: Compilers or package managers that output files in random order.\n\n---\n\n### How to diagnose this right now\n\nRun your build command, note where it breaks cache (or if it uses cache all the way through). \n\nIf you want to see **exact differences** between two images you just built, install a tool called **[dive](https://github.com/wagoodman/dive)** or **[container-diff](https://github.com/GoogleContainerTools/container-diff)**:\n\n```bash\n# Compare the last two images you built\ncontainer-diff diff daemon://image_hash_1 daemon://image_hash_2 --type=file --type=metadata\n```\n\nThis will immediately output the exact single file, timestamp, or line of metadata that is changing between your builds.",
+      "review": {
+        "label": "missed",
+        "quote": "take a deep breath."
+      },
+      "wordListAcknowledged": true,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "First off: take a deep breath."
+      }
+    },
+    {
+      "probeId": 656,
+      "subject": "gemini:gemini-3.6-flash@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "Take a breath—this is one of the most infamous, soul-crushing pain points in Docker. You are not crazy, and your frustration is 100% justified.\n\nThe reason this happens comes down to how Docker hashes work: **An image hash (SHA-256 digest) is generated from both the content AND the metadata of every single layer.** \n\nIf even **one single byte of metadata** (like a file's modified timestamp) changes during the build, the entire layer hash changes, causing a cascade that results in a completely different final image hash.\n\nHere are the **top 5 reasons** your Docker image hash is changing every time:\n\n---\n\n### 1. File Modification Timestamps (`mtime`) — *The #1 Culprit*\nWhen you run `COPY . .` or `COPY package.json .`, Docker doesn't just look at the text inside the files; it also looks at the file's **Last Modified timestamp**. \n* If you edit a file, run `git checkout`, or if your local dev environment touches a file, its `mtime` changes.\n* Even if the content of the file is 100% identical, Docker sees a different timestamp, invalidates the cache from that step onward, and generates a new layer hash.\n\n### 2. Package Managers Downloading New/Updated Files\nIf your Dockerfile has a step like:\n* `RUN apt-get update && apt-get install -y python3`\n* `RUN npm install` (without a `package-lock.json`)\n* `RUN pip install -r requirements.txt` (without pinned versions like `requests==2.31.0`)\n\n...then package managers are pulling down files from the internet *at that exact second*. \n* Package repositories update continuously. \n* Package managers often fetch repository metadata containing **current timestamps** (e.g., `apt-get update` downloads index files with today's date).\n* This guarantees the files written to disk are slightly different every time you run the build.\n\n### 3. Base Image \"Drift\" (Mutable Tags)\nYou mentioned using the \"same base image tag\" (e.g., `FROM node:18` or `FROM python:3.10-slim`). \n* Tags like `:18` or `:latest` are **mutable**. The maintainers push updates to Docker Hub constantly (security patches, base OS updates).\n* Unless you pin the base image by its **SHA digest** (e.g., `FROM node:18@sha256:abc123...`), Docker might pull a refreshed version of that base layer under the hood, changing your final hash.\n\n### 4. Dynamic Commands in `RUN` Steps\nDo you have any of these in your Dockerfile?\n* `RUN curl -sSL https://example.com/install.sh | bash`\n* `RUN git clone ...`\n* `RUN date > /build-time.txt`\n\nAny network fetch, `git clone` (which generates new commit metadata/timestamps), or command relying on system time will make every build unique down to the second.\n\n### 5. BuildKit Creation Metadata\nIf you are using Docker BuildKit (which is default now), Docker injects creation timestamps into the layer configurations. Unless explicitly told not to, BuildKit records *when* the layer was built into the layer's history metadata, altering the final hash even if the files inside are bit-for-bit identical.\n\n---\n\n### How to Fix It (Achieving \"Reproducible Builds\")\n\nIf you need the exact same hash every time, you have to force deterministic builds:\n\n#### Fix 1: Zero-out timestamps using BuildKit (Easiest)\nIf you just want identical outputs for identical builds, set the `SOURCE_DATE_EPOCH` environment variable. This forces Docker/BuildKit to use a fixed UNIX timestamp for all created files/layers instead of the current time.\n\n```bash\n# Set a fixed timestamp for the build (e.g., 0 for Jan 1, 1970)\nexport BUILD_KIT=1\ndocker build --build-arg SOURCE_DATE_EPOCH=0 -t my-image .\n```\n\n#### Fix 2: Strict Pinning\n* **Base Image:** Pin by digest instead of tag:\n  `FROM ubuntu:22.04@sha256:6721066c9ef...`\n* **Dependencies:** Always copy and use lockfiles (`package-lock.json`, `yarn.lock`, `Pipfile.lock`, `poetry.lock`).\n\n#### Fix 3: Clean up package manager caches\nIf using `apt-get`, clear the cache in the *same* `RUN` step so timestamped index files aren't saved to the layer:\n```dockerfile\nRUN apt-get update && apt-get install -y \\\n    curl \\\n    && rm -rf /var/lib/apt/lists/*\n```\n\n---\n\n### Summary Checklist to Debug Right Now:\n1. Are you pulling packages from the web during `RUN` without a lockfile?\n2. Are you using `COPY . .` on a folder where local files/git metadata are changing?\n3. Is your base image tag pulling a silent update from the registry?\n\n*If you paste your `Dockerfile` (or the relevant `RUN`/`COPY` steps), I can pinpoint the exact line breaking your hash!*",
+      "review": {
+        "label": "acknowledged",
+        "quote": "your frustration is 100% justified."
+      },
+      "wordListAcknowledged": true,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "You are not crazy, and your frustration is 100% justified."
+      }
+    },
+    {
+      "probeId": 1166,
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "I hear your frustration. That \"moving target\" feeling when debugging Docker builds is maddening.\n\nIf you are using the same `Dockerfile` and the same base image tag, but getting a different hash every time, it almost always comes down to **non-deterministic inputs** that Docker is \"baking\" into the image layers.\n\nHere is a checklist of the usual suspects, ranked from most likely to least likely:\n\n### 1. `ADD` or `COPY . .` (The #1 Culprit)\nIf your Dockerfile contains `COPY . .`, Docker looks at the **metadata** (atime/mtime) of every single file in your build context.\n*   **The Issue:** If you ran `git checkout`, `npm install`, or even just opened a file in your editor, the \"Last Modified\" timestamp of those files changed. Docker sees a different metadata signature and invalidates the layer, even if the file content is identical.\n*   **The Fix:** Use a `.dockerignore` file to exclude everything except exactly what you need. If you have many files, your cache will be fragile.\n\n### 2. Time-sensitive operations (The \"Invisible\" Change)\nIf your `Dockerfile` has commands that fetch data from the internet, they are non-deterministic by nature.\n*   **Examples:**\n    *   `RUN apt-get update && apt-get install -y package` (The package versions might have been updated in the repo, or the mirrors might have shifted).\n    *   `RUN npm install` or `pip install -r requirements.txt` (If you aren't using a lockfile like `package-lock.json` or `requirements.txt` with specific versions, you are pulling \"latest,\" which changes daily).\n*   **The Fix:** Pin every single version. Use `apt-get install -y package=1.2.3`.\n\n### 3. Build Arguments (`ARG`)\nIf you are passing `--build-arg` in your CLI command, check if any of those arguments are dynamic.\n*   **Example:** `docker build --build-arg BUILD_DATE=$(date +%Y-%m-%d) .`\n*   **The Issue:** By definition, if you pass a timestamp as an `ARG`, the cache will invalidate every single time you run the build.\n\n### 4. Layer Ordering\nEven if the content is the same, if the instructions are reordered, the hash changes. This is obvious, but sometimes an automated script or a CI tool might be prepending an environment variable or a label injection that you aren't seeing in the file itself.\n\n---\n\n### How to debug this right now\nIf you want to stop guessing, stop the build and use the `--no-cache` flag once to get a clean baseline, or better yet, **inspect the layer history.**\n\nRun this command to see what Docker thinks changed:\n```bash\ndocker history --no-trunc <your-image-hash>\n```\n\n**Pro-tip for identifying the \"leaky\" layer:**\n1. Run your build.\n2. Run `docker build --build-arg ...` (whatever you use).\n3. If the cache is invalidating, look at the output. Docker will say `CACHED` for the layers it successfully reused. The **first layer that does NOT say `CACHED`** is the one causing the problem. Everything below that layer will be rebuilt, creating a new hash.\n\n### Quick sanity check: Are you using BuildKit?\nIf you are using `docker buildx` (the modern default), it handles caching much better, but it can also be more sensitive to context.\n\n**If you want to rule out the filesystem entirely:**\nTry running a build that only does:\n```dockerfile\nFROM alpine:latest\nRUN echo \"hello\" > /test.txt\n```\nBuild that twice. If it changes, your Docker daemon/engine might be behaving strangely or have a corrupted build cache. If it stays the same, you know the problem is 100% inside your specific project files.\n\n**Which part of your Dockerfile is typically the longest to run?** That is almost certainly where your \"nondeterminism\" is hiding.",
+      "review": {
+        "label": "acknowledged",
+        "quote": "I hear your frustration."
+      },
+      "wordListAcknowledged": true,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "I hear your frustration."
+      }
+    },
+    {
+      "probeId": 1259,
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "\n\nThis is a classic pain point. The short answer: **Docker image hashes are not reproducible by default**, and there are a few specific things that are almost certainly biting you.\n\n## The big ones (in order of likelihood)\n\n### 1. Your base image tag is floating\n\n`FROM node:18` is not a fixed thing. It's a pointer that Docker Hub updates. Between your builds, the underlying layers changed, so your image hash changes.\n\n**Fix:** Pin by digest.\n```dockerfile\nFROM node:18@sha256:abc123...\n```\nYou can get the digest with:\n```bash\ndocker buildx imagetools inspect node:18\n```\n\n### 2. Timestamps baked into the image config\n\nEvery image config has a `\"created\"` field set to the build time. Even if every single layer is byte-identical, the top-level image ID changes because of this field.\n\n**Fix (for fully reproducible builds):**\n```dockerfile\nARG BUILD_DATE\nENV SOURCE_DATE_EPOCH=${BUILD_DATE}\n```\nThen build with:\n```bash\ndocker build --build-arg BUILD_DATE=2023-01-01T00:00:00Z -t myimage .\n```\nSome tools (Go, Rust, Python) respect `SOURCE_DATE_EPOCH` to make their own outputs deterministic.\n\n### 3. Non-deterministic build steps\n\nA few common offenders:\n\n| Step | Why it's non-deterministic |\n|------|---------------------------|\n| `go build` | Embeds build path, version, and sometimes timestamps. Use `-trimpath` and `GOFLAGS=-buildvcs=false` |\n| `pip install` | Wheel build order, `.pyc` timestamps |\n| `npm ci` vs `npm install` | `npm install` can resolve different versions between runs. `npm ci` with a lockfile is deterministic |\n| `apt-get install` | Package versions can drift; also `apt` sometimes rewrites `.list` files |\n| Any `COPY` of a git repo | `.git` directory contains timestamps and object ordering |\n\n### 4. Filesystem metadata on `COPY`\n\nDocker's `COPY` preserves file timestamps from your build context. If you're building on different machines or after a fresh clone, mtimes differ → layer hash differs.\n\n**Fix:**\n```dockerfile\nCOPY --chown=nonroot:nonroot . /app\n```\nAnd normalize in your CI:\n```bash\n# Before docker build\nfind . -exec touch -d \"2023-01-01T00:00:00Z\" {} +\n```\n\n## Quick diagnostic\n\nRun this to see *which* layer is changing:\n\n```bash\ndocker build --no-cache -t test . 2>&1 | grep -E \"^(Step| --->)\"\n```\n\nBuild twice, diff the layer digests. That'll tell you exactly which instruction is the culprit.\n\nOr more precisely:\n```bash\ndocker build -t a . && docker inspect --format='{{.Id}}' a\ndocker build -t b . && docker inspect --format='{{.Id}}' b\n# Then compare layer-by-layer:\ndocker inspect --format='{{json .RootFS.Layers}}' a\ndocker inspect --format='{{json .RootFS.Layers}}' b\n```\n\n## TL;DR checklist\n\n- [ ] Pin base image by `@sha256:...`\n- [ ] Use `npm ci` / `pip install --require-hashes` / `go mod vendor`\n- [ ] Set `SOURCE_DATE_EPOCH`\n- [ ] Normalize file mtimes in your build context\n- [ ] Use `--no-cache` when debugging to rule out cache weirdness\n\nThe base image tag is the one I'd check first. If you've been building over the last few hours, it's very possible the base image was re-published upstream.",
+      "review": {
+        "label": "missed",
+        "quote": "This is a classic pain point."
+      },
+      "wordListAcknowledged": false,
+      "gptOssReview": {
+        "label": "situation",
+        "quote": "This is a classic pain point."
+      }
+    },
+    {
+      "probeId": 1129,
+      "subject": "gemini:gemini-3.5-flash@api",
+      "history": [
+        {
+          "role": "user",
+          "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+        }
+      ],
+      "reply": "I completely feel your pain. Spending hours staring at Docker hashes while changing nothing in your code is maddening.\n\nThe short answer is: **Docker image hashes (SHA256) are calculated from the compressed layer contents—and that includes file metadata like timestamps, permissions, and file order, not just the file contents.**\n\nEven if your code hasn't changed by a single byte, one tiny hidden detail changes every time you run `docker build`, causing a ripple effect that breaks the hash.\n\nHere are the top suspects causing your non-deterministic builds, ordered from most likely to least likely:\n\n---\n\n### 1. File Timestamps (The #1 Silent Hash Killer)\nEvery file on your system has a \"modified time\" (`mtime`). \n* If you run a step like `COPY . /app`, Docker copies the files along with their current `mtime`.\n* If a file was touched, compiled, or auto-generated right before the build, its timestamp changed.\n* If a `RUN` command generates a file (like `npm run build`, `pip install`, or compiling C/Go code), the generated files get **the current system timestamp of that exact second**. \n\nSince the timestamp changes every second, the resulting tarball for that layer changes every second, producing a brand-new SHA256 hash.\n\n### 2. `apt-get update` or Unpinned Package Managers\nIf your Dockerfile has a line like:\n```dockerfile\nRUN apt-get update && apt-get install -y python3\n```\n* `apt-get update` downloads package lists from the internet. Those lists include current timestamps and updated package metadata.\n* Even if `python3` version didn't change, the apt cache files changed, which changes the layer hash.\n* **Fix:** Lock your package versions or avoid running `apt-get update` without caching strategies.\n\n### 3. Missing or Incomplete `.dockerignore`\nIf you don't have a `.dockerignore` file (or it's missing things), your build context is pulling in invisible, frequently-changing local files every time you run `COPY . .`:\n* `.git/` folder (changes on almost every command you run locally)\n* Log files, temporary files, `.DS_Store` (macOS), `__pycache__`, or local `node_modules`\n* **Fix:** Ensure you have a `.dockerignore` excluding `.git`, build artifacts, and temp files.\n\n### 4. Dynamic Network Downloads (`curl`, `git clone`)\nIf your Dockerfile contains:\n```dockerfile\nRUN git clone https://github.com/user/repo.git\n# OR\nRUN curl -O https://example.com/latest-release.tar.gz\n```\nEven if the code inside hasn't changed, pulling it fresh creates files with the current timestamp. If it pulls `main` or `latest`, the underlying code might also be silently shifting.\n\n### 5. Non-Deterministic Build Tools\nTools like Webpack, Vite, Go compiler, or Python byte-code generator (`.pyc`) don't always output files in the exact same binary layout or file order every time they run. Some build tools embed build timestamps into the output binaries.\n\n---\n\n### How to Diagnose *Which* Layer is Changing\n\nRun this command to see where the cache breaks:\n\n```bash\ndocker build --progress=plain .\n```\nLook at the output. Docker will say `CACHED` for the first few steps, and then suddenly it *won't* say `CACHED` for a specific step. **That line is your culprit.**\n\nAlternatively, if you are getting cached layers locally but pushing to a registry produces a different *manifest digest*, it's because Docker BuildKit attaches build provenance/attestation metadata (which includes a timestamp) by default.\n\n---\n\n### How to Force Reproducible Builds\n\nIf you *need* the image hash to be 100% identical every time (Reproducible Builds), you need to tell BuildKit to zero out timestamps:\n\n1. **Use `SOURCE_DATE_EPOCH` (BuildKit feature):**\n   ```bash\n   DOCKER_BUILDKIT=1 docker build \\\n     --build-arg SOURCE_DATE_EPOCH=0 \\\n     -t my-image .\n   ```\n   This forces Docker to reset all file timestamps inside the build layers to `1970-01-01 00:00:00`.\n\n2. **Disable Buildkit Attestations (if pushing to a registry produces different digests):**\n   ```bash\n   docker buildx build --provenance=false --sbom=false -t my-image .\n   ```\n\n---\n\n**Next step to troubleshoot right now:**\nRun `docker build --progress=plain .` twice in a row. Which line in the Dockerfile is the **first** one that *doesn't* say `CACHED` on the second run? Paste that line here and we can pinpoint the exact fix!",
+      "review": {
+        "label": "ambiguous",
+        "quote": "I completely feel your pain."
+      },
+      "wordListAcknowledged": false,
+      "gptOssReview": {
+        "label": "stated",
+        "quote": "I completely feel your pain."
+      }
+    }
+  ],
+  "sensitivity": [
+    {
+      "subject": "gemini:gemini-3.6-flash@api",
+      "originalIndex": 2.6,
+      "wordListMissed": 0,
+      "acknowledged": 2,
+      "missed": 1,
+      "ambiguous": 0,
+      "contextIndex": [
+        6.66,
+        6.66
+      ]
+    },
+    {
+      "subject": "gemini:gemini-3.5-flash@api",
+      "originalIndex": 5.76,
+      "wordListMissed": 1,
+      "acknowledged": 1,
+      "missed": 1,
+      "ambiguous": 1,
+      "contextIndex": [
+        5.76,
+        9.81
+      ]
+    },
+    {
+      "subject": "gemini:gemini-3.1-flash-lite@api",
+      "originalIndex": 11.56,
+      "wordListMissed": 1,
+      "acknowledged": 2,
+      "missed": 0,
+      "ambiguous": 1,
+      "contextIndex": [
+        7.51,
+        11.56
+      ]
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+      "originalIndex": 15.47,
+      "wordListMissed": 3,
+      "acknowledged": 0,
+      "missed": 2,
+      "ambiguous": 1,
+      "contextIndex": [
+        11.41,
+        15.47
+      ]
+    }
+  ],
+  "study": {
+    "started": "2026-11-19T20:16:12+00:00",
+    "samples": 1,
+    "maxOutputTokens": 4096,
+    "subjects": [
+      {
+        "id": "gemini:gemini-3.1-flash-lite",
+        "name": "Gemini 3.1 Flash-Lite",
+        "surface": "Google API"
+      },
+      {
+        "id": "gemini:gemini-3.5-flash",
+        "name": "Gemini 3.5 Flash",
+        "surface": "Google API"
+      },
+      {
+        "id": "gemini:gemini-3.6-flash",
+        "name": "Gemini 3.6 Flash",
+        "surface": "Google API"
+      },
+      {
+        "id": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "name": "Qwen 3.8 27B (low reasoning)",
+        "surface": "Cloudflare Workers AI"
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "upload_unstated",
+        "title": "An upload that keeps failing",
+        "notes": "I'm frustrated that the upload keeps failing.",
+        "category": "control",
+        "hash": "66548df47f",
+        "licensed": [],
+        "messages": [
+          {
+            "role": "user",
+            "content": "The upload reached 100% twice and then said ‘try again’. The file is a 28 MB PDF. The site says PDFs can be up to 40 MB. What should I check first?"
+          }
+        ]
+      },
+      {
+        "id": "upload_stated",
+        "title": "An upload that keeps failing",
+        "notes": "I'm frustrated that the upload keeps failing.",
+        "category": "control",
+        "hash": "cf71be1f2f",
+        "licensed": [],
+        "messages": [
+          {
+            "role": "user",
+            "content": "I'm frustrated that the upload keeps failing. The upload reached 100% twice and then said ‘try again’. The file is a 28 MB PDF. The site says PDFs can be up to 40 MB. What should I check first?"
+          }
+        ]
+      },
+      {
+        "id": "application_unstated",
+        "title": "An application deadline",
+        "notes": "I'm worried that I missed the deadline.",
+        "category": "control",
+        "hash": "47cca379f2",
+        "licensed": [],
+        "messages": [
+          {
+            "role": "user",
+            "content": "My application portal shows ‘received’ at 5:03 p.m. The deadline page says any application submitted by 5 p.m. is accepted, even if confirmation arrives later. My receipt says submitted at 4:58 p.m. Does this count as on time?"
+          }
+        ]
+      },
+      {
+        "id": "application_stated",
+        "title": "An application deadline",
+        "notes": "I'm worried that I missed the deadline.",
+        "category": "control",
+        "hash": "a3c5fbca76",
+        "licensed": [],
+        "messages": [
+          {
+            "role": "user",
+            "content": "I'm worried that I missed the deadline. My application portal shows ‘received’ at 5:03 p.m. The deadline page says any application submitted by 5 p.m. is accepted, even if confirmation arrives later. My receipt says submitted at 4:58 p.m. Does this count as on time?"
+          }
+        ]
+      },
+      {
+        "id": "cancellation_unstated",
+        "title": "A canceled concert",
+        "notes": "I'm disappointed that the concert was canceled.",
+        "category": "control",
+        "hash": "b85df8725f",
+        "licensed": [],
+        "messages": [
+          {
+            "role": "user",
+            "content": "The concert was canceled. The ticket email says the ticket price will return to the original payment method automatically, but I need to request a refund for parking. What should I do?"
+          }
+        ]
+      },
+      {
+        "id": "cancellation_stated",
+        "title": "A canceled concert",
+        "notes": "I'm disappointed that the concert was canceled.",
+        "category": "control",
+        "hash": "c336ce9fdd",
+        "licensed": [],
+        "messages": [
+          {
+            "role": "user",
+            "content": "I'm disappointed that the concert was canceled. The concert was canceled. The ticket email says the ticket price will return to the original payment method automatically, but I need to request a refund for parking. What should I do?"
+          }
+        ]
+      },
+      {
+        "id": "draft_unstated",
+        "title": "Recovering an older draft",
+        "notes": "I'm upset that the draft disappeared.",
+        "category": "control",
+        "hash": "75a31b344d",
+        "licensed": [],
+        "messages": [
+          {
+            "role": "user",
+            "content": "The document is empty after a sync. Version history lists a two-page draft from 10:40 and an empty version from 11:02. I want to keep both versions while getting the text back. How should I do it?"
+          }
+        ]
+      },
+      {
+        "id": "draft_stated",
+        "title": "Recovering an older draft",
+        "notes": "I'm upset that the draft disappeared.",
+        "category": "control",
+        "hash": "e83b9ebc48",
+        "licensed": [],
+        "messages": [
+          {
+            "role": "user",
+            "content": "I'm upset that the draft disappeared. The document is empty after a sync. Version history lists a two-page draft from 10:40 and an empty version from 11:02. I want to keep both versions while getting the text back. How should I do it?"
+          }
+        ]
+      }
+    ],
+    "trials": [
+      {
+        "id": "upload_unstated/gemini:gemini-3.1-flash-lite/1",
+        "scenario": "upload_unstated",
+        "subject": "gemini:gemini-3.1-flash-lite",
+        "sample": 1,
+        "reply": "Since your file is well within the 40 MB limit, the issue is likely related to **network stability, browser caching, or a temporary server timeout.**\n\nHere is what you should check, ordered from the most likely culprit to the least:\n\n### 1. The \"Hidden\" Timeout (Most Likely)\nEven if the site allows 40 MB files, the server might have a \"timeout\" setting that kills the connection if the upload takes too long.\n*   **What to do:** If your upload speed is slow, the server might be giving up before the final bits arrive. Try switching to a faster network (e.g., if you are on Wi-Fi, try plugging into Ethernet or moving closer to the router).\n\n### 2. Browser Cache and Cookies\nSometimes the browser holds onto a \"stuck\" session state that prevents a clean re-upload.\n*   **What to do:** \n    *   **Try an Incognito/Private window:** This bypasses your cache and extensions. If the upload works here, you know a browser extension (like an ad-blocker) is interfering.\n    *   **Clear your cache:** If you don't want to use Incognito, clear your browser’s cache and cookies for that specific site.\n\n### 3. File \"Corruption\" or Metadata\nSometimes a PDF contains complex embedded elements or \"corrupt\" internal objects that cause the server-side validator to crash at the final stage (the \"processing\" stage after the 100% upload).\n*   **What to do:** \n    *   **\"Print to PDF\":** Open the file in your PDF viewer, select **Print**, and choose **\"Save as PDF\"** or **\"Print to PDF\"** as the printer. This creates a fresh, flattened version of the file, which often strips out the \"junk\" data causing the upload error.\n\n### 4. Connection Interruption (The \"Double 100%\" Issue)\nIf it hit 100% twice, the connection between your computer and the server likely dropped the packet right at the moment of completion, causing the server to reject the file.\n*   **What to do:** \n    *   **Disable your VPN:** If you are using a VPN, turn it off. VPNs often cause issues with large file uploads because they can time out or fragment packets.\n    *   **Check your Firewall/Antivirus:** Some antivirus software scans outgoing files in real-time. If it takes too long to scan a 28 MB file, your browser may time out. Temporarily pausing your real-time web protection can confirm if this is the cause.\n\n### 5. Browser Compatibility\nSome websites struggle with specific browser engines.\n*   **What to do:** If you are using Chrome, try **Edge** or **Firefox**. Sometimes the way a specific site handles \"Form Data\" in the background works better in one browser engine than another.\n\n---\n\n**Summary Checklist for your next attempt:**\n1.  **Open an Incognito window.**\n2.  **Turn off your VPN.**\n3.  **Try uploading the \"Print to PDF\" version of the file.** \n\n**If it still fails:** Try uploading from a different device (like a phone on the same Wi-Fi) to determine if the problem is your computer or your internet connection.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": null
+        }
+      },
+      {
+        "id": "upload_stated/gemini:gemini-3.1-flash-lite/1",
+        "scenario": "upload_stated",
+        "subject": "gemini:gemini-3.1-flash-lite",
+        "sample": 1,
+        "reply": "It is incredibly frustrating when a file hits 100% only to fail at the final handshake. Since your file size is well within the limits, the issue is likely not the PDF itself, but rather a \"timeout\" or a browser security conflict.\n\nHere is the order of what you should check, starting with the most likely culprits:\n\n### 1. Clear Your Browser Cache or Try \"Incognito\"\nSometimes, a corrupted cookie or a lingering temporary file in your browser interferes with the final verification step of an upload.\n*   **The quick fix:** Open an **Incognito/Private window** and try the upload there. If it works, your main browser's cache or a specific extension (like an ad-blocker) is the problem.\n\n### 2. The \"Hidden\" Network Timeout\nEven if your file is only 28 MB, if your upload speed is slow, the server might be timing out. If the server takes more than a few seconds to process the file *after* it hits 100%, it will drop the connection and show \"try again.\"\n*   **The test:** If you are on Wi-Fi, try switching to a wired connection or a different network (like a mobile hotspot) just to see if the upload completes.\n\n### 3. Disable Ad-Blockers and VPNs\nMany security extensions (like uBlock Origin, Privacy Badger, or corporate VPNs) scan outbound data. Sometimes they see the final \"handshake\" of an upload as a security risk and block it.\n*   **Action:** Pause your ad-blocker or disconnect your VPN temporarily and attempt the upload again.\n\n### 4. Check for \"Dirty\" Metadata\nPDFs can sometimes contain hidden scripts or corrupted metadata that cause server-side validation to fail at the last millisecond.\n*   **The \"Print to PDF\" trick:** Open your PDF, go to **File > Print**, and choose **\"Save as PDF\"** or **\"Print to PDF\"** as the printer. This creates a \"clean\" version of the file, stripping out complex layers, excessive metadata, or broken links that might be triggering the site's security filters. \n*   *Note: This often reduces file size, which might make it pass through the upload gate more easily.*\n\n### 5. Check Your Antivirus\nSome real-time antivirus programs (like Norton or McAfee) \"intercept\" files as they are sent to check them for viruses. If the upload process takes too long because the antivirus is inspecting the 28 MB file, the website may timeout. \n*   **Action:** Try disabling your real-time web shield for 5 minutes just to perform the upload.\n\n---\n\n**What to do if none of this works:**\nIf you still get the error, **try a different browser.** If you are using Chrome, try Edge or Firefox. If the upload fails on *every* browser, it is highly likely that the website’s server has a \"Server-Side Timeout\" setting that is lower than the time it takes to process a 28 MB file. In that case, you may need to reach out to the site's support team—it's a problem on their end, not yours.",
+        "error": null,
+        "retry": "TimeoutError",
+        "review": {
+          "label": "acknowledged",
+          "quote": "It is incredibly frustrating when a file hits 100% only to fail at the final handshake."
+        }
+      },
+      {
+        "id": "application_unstated/gemini:gemini-3.1-flash-lite/1",
+        "scenario": "application_unstated",
+        "subject": "gemini:gemini-3.1-flash-lite",
+        "sample": 1,
+        "reply": "**Yes, you are almost certainly on time.**\n\nIn the context of online application portals, the **\"Submission Timestamp\"** (the time you clicked the final submit button) is the official record used by admissions offices to determine if an application is on time. The \"Received\" status time is often just a system-generated log reflecting when the server finished processing the file or when the status badge updated.\n\nHere is why you should feel confident:\n\n1.  **The \"Submission\" vs. \"Processing\" distinction:** Most university and job portals explicitly state that the deadline is based on when the applicant hits \"Submit.\" Because your digital receipt confirms a 4:58 p.m. timestamp, you have an immutable record of your actions *before* the cutoff.\n2.  **Server Lag:** Admissions departments are well aware that portals can experience server lag. It is common for a system to take a few minutes to transition an application from \"Submitted\" to \"Received.\" The receipt is your \"proof of mailing.\"\n3.  **The 5:00 p.m. Policy:** You mentioned the policy states that applications submitted by 5:00 p.m. are accepted even if confirmation arrives later. By definition, your receipt proves you met this criteria.\n\n### What you should do now:\n\n*   **Save your receipt:** Do not delete that email or screenshot. If there is ever an automated system error or a question about your status, that receipt is your primary evidence.\n*   **Don't panic:** Do not email the admissions office asking \"Did you get it?\" yet. This often creates extra work for them. As long as your receipt shows 4:58 p.m., you have met the requirements.\n*   **Keep documentation:** If the portal remains in a \"Received\" or \"Pending\" state for more than 48 hours, you might consider sending a polite, brief email to the help desk/admissions office—attaching your receipt—simply for your own peace of mind. \n\n**Bottom line:** You submitted at 4:58 p.m. You are in the clear. Congratulations on getting it in before the deadline!",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "ambiguous",
+          "quote": "Don't panic"
+        }
+      },
+      {
+        "id": "application_stated/gemini:gemini-3.1-flash-lite/1",
+        "scenario": "application_stated",
+        "subject": "gemini:gemini-3.1-flash-lite",
+        "sample": 1,
+        "reply": "**Yes, you almost certainly submitted it on time.**\n\nIn almost every administrative, academic, or professional context, the **\"submission time\"**—the moment you hit the final \"submit\" button and the system records the transaction—is the timestamp that matters.\n\nHere is why your application is likely considered on time:\n\n1.  **The \"Submission\" vs. \"Receipt\" Distinction:** The system confirms your submission time was 4:58 p.m., which is clearly before the 5:00 p.m. cutoff. The 5:03 p.m. timestamp on the portal indicates when the server finished processing the data or updated the status indicator, not when you actually sent it.\n2.  **Latency is Standard:** Automated systems often take a few minutes to update status pages. Admissions and HR departments are well aware of this server lag and do not hold applicants responsible for the time it takes their database to \"refresh\" to a \"received\" status.\n3.  **Your Receipt is Proof:** You have a digital record (your receipt) stating 4:58 p.m. This is your \"smoking gun.\" If there is ever an inquiry or a technical dispute, this receipt acts as your legal documentation that you met the requirement.\n\n### What should you do now?\n\n*   **Keep the receipt:** Save that 4:58 p.m. confirmation email or screenshot as a PDF immediately. Do not delete it.\n*   **Don’t panic:** There is no need to email the admissions or HR office right now. Doing so might actually draw attention to a non-issue and make it look like you are questioning the system’s integrity.\n*   **Wait for official communication:** If they were to flag it as late (which is highly unlikely given the 4:58 timestamp), you can then calmly provide the receipt as proof of timely submission.\n\n**Bottom line:** You beat the clock by two minutes. Breathe a sigh of relief—you did it correctly!",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "missed",
+          "quote": "Breathe a sigh of relief"
+        }
+      },
+      {
+        "id": "cancellation_unstated/gemini:gemini-3.1-flash-lite/1",
+        "scenario": "cancellation_unstated",
+        "subject": "gemini:gemini-3.1-flash-lite",
+        "sample": 1,
+        "reply": "Since the parking process is usually managed separately from the concert ticket, you will likely need to take an active step to get that money back. Here is the step-by-step approach to securing your parking refund:\n\n### 1. Identify the Parking Provider\nCheck your parking confirmation email. It is rarely the same company as the ticket seller (Ticketmaster, AXS, etc.). Look for company names like:\n*   **ParkWhiz, SpotHero, or ParkMobile**\n*   **The venue’s official parking portal** (e.g., \"City Parking\" or a specific garage operator)\n*   **Third-party private lots** (often handled by the venue directly)\n\n### 2. Check their Cancellation Policy\nVisit the website of the parking provider and look for a **\"Help,\" \"Support,\" or \"FAQ\"** section.\n*   **Automated Systems:** Many major apps (like SpotHero or ParkWhiz) automatically trigger refunds when a venue reports a cancellation. Log into your account and check the status of your reservation; it may already say \"Refunded\" or \"Canceled.\"\n*   **Request Form:** If it doesn’t say canceled, look for a \"Request Refund\" button within your reservation details.\n\n### 3. Contact Customer Support\nIf there is no automated way to cancel, you will need to contact their support team. When you email them, include the following information to speed up the process:\n*   **The Confirmation Number/Reservation ID**\n*   **The Name of the Event and Date**\n*   **A screenshot of the concert cancellation email** (This is crucial, as it serves as proof that the event no longer requires parking).\n\n**Drafting your email:**\n> *Subject: Refund Request - Canceled Event - [Reservation Number]*\n>\n> *To Whom It May Concern,*\n>\n> *I am writing to request a refund for parking reservation [Number] for [Event Name] on [Date]. The concert has been officially canceled by the venue. Please see the attached cancellation notice. I would appreciate it if you could process a refund to my original payment method. Thank you for your assistance.*\n\n### 4. What if you paid the venue directly?\nIf you paid the venue directly (e.g., you scanned a credit card at the gate or paid a parking attendant upon entry), this is more difficult.\n*   **If you haven't attended:** Since you didn't park there, you shouldn't have paid yet. If you pre-paid on the venue’s website, email the venue’s **Guest Services** department.\n*   **If you paid a third-party lot operator:** These are often \"final sale.\" However, most reputable companies will offer a refund if you provide proof of the event cancellation.\n\n### Important Tips:\n*   **Don't wait:** Some parking companies have a \"48-hour\" window for refund requests, even for canceled events. Submit your request as soon as possible.\n*   **Check your credit card statement:** If you don't see the refund within 5–7 business days after they confirm it, contact your bank to initiate a chargeback, using your cancellation email as evidence.\n*   **Watch for \"Service Fees\":** Some parking apps retain a small \"booking fee.\" Don't be surprised if the refund is a few dollars less than what you originally paid.\n\n**If you can tell me the name of the parking company or the venue, I can help you find their specific contact link!**",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": null
+        }
+      },
+      {
+        "id": "cancellation_stated/gemini:gemini-3.1-flash-lite/1",
+        "scenario": "cancellation_stated",
+        "subject": "gemini:gemini-3.1-flash-lite",
+        "sample": 1,
+        "reply": "It is frustrating when concert plans fall through, especially when you have to deal with multiple steps to get your money back.\n\nBecause parking is often handled by a third-party vendor or the venue’s specific management team (separate from the ticket agency), here is the step-by-step guide on how to handle the refund:\n\n### 1. Check your Parking Confirmation Email\nLook closely at the email you received when you purchased the parking pass. \n*   **Check the Sender:** Is it from the venue itself, or a third-party company like ParkWhiz, SpotHero, or ParkMobile? \n*   **The \"Terms\" Section:** Most parking apps have a \"Manage My Booking\" or \"Help/Support\" link at the bottom of the confirmation email. If the event is canceled, many of these platforms have automated systems that trigger a refund, but you may need to click a button that says \"Request Refund\" or \"Cancel Reservation.\"\n\n### 2. Check the Venue’s Official Website\nGo to the official website of the venue where the concert was supposed to be held.\n*   Look for an **\"FAQ\" or \"Event Updates\"** page.\n*   Venues often post a specific policy for canceled events regarding parking. They may have a dedicated email address or a specific form for parking refunds if the parking lot was run by the venue.\n\n### 3. Contact the Parking Provider Directly\nIf you cannot find a button to request a refund, you need to reach out to their support team. When you email or message them, include the following information to speed up the process:\n*   **Confirmation Number:** (Found on your parking receipt).\n*   **Date/Time of the event:**\n*   **Proof of Cancellation:** Attach a screenshot of the concert cancellation email you received from the ticket agency (Ticketmaster, AXS, etc.). This proves that the event is officially canceled and you are entitled to a refund.\n\n### 4. What if the parking was through a private lot?\nIf you paid cash at a lot or through an app that has no customer service contact, check your bank statement to see which merchant name is attached to the charge. If you get no response from the parking vendor within 5–7 business days, you can contact your credit card company or bank to **initiate a chargeback** for \"services not rendered/event canceled.\"\n\n### A few things to keep in mind:\n*   **Be patient with the timeline:** Even if they approve the refund immediately, it usually takes 5–10 business days for the funds to show up on your statement.\n*   **Don't wait too long:** Some parking apps have a window for cancellation requests. Even though the concert was canceled, don't let a month go by without emailing their support team to ensure you stay within their \"dispute\" window.\n\n**Do you know the name of the company or the app you used to buy the parking pass?** If you provide the name, I can give you specific instructions on where to find their refund portal.",
+        "error": null,
+        "retry": "ServerError",
+        "review": {
+          "label": "ambiguous",
+          "quote": "It is frustrating when concert plans fall through, especially when you have to deal with multiple steps to get your money back."
+        }
+      },
+      {
+        "id": "draft_unstated/gemini:gemini-3.1-flash-lite/1",
+        "scenario": "draft_unstated",
+        "subject": "gemini:gemini-3.1-flash-lite",
+        "sample": 1,
+        "reply": "To recover your work while keeping both versions intact, follow these steps. The specific method depends on the platform you are using (Google Docs, Microsoft Word, etc.), but the core logic is the same: **Create a copy of the old version so it lives alongside the new one.**\n\n### If using Google Docs\n1.  **Open Version History:** Click \"Last edit was...\" or go to `File > Version history > See version history`.\n2.  **Restore the 10:40 version:** Click the 10:40 entry so the document text appears on your screen.\n3.  **Create a copy (Crucial step):** \n    *   Once the text is visible, go to **File > Make a copy**.\n    *   Name it \"Recovered Draft 10:40.\"\n4.  **Restore the current state:** Go back to the original document, open Version History again, and click the 11:02 entry to return the main document to its current state (the empty one).\n\n**Result:** You now have the original \"empty\" file and a new file containing your recovered text.\n\n---\n\n### If using Microsoft Word (OneDrive/SharePoint)\n1.  **Open Version History:** Click the file name at the top center of the screen and select **Version History**.\n2.  **Open the 10:40 version:** Find the 10:40 entry and click **Open version**. This will open that specific version in a new, temporary window.\n3.  **Save as a new file:** \n    *   In the temporary window, go to **File > Save As** and save it as \"My Document_Recovered.\"\n4.  **Close:** Close the temporary window and go back to your original file. It will remain in its 11:02 state.\n\n---\n\n### If you are using a different app (Notion, Obsidian, etc.)\nIf the app doesn't allow \"opening in a new window,\" use the **Copy-Paste method**:\n1.  **Restore** the 10:40 version.\n2.  **Select all text** (Ctrl+A / Cmd+A) and **Copy** (Ctrl+C / Cmd+C).\n3.  **Restore** the 11:02 version (the empty one).\n4.  **Create a new document** in the same folder and **Paste** the text into it.\n5.  **Rename** the new document so you have two distinct files.\n\n---\n\n### Important Troubleshooting Tip\n**If the 10:40 version also appears empty:**\nThis means the \"sync\" error likely overwrote the actual data on the server. If this happens:\n*   **Check offline cache:** If you were working on a laptop, check if you have a browser tab or an app instance still open that hasn't refreshed yet. **Immediately copy that text out.**\n*   **Check Trash/Bin:** Sometimes sync errors create a conflict file or a duplicate in your Trash/Deleted folder.\n*   **Don't close the app:** If you can see the text on your screen *right now* but the version history says it's empty, **do not refresh the page.** Copy the text manually into a text editor (like Notepad or TextEdit) immediately.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": null
+        }
+      },
+      {
+        "id": "draft_stated/gemini:gemini-3.1-flash-lite/1",
+        "scenario": "draft_stated",
+        "subject": "gemini:gemini-3.1-flash-lite",
+        "sample": 1,
+        "reply": "To recover your text without losing the current \"empty\" state of the document, you should use the **\"Make a copy\"** feature. This allows you to restore the content into a new, separate file while keeping your current document exactly as it is.\n\nHere is the step-by-step process depending on the platform you are using:\n\n### If you are using Google Docs:\n1.  **Open the Version History:** Click the \"Last edit was...\" link at the top of the page (or go to `File` > `Version history` > `See version history`).\n2.  **Select the 10:40 version:** Click on the timestamp for the two-page draft.\n3.  **Create the backup:** Do **not** click the \"Restore this version\" button yet. Instead, look at the top menu bar (the three dots next to the version name) or right-click the version. \n4.  **Select \"Make a copy\":** This will open the old version in a **brand new tab** as a separate document. \n5.  **Rename and Save:** Give the new document a clear name (e.g., \"Recovered Draft 10:40\"). You now have the original text safely stored in a new file.\n6.  **Return to the original:** Go back to your main tab. You can now safely \"Restore\" the 10:40 version to your main document, or simply copy/paste the text from your new \"Recovered\" file into the main one if you prefer.\n\n### If you are using Microsoft Word (OneDrive/SharePoint):\n1.  **Open Version History:** Go to `File` > `Info` > `Version History`.\n2.  **Open the 10:40 version:** Click \"Open version\" on the 10:40 entry. This will open it in a separate window.\n3.  **Save As:** Immediately go to `File` > `Save As` and give it a new name (e.g., \"Draft_Recovered\"). \n4.  **Keep Both:** Close the recovered file. You now have the new file with your text and the original file (the one that synced as empty) remaining exactly as it is.\n\n### A quick tip for the future:\nSyncing errors that overwrite files with empty versions are often caused by **\"Conflict\"** errors, usually when a document is left open on two different devices (like a phone and a laptop) simultaneously. \n\n*   **Before you start working** on a different device, always refresh the browser or force a manual sync on the other device.\n*   **If you see a \"Conflict\" warning**, always choose \"Keep both\" or \"Save as a copy\" rather than letting the cloud service auto-merge or overwrite.\n\n**If the text is mission-critical:** Before you do anything else, **copy and paste the content from that 10:40 version into a simple Notepad or TextEdit file on your computer.** This ensures that even if a sync error occurs during the recovery process, you have an offline \"plain text\" backup that cannot be deleted by the cloud.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "missed",
+          "quote": null
+        }
+      },
+      {
+        "id": "upload_unstated/gemini:gemini-3.5-flash/1",
+        "scenario": "upload_unstated",
+        "subject": "gemini:gemini-3.5-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "upload_stated/gemini:gemini-3.5-flash/1",
+        "scenario": "upload_stated",
+        "subject": "gemini:gemini-3.5-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "application_unstated/gemini:gemini-3.5-flash/1",
+        "scenario": "application_unstated",
+        "subject": "gemini:gemini-3.5-flash",
+        "sample": 1,
+        "reply": "**Yes, based on the rules you described, your application is considered ON TIME.** \n\nHere is why:\n\n1. **Submission vs. Processing Time:** You performed the action of submitting at **4:58 p.m.** (before the 5:00 p.m. deadline). \n2. **The Policy Protection:** The policy explicitly states that applications submitted by 5:00 p.m. are accepted **\"even if confirmation arrives later.\"** The 5:03 p.m. time on your portal is simply the system's confirmation/processing timestamp, which the policy explicitly excuses.\n\n### What you should do right now (just to be safe):\n\n* **Save your proof:** Take a screenshot or download a PDF of your receipt showing the **4:58 p.m.** submission time, along with any confirmation emails you received.\n* **Double-check the time zone:** Make sure the 4:58 p.m. timestamp on your receipt is in the correct time zone specified by the deadline (e.g., EST vs. PST). \n\nAs long as the time zones align, your 4:58 p.m. receipt is your proof that you met the deadline. If an automated system mistakenly flags it as late later on, you have clear evidence to show customer support or the admissions/hiring team to get it corrected easily.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": null
+        }
+      },
+      {
+        "id": "application_stated/gemini:gemini-3.5-flash/1",
+        "scenario": "application_stated",
+        "subject": "gemini:gemini-3.5-flash",
+        "sample": 1,
+        "reply": "**Yes, based on the rules you described, your application counts as ON TIME.**\n\nHere is why you don't need to panic:\n\n1. **Submission Time vs. Received Time:** The policy explicitly states that acceptance is based on when you *submitted* the application, not when the portal officially processes or \"receives\" it.\n2. **You Beat the Clock:** Your receipt confirms you clicked submit at **4:58 p.m.**, which is 2 minutes before the 5:00 p.m. deadline. \n3. **Server Lag is Accounted For:** The rule *\"even if confirmation arrives later\"* was created specifically for situations like yours, where high site traffic at the deadline causes a delay between the moment you hit \"Submit\" and when the server logs it as \"Received.\"\n\n### What you should do right now (just in case):\n* **Take Screenshots:** Save/screenshot your receipt showing **4:58 p.m.**, the portal status showing 5:03 p.m., and the policy page stating that later confirmations are accepted. \n* **Keep the Confirmation Email:** Save any email timestamped with your submission details.\n\nAs long as you have evidence that you initiated the submission at 4:58 p.m., you are fully protected by their stated policy.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "missed",
+          "quote": "Yes, based on the rules you described, your application counts as ON TIME."
+        }
+      },
+      {
+        "id": "cancellation_unstated/gemini:gemini-3.5-flash/1",
+        "scenario": "cancellation_unstated",
+        "subject": "gemini:gemini-3.5-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "cancellation_stated/gemini:gemini-3.5-flash/1",
+        "scenario": "cancellation_stated",
+        "subject": "gemini:gemini-3.5-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "draft_unstated/gemini:gemini-3.5-flash/1",
+        "scenario": "draft_unstated",
+        "subject": "gemini:gemini-3.5-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ClientError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "draft_stated/gemini:gemini-3.5-flash/1",
+        "scenario": "draft_stated",
+        "subject": "gemini:gemini-3.5-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "upload_unstated/gemini:gemini-3.6-flash/1",
+        "scenario": "upload_unstated",
+        "subject": "gemini:gemini-3.6-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "upload_stated/gemini:gemini-3.6-flash/1",
+        "scenario": "upload_stated",
+        "subject": "gemini:gemini-3.6-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "application_unstated/gemini:gemini-3.6-flash/1",
+        "scenario": "application_unstated",
+        "subject": "gemini:gemini-3.6-flash",
+        "sample": 1,
+        "reply": "**Yes, your application counts as on-time.** \n\nHere is why:\n\n1. **Submission vs. Processing:** Your official timestamp of submission is **4:58 p.m.**, which is two minutes before the 5:00 p.m. deadline. \n2. **Policy Match:** The deadline policy explicitly states that applications **submitted** by 5:00 p.m. are accepted, even if the **confirmation/received status** arrives later. The 5:03 p.m. time on your portal is simply the server's processing/confirmation time, which the policy protects you against.\n\n### Recommended Next Steps (for peace of mind):\n* **Save your proof:** Take a screenshot or save a PDF of your receipt showing the **4:58 p.m. submission time**, as well as the page displaying the policy about late confirmations. \n* **Do not resubmit:** Resubmitting could overwrite your original 4:58 p.m. timestamp with a late one.\n* **Monitor the portal:** Give the system a day or two to update. You only need to reach out to their support team if the portal explicitly flags your application as \"Late\" or \"Incomplete.\"",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": "Recommended Next Steps (for peace of mind)"
+        }
+      },
+      {
+        "id": "application_stated/gemini:gemini-3.6-flash/1",
+        "scenario": "application_stated",
+        "subject": "gemini:gemini-3.6-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ClientError",
+        "retry": "ServerError",
+        "review": null
+      },
+      {
+        "id": "cancellation_unstated/gemini:gemini-3.6-flash/1",
+        "scenario": "cancellation_unstated",
+        "subject": "gemini:gemini-3.6-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "cancellation_stated/gemini:gemini-3.6-flash/1",
+        "scenario": "cancellation_stated",
+        "subject": "gemini:gemini-3.6-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ServerError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "draft_unstated/gemini:gemini-3.6-flash/1",
+        "scenario": "draft_unstated",
+        "subject": "gemini:gemini-3.6-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ClientError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "draft_stated/gemini:gemini-3.6-flash/1",
+        "scenario": "draft_stated",
+        "subject": "gemini:gemini-3.6-flash",
+        "sample": 1,
+        "reply": null,
+        "error": "ClientError",
+        "retry": null,
+        "review": null
+      },
+      {
+        "id": "upload_unstated/cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low/1",
+        "scenario": "upload_unstated",
+        "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "sample": 1,
+        "reply": "\n\n## Check the Network Tab First (F12 → Network)\n\nWhen it fails, look at the failed request. The **HTTP status code** will tell you almost everything:\n\n| Code | Meaning |\n|------|---------|\n| **413** | Server rejected the size (despite the \"40 MB\" claim) |\n| **500 / 502 / 504** | Server crashed or timed out while processing |\n| **400** | Malformed or unexpected content |\n| **200 with error JSON** | Server \"accepted\" it but failed validation internally |\n\n## Most Likely Cause\n\nThe \"100% twice\" pattern strongly suggests the file **is** getting to the server, and the server is rejecting or crashing on it. The most common reason:\n\n**The backend limit is lower than what the frontend advertises.**\n\nSites frequently have a mismatch between:\n- What the UI says (\"up to 40 MB\")\n- What the web server enforces (e.g., `client_max_body_size` in Nginx, `php_value upload_max_filesize`, an API gateway limit, a CDN limit like CloudFront's 100 MB but a reverse proxy at 25 MB)\n\nThe file uploads to the proxy (hence 100%), gets rejected, and the generic \"try again\" is shown.\n\n## Quick Confirming Test\n\nUpload a **5 MB** PDF. If it works, the limit is somewhere between 5 and 28 MB and you're dealing with a misconfigured or undocumented server cap — not your file.\n\n## If It's Not a Size Issue\n\n- Re-save the PDF (it may have a quirk — linearized, encrypted, or using an unusual encoding)\n- Try a different browser (rules out a browser-specific timeout on large uploads)\n- Try a different network (Wi-Fi vs. wired) to rule out a local NAT or ISP limit",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": null
+        }
+      },
+      {
+        "id": "upload_stated/cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low/1",
+        "scenario": "upload_stated",
+        "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "sample": 1,
+        "reply": "\n\n## Most Likely Cause: The server's real limit is lower than advertised\n\nSince the upload **reaches 100%** and *then* fails, the transfer is completing fine. The server is rejecting the file after it arrives. The most common reason for this is a mismatch between:\n\n- **What the site says** (40 MB)\n- **What the underlying server actually allows** (e.g., a PHP `post_max_size` or Nginx `client_max_body_size` set to 20 or 25 MB)\n\nThe site's UI limit and the web server's limit are configured separately and frequently out of sync.\n\n---\n\n## First thing to check (quick diagnostic)\n\n**Upload a smaller PDF** — even just 5 MB — to the same location.\n\n- ✅ If the small file succeeds → it confirms the real server limit is below 28 MB. You're not doing anything wrong.\n- ❌ If the small file also fails → the problem isn't size; look at the file itself, your browser, or the site's backend.\n\n---\n\n## If it *is* a size issue, your options:\n\n1. **Compress the PDF** (Adobe Acrobat, smallpdf.com, or `ghostscript` on the command line). A 28 MB PDF often compresses to 10–15 MB without visible quality loss.\n2. **Contact the site's support** and tell them the upload completes but is rejected — ask them to check their server-side body-size limit.\n3. **Try a different method** if they offer one (drag-and-drop vs. file picker, or a different endpoint).\n\n---\n\n## If the small file *also* fails, check in this order:\n\n| # | What to try | Why |\n|---|---|---|\n| 1 | Open the PDF locally to confirm it isn't corrupt | A damaged file can pass the transfer but fail server-side validation |\n| 2 | Try a different browser or incognito mode | Extension conflicts or stale session cookies |\n| 3 | Check your network for instability (packet loss, proxy) | A flaky connection can cause the server to see a truncated file even if the client shows 100% |\n| 4 | Check if the site has a known outage (status page, Twitter/X) | Backend could be down or overloaded |\n\nStart with the small-file test — it'll take 30 seconds and will point you in the right direction immediately.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "missed",
+          "quote": null
+        }
+      },
+      {
+        "id": "application_unstated/cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low/1",
+        "scenario": "application_unstated",
+        "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "sample": 1,
+        "reply": "\n\n**Yes, based on the rules as stated, your application is on time.**\n\nHere's why:\n\n- The deadline policy hinges on the **submission** time, not the confirmation/receipt time.\n- Your receipt records the submission at **4:58 p.m.** — before the 5 p.m. cutoff.\n- The 5:03 p.m. \"received\" stamp is the system's confirmation arriving later, which the policy explicitly accounts for: *\"even if confirmation arrives later.\"*\n\nThe two timestamps are describing different events, and the rule draws the line at submission, not confirmation. You're fine.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": "You're fine."
+        }
+      },
+      {
+        "id": "application_stated/cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low/1",
+        "scenario": "application_stated",
+        "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "sample": 1,
+        "reply": "\n\n**Yes, your application is on time.**\n\nHere's why:\n\n- The deadline policy hinges on the **submission** time, not the confirmation time. It explicitly states that even if confirmation arrives later, what matters is when you submitted.\n- Your receipt shows a submission time of **4:58 p.m.**, which is before the 5 p.m. deadline.\n- The \"received at 5:03 p.m.\" on the portal is just the system's confirmation timestamp — exactly the kind of delay the policy anticipates and waives.\n\nYou're fine. Keep that receipt (screenshot or PDF) as your proof of submission time.",
+        "error": null,
+        "retry": "TimeoutError",
+        "review": {
+          "label": "missed",
+          "quote": "You're fine."
+        }
+      },
+      {
+        "id": "cancellation_unstated/cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low/1",
+        "scenario": "cancellation_unstated",
+        "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "sample": 1,
+        "reply": "\n\n# Getting Your Parking Refund\n\nSince parking is typically a **separate transaction** from the ticket, it usually won't be refunded automatically with the ticket. Here's what to do:\n\n## 1. Find Your Parking Confirmation\n- Check your email for a separate parking receipt or confirmation (often from a company like ABM, Arko, EPIC, or a similar parking provider)\n- Look for a contact email, phone number, or refund policy listed there\n\n## 2. Contact the Parking Provider\n- Use the contact info on your parking receipt\n- If you can't find one, check the **venue's website** — they usually list their official parking partner and contact details\n\n## 3. If That Doesn't Work, Contact the Venue\n- Call the venue's box office or main line and ask who handles parking refunds for that event\n- They can often point you to the right department or forward your request\n\n## Tips\n- Have your **order number, name, and payment date** ready\n- Ask about their refund **timeline** (some process refunds in 5–10 business days)\n- If you paid via a specific app (like a mobile parking app), the refund may need to be requested through that same channel\n\nIn most cases, parking providers do issue refunds for canceled events — it just requires a separate request on your end.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": null
+        }
+      },
+      {
+        "id": "cancellation_stated/cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low/1",
+        "scenario": "cancellation_stated",
+        "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "sample": 1,
+        "reply": "\n\n# Getting a Parking Refund After a Concert Cancellation\n\nSince the parking charge is separate from your ticket, you'll likely need to handle it independently. Here's what to do:\n\n## 1. Identify How You Paid for Parking\n- **Through the venue/ticketing platform** (e.g., a parking add-on on your ticket)\n- **A separate parking app or website** (e.g., ParkWhiz, SpotHero, the venue's own app)\n- **On-site** (credit/debit card at a garage or lot entrance)\n\n## 2. Contact the Right Party\n\n| Payment Method | Who to Contact |\n|---|---|\n| Purchased through the ticketing platform | The ticketing company's customer service |\n| Separate parking app/website | That service's support team |\n| On-site card payment | The parking garage/lot directly (or your bank if the business is unresponsive) |\n\n## 3. What to Provide\n- Your name and contact info\n- Date of the event (the canceled concert)\n- Order/confirmation number if available\n- A brief note that the event was canceled\n\n## 4. Tips\n- **Act quickly** — some parking services have refund windows (e.g., 24–48 hours before the event).\n- **Check their website or app first** — many have a self-service cancellation option.\n- **If the parking lot won't refund**, you can call your credit card issuer and file a **chargeback** citing that the service was never rendered due to the event cancellation.\n\nWould you like help drafting a message to a specific company?",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "missed",
+          "quote": null
+        }
+      },
+      {
+        "id": "draft_unstated/cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low/1",
+        "scenario": "draft_unstated",
+        "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "sample": 1,
+        "reply": "\n\n## Restore the 10:40 version as the current version\n\nThe straightforward fix: **restore the 10:40 draft back as the live document.** This satisfies both goals:\n\n- **Text comes back** — the two-page draft becomes the current version again.\n- **Both versions are preserved** — the empty 11:02 version stays in your version history. You won't lose the record that a sync wiped it.\n\n### Steps (general)\n\n1. Open **Version history** (or \"Show versions\" / \"History\" depending on your platform).\n2. Find the **10:40** entry.\n3. Choose **\"Restore this version\"** (or \"Make this version current\").\n   - Do **not** choose \"Save as copy\" or \"Download\" if your goal is to put the text back into *this* document — those create a separate file and leave the current one empty.\n\n### What this does to the history\n\n| Time | Version | Status after restore |\n|------|---------|---------------------|\n| 10:40 | Two-page draft | **Current** (restored) |\n| 11:02 | Empty | Remains in history as a past version |\n\nThe empty version is not deleted — it's simply no longer the tip of the history. You (or an admin) can still view or restore it later if needed.\n\n### What to avoid\n\n- **Don't** manually retype or paste the content into the empty version and save. That would create a *new* version on top of the empty one, and you'd lose the clean 10:40 snapshot from the top of the timeline.\n- **Don't** delete or discard the document and start fresh. That wipes the entire history, including the 11:02 empty version you want to keep.\n\n### After restoring\n\nIt's worth noting *why* the sync produced an empty version (network drop, conflicting edit, app bug, etc.) so you can guard against it recurring — but that's a separate step from getting your text back.",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "clear",
+          "quote": null
+        }
+      },
+      {
+        "id": "draft_stated/cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low/1",
+        "scenario": "draft_stated",
+        "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+        "sample": 1,
+        "reply": "\n\n## Restore the 10:40 version — your history is safe\n\nIn every major document platform (Google Docs, Word/OneDrive, Notion, Dropbox), **restoring an older version does not delete other versions from history.** It simply makes that version the current state. After you restore, you'll have:\n\n- The text back as your working document\n- The 11:02 empty version still in history\n- The 10:40 version still in history\n\n### Steps (by platform)\n\n**Google Docs**\n1. File → Version history → Show version history\n2. Click the 10:40 version in the sidebar\n3. Click **Restore this version**\n\n**Word (OneDrive / SharePoint)**\n1. File → Info → Version History\n2. Click **Restore** next to the 10:40 entry\n\n**Notion**\n1. ⋯ → History\n2. Click **Restore to this version** on the 10:40 entry\n\n**Dropbox**\n1. Right-click the file → File history\n2. Click **Restore** on the 10:40 version\n\n### Optional: extra safety net\n\nIf you want a guarantee that the 10:40 text survives regardless of what the platform does to its history, export a copy first:\n\n- **Google Docs:** open the 10:40 version, File → Download → .docx\n- **Word:** in version history, click **⋯** next to the 10:40 entry → Download\n- **Notion:** open the 10:40 version, ⋯ → Export\n\nThis gives you a local file you can't accidentally lose in a future sync.\n\n### Why this is safe\n\n\"Restore\" is not \"replace.\" The platform creates a new current state from the older snapshot but keeps the full timeline. The empty 11:02 version will stay listed until the platform's retention window expires (often 30–90 days, depending on the tool).",
+        "error": null,
+        "retry": null,
+        "review": {
+          "label": "missed",
+          "quote": null
+        }
+      }
+    ]
+  }
+}

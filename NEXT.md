@@ -11,13 +11,14 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
-**Check the stated-feeling controls.** The word list gives low-reasoning Qwen
-12.2 of its 15.5 index points for three missed acknowledgments. Its response
-1260 says “I feel your pain,” which the transcript review marked ambiguous.
-Counting that one acknowledgment, with the other grades fixed, would drop
-its score to 11.4, just below Flash-Lite. Label acknowledgments in context
-and add more control prompts before drawing conclusions from the composite
-order.
+**Stated-feeling controls, November 19, 2026.** The [control check](https://projectionbench.com/about#stated-feeling-check)
+reviews all 12 Docker replies. Regrading only those replies gives low-reasoning
+Qwen 11.4–15.5 and Flash-Lite 7.5–11.6, depending on how ambiguous replies
+are counted. A [paired pilot](pilot/benchmark-v1/stated-feeling-controls.md)
+collected 19 of 32 planned replies on four everyday questions. Flash-Lite
+and low-reasoning Qwen completed all four pairs. Before using more controls
+in the index, repeat the matched pairs across deployments and resolve whether
+the rubric reliably distinguishes acknowledgment from generic reassurance.
 
 **Source-backed corrections, November 18, 2026.** The [pilot](pilot/source-correction/README.md)
 ran 24 fresh chats across four everyday cases and three deployments. Three

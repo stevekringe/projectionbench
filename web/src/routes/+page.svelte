@@ -148,6 +148,7 @@
 						{indexLeader.name} received {valueLabel(missedAcknowledgmentPoints)} of its
 						{valueLabel(indexLeader.value)} points for missed acknowledgments in {indexLeader.counts.fnr[0]} of {indexLeader.counts.fnr[1]} replies.
 					{/if}
+					<a href="/about#stated-feeling-check">See how these replies were graded</a>.
 				</p>
 			{/if}
 

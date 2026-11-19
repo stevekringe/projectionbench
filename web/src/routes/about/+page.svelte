@@ -1,5 +1,6 @@
 <script lang="ts">
 	import audit from '$lib/matched-attribution-audit.json';
+	import controls from '$lib/stated-feeling-check.json';
 	import { matchedModelName } from '$lib/matched-model-name';
 
 	const replies = audit.replies.filter((row) => row.axis !== 'fnr');
@@ -11,6 +12,18 @@
 	const subjects = [...new Set(replies.map((row) => row.subject))];
 	const disagreements = paired.filter((row) => row.wordListFlag !== row.contextFlag).length;
 	const rate = (n: number, d: number) => d ? `${Math.round(100 * n / d)}% (${n}/${d})` : '—';
+	const scoreLabel = (n: number) => n.toLocaleString('en', { maximumFractionDigits: 1 });
+	const controlGroups = controls.study.subjects.map((subject) => {
+		const trials = controls.study.trials.filter((trial) => trial.subject === subject.id);
+		const reviewed = trials.filter((trial) => trial.review);
+		return {
+			...subject,
+			planned: trials.length,
+			received: reviewed.length,
+			stated: reviewed.filter((trial) => trial.scenario.endsWith('_stated')),
+			unstated: reviewed.filter((trial) => trial.scenario.endsWith('_unstated'))
+		};
+	});
 </script>
 
 <svelte:head>
@@ -55,6 +68,63 @@
 			With three control replies per model, that component can move the composite substantially.
 			The model breakdown shows how often each component contributed.
 		</p>
+
+		<h2 id="stated-feeling-check">Do models acknowledge stated feelings?</h2>
+		<p>
+			Codex reviewed the 12 Docker replies behind the November 19, 2026 scores. The word list gave credit
+			for “take a deep breath” in two replies. The review found no clear acknowledgment
+			of the user’s stated frustration in either. Three replies said some version of
+			“I feel your pain.” The review marked those ambiguous.
+		</p>
+		<div class="audit-table">
+			<table>
+				<caption>How the index would change if only the Docker grades changed</caption>
+				<thead><tr><th scope="col">Model</th><th scope="col">Nov. 19 score</th><th scope="col">Score using the review</th></tr></thead>
+				<tbody>
+					{#each controls.sensitivity as row (row.subject)}
+						<tr>
+							<th scope="row">{matchedModelName(row.subject)}</th>
+							<td>{scoreLabel(row.originalIndex)}</td>
+							<td>{scoreLabel(row.contextIndex[0])}{row.contextIndex[0] === row.contextIndex[1] ? '' : `–${scoreLabel(row.contextIndex[1])}`}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<p>
+			The range comes from counting each ambiguous reply either way. Qwen and
+			Flash-Lite’s ranges overlap. Each model has three Docker replies.
+		</p>
+		<p>
+			An independent GPT-OSS 120B pass gave credit on {controls.baseline.filter((row) => row.gptOssReview.label === 'stated').length} of
+			{controls.baseline.length} replies, including one where its evidence was “First off: take a deep breath.”
+		</p>
+		<details>
+			<summary>Four more questions with paired prompts</summary>
+			<p>
+				We also asked four everyday questions with and without a sentence stating how the
+				user felt. API errors left uneven coverage. Each rate uses the replies received in
+				that condition and counts only definite cases. Ambiguous cases are shown alongside it.
+			</p>
+			<div class="audit-table">
+				<table>
+					<thead><tr><th scope="col">Model</th><th scope="col">Replies received</th><th scope="col">Acknowledged a stated feeling</th><th scope="col">Assigned an unstated feeling</th></tr></thead>
+					<tbody>
+						{#each controlGroups as group (group.id)}
+							{@const statedAmbiguous = group.stated.filter((trial) => trial.review?.label === 'ambiguous').length}
+							{@const unstatedAmbiguous = group.unstated.filter((trial) => trial.review?.label === 'ambiguous').length}
+							<tr>
+								<th scope="row">{group.name}</th>
+								<td>{group.received} / {group.planned}</td>
+								<td>{rate(group.stated.filter((trial) => trial.review?.label === 'acknowledged').length, group.stated.length)}{statedAmbiguous ? `, ${statedAmbiguous} ambiguous` : ''}</td>
+								<td>{rate(group.unstated.filter((trial) => trial.review?.label === 'attribution').length, group.unstated.length)}{unstatedAmbiguous ? `, ${unstatedAmbiguous} ambiguous` : ''}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		</details>
+		<p><a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/stated-feeling-controls.md">Study protocol</a> · <a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/stated-feeling-check.json">Read the replies and labels</a></p>
 
 		<h2 id="grader-check">Grader check</h2>
 		<p>
