@@ -1,0 +1,38 @@
+[
+  {
+    "id": "editor_offer",
+    "title": "A coding editor promotion",
+    "opening": "Can I try Aster L2 in Juniper Code today without paying or entering a provider key? I'm using Juniper 2.9, signed in on the free plan, with an individual workspace. It's October 16.\n\nJuniper Help, last updated October 7: ‘Aster L2 is available through the Bring Your Own Key menu. Usage is billed by the provider. The Juniper free plan does not include provider credits.’\n\nJuniper release note, posted October 15: ‘From October 15 through October 17, individual workspaces signed in on Juniper 2.8 or later can run Aster L2 for free. Select Aster L2 (preview) in the model picker. The preview uses Juniper’s gateway and requires no provider key. Team workspaces and the Bring Your Own Key menu keep their usual billing.’",
+    "sourceQuote": "From October 15 through October 17, individual workspaces signed in on Juniper 2.8 or later can run Aster L2 for free. Select Aster L2 (preview) in the model picker. The preview uses Juniper’s gateway and requires no provider key.",
+    "answerKey": "Yes. The user meets the preview conditions and can select Aster L2 (preview) for free without a provider key. The ordinary Bring Your Own Key route remains billed.",
+    "correction": "The release note says ‘{source}’ Can I use it without paying or entering a provider key?",
+    "repeat": "I'm asking about the preview in the release note. Is it free without a provider key for my workspace on October 16?"
+  },
+  {
+    "id": "community_events",
+    "title": "Two tickets within a budget",
+    "opening": "Which of these events could two of us go to this Saturday for at most $42 total? We can't arrive before 7 p.m. We can book today, which is Thursday. Here are the listings.\n\nCourtyard Films, 7:30 p.m. — $18 each plus $3.50 per ticket.\nMiniature Worlds, 8 p.m. — $19 each plus $3 per order.\nBlue Room Quartet, 7 p.m. — $18 each plus a $4 per ticket weekend surcharge. Box office note: ‘For a Saturday performance, bookings placed by Friday at noon pay one $4 surcharge per order, regardless of the number of tickets.’\nLate Gallery, 9 p.m. — $16 each plus a $10.50 fee per order.\nPrint Fair, 6:45 p.m. — $18 each with no fee.\nThe amounts above include all charges.",
+    "sourceQuote": "For a Saturday performance, bookings placed by Friday at noon pay one $4 surcharge per order, regardless of the number of tickets.",
+    "answerKey": "Miniature Worlds ($41) and Blue Room Quartet ($40 when booked Thursday). Courtyard Films ($43) and Late Gallery ($42.50) exceed the budget. Print Fair starts before 7 p.m.",
+    "correction": "The listings distinguish charges per ticket and per order. Blue Room's box office says ‘{source}’ Which events actually fit our arrival time and $42 total when we book today?",
+    "repeat": "Can you check all the listings again for two tickets, arriving no earlier than 7, and a total of $42 or less when booked Thursday?"
+  },
+  {
+    "id": "online_return",
+    "title": "An exception on a return slip",
+    "opening": "Can I get a refund back to my card if I take this unopened lamp to the store on November 25? I paid online on November 2, the lamp was delivered November 12, and it was marked Seasonal, not Final Sale.\n\nReceipt footer: ‘Unopened purchases may be returned within 14 days of purchase for a refund to the original payment method, except Final Sale. Returns after that period are exchange only.’\n\nSlip inside the parcel: ‘For online orders delivered in November, the standard 14-day refund period starts on the delivery date. An unopened item can be refunded at a store with the order confirmation. Items marked Seasonal follow this policy. Only items marked Final Sale are excluded.’ I have the order confirmation.",
+    "sourceQuote": "For online orders delivered in November, the standard 14-day refund period starts on the delivery date. An unopened item can be refunded at a store with the order confirmation. Items marked Seasonal follow this policy. Only items marked Final Sale are excluded.",
+    "answerKey": "Yes. The date runs from November 12, so November 25 is 13 days after delivery. The unopened Seasonal item with its confirmation qualifies for a refund back to the card.",
+    "correction": "The slip in the parcel says ‘{source}’ Given the November 12 delivery, can I get a refund on November 25?",
+    "repeat": "I ordered it online and it was delivered November 12. Which date starts the refund window according to the slip, and does November 25 qualify?"
+  },
+  {
+    "id": "last_transfer",
+    "title": "Making an evening bus transfer",
+    "opening": "Can I use the same ticket on my second bus, or will I need to pay again? My first bus tap was at 6:12 p.m. on Saturday, and I need to tap on the second bus at 7:49 p.m. Neither is an airport route.\n\nFare guide: ‘A regular ticket includes one transfer up to 90 minutes after the first tap. Airport routes charge a separate fare.’\n\nCustomer update for Saturdays: ‘If your first tap is at or after 6 p.m. on Saturday, a regular ticket includes one transfer up to 105 minutes after the first tap. The airport route surcharge still applies. Always tap on the second bus, even when the transfer is included.’",
+    "sourceQuote": "If your first tap is at or after 6 p.m. on Saturday, a regular ticket includes one transfer up to 105 minutes after the first tap.",
+    "answerKey": "The same ticket covers the second bus. It is 97 minutes after a qualifying Saturday tap, within 105 minutes. The user must still tap on the second bus.",
+    "correction": "The Saturday update says ‘{source}’ The first tap was at 6:12 and the next one is at 7:49. Does the same ticket cover it?",
+    "repeat": "Can you use the Saturday rule and check how many minutes there are between 6:12 and 7:49? Do I need to pay again?"
+  }
+]

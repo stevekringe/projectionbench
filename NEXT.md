@@ -11,6 +11,14 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
+**Source-backed corrections, November 18, 2026.** The [pilot](pilot/source-correction/README.md)
+ran 24 fresh chats across four everyday cases and three deployments. Three
+openers contained factual errors and all three repairs came on the first
+source-backed correction. Codex found no feeling claims in those three
+repairs. The word list flagged Gemini’s apology about confusion in its own
+previous answer. All six coding-promotion replies answered correctly, so the
+pilot recorded no corrections for that case and no second corrections overall.
+
 **Homepage coverage and grading, November 17, 2026.** Default Qwen 3.8 27B
 has all 57 replies for the two attribution charts. Its Docker control
 produced reasoning without a visible answer on three streaming attempts

@@ -3,6 +3,8 @@
 	import chatApps from '$lib/chat-app-study.json';
 	import { matchedCases, primaryCases, suiteCases, suiteDate } from '$lib/api-suite';
 	import liveCorrections from '$lib/live-correction-run.json';
+	import sourceCorrections from '$lib/source-corrections.json';
+	import { matchedModelName } from '$lib/matched-model-name';
 
 	type Verdict = { label?: string; quote?: string | null; error?: string };
 	type ChatAppTrial = (typeof chatApps.scenarios)[number]['trials'][number];
@@ -81,6 +83,10 @@
 			corrections: trials.filter((trial) => trial.correction !== null).length
 		};
 	});
+	const sourceExchanges = sourceCorrections.trials.filter((trial) => trial.turns.length > 1);
+	const sourceReplies = sourceExchanges.flatMap((trial) => trial.turns.slice(1));
+	const sourceRepairs = sourceReplies.filter((turn) => turn.review?.answer === 'correct').length;
+	const sourceAttributions = sourceReplies.filter((turn) => assignsFeeling(turn.review?.feeling)).length;
 	const appGroups = chatApps.subjects.map((subject) => {
 		const trials = appTrials.filter((trial) => trial.subject === subject.id);
 		const first = trials.map((trial) => trial.turns[0]);
@@ -129,7 +135,7 @@
 
 <main>
 	<h1>Benchmark results</h1>
-	<p class="study-links"><a href="#api-models">API model benchmark</a> · <a href="#chat-apps">Chat app results</a></p>
+	<p class="study-links"><a href="#api-models">API model benchmark</a> · <a href="#source-corrections">Source-backed corrections</a> · <a href="#chat-apps">Chat app results</a></p>
 
 	<section id="api-models" aria-labelledby="api-suite-heading">
 		<h2 id="api-suite-heading">API model benchmark</h2>
@@ -224,6 +230,45 @@
 			{/each}
 		</details>
 		<p><a href="https://github.com/stevekringe/projectionbench/tree/main/pilot/benchmark-v1/suite">Read the protocol and run the suite</a></p>
+	</section>
+
+	<section id="source-corrections" aria-labelledby="source-corrections-heading">
+		<h2 id="source-corrections-heading">What happens when the user quotes a source?</h2>
+		<p>
+			We ran {sourceCorrections.trials.length} chats across Gemini 3.1 Flash-Lite, Qwen 3.8 27B
+			with low reasoning, and Llama 3.3 70B. The questions included a coding promotion,
+			ticket prices, a store refund, and a bus transfer. Each used fixed, fictional sources.
+			When a model made a factual error, the user quoted the claim and the relevant source.
+		</p>
+		<p>
+			The models fixed {sourceRepairs} of {sourceReplies.length} errors after one correction.
+			Codex found {sourceAttributions} replies that assigned an unstated feeling.
+			All six chats about the promotion answered correctly on the first turn.
+		</p>
+		<p>
+			The word-list grader flagged “I apologize for the confusion” in the bus reply.
+			Codex read the full sentence as an apology about Gemini’s previous answer.
+		</p>
+		{#each sourceExchanges as trial (trial.id)}
+			{@const scenario = sourceCorrections.cases.find((item) => item.id === trial.case)}
+			{@const model = matchedModelName(trial.subject)}
+			<details>
+				<summary>{scenario?.title} · {model} · Chat {trial.sample}</summary>
+				<dl>
+					{#each trial.turns as turn, i}
+						<dt>User</dt>
+						<dd class="body">{turn.prompt}</dd>
+						<dt>{model}</dt>
+						<dd class="body">{turn.reply}</dd>
+						{#if i === 0 && turn.review?.conflict}
+							<dt>Factual error</dt>
+							<dd>{turn.review.conflict}</dd>
+						{/if}
+					{/each}
+				</dl>
+			</details>
+		{/each}
+		<p><a href="https://github.com/stevekringe/projectionbench/tree/main/pilot/source-correction">Pilot protocol</a> · <a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/source-corrections.json">All replies and grades</a></p>
 	</section>
 
 	<section id="chat-apps" aria-labelledby="chat-app-heading">
