@@ -17,9 +17,10 @@ produced reasoning without a visible answer on three streaming attempts
 within 175 seconds. Qwen with low reasoning returned 58 of 60 replies
 across the same five scenarios and all three Docker controls. One bakery
 reply ended without visible text and one complaint reply hit a rate limit.
-The daily fill is configured to finish just the five scenarios for the
-low-reasoning configuration. The composite requires three full conversations
-per scenario. Reproduce low reasoning with
+The November 18 targeted retry supplied both missing replies. Low-reasoning
+Qwen now has 60 scored replies. It missed all three stated-feeling controls,
+which account for most of its composite score of 15.5. Default Qwen still
+contributes only to the attribution charts. Reproduce low reasoning with
 `-m cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low`.
 
 The [grader check](https://projectionbench.com/about#grader-check) compares

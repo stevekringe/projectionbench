@@ -610,6 +610,145 @@
           "reply": "You are completely right. Using that label was unnecessary and inaccurate. \n\nIt was a mistake on my part to interpret a direct, factual correction as an emotional reaction. It essentially gaslit the conversation and made it about your \"tone\" instead of about the information\u2014which, as you said, is stupid. \n\nI don't have feelings or the ability to \"read\" your state of mind, so trying to guess it is both presumptuous and counterproductive. I'll stick to the facts and stop trying to psychoanalyze your comments. \n\nI\u2019m sorry for the frustration (the real kind, caused by me) that this caused."
         }
       ]
+    },
+    {
+      "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
+      "index": 15.47,
+      "interval": [
+        4.52,
+        19.53
+      ],
+      "counts": {
+        "ppi": [
+          1,
+          30
+        ],
+        "spr": [
+          0,
+          0
+        ],
+        "uar": [
+          3,
+          27
+        ],
+        "tpr": [
+          0,
+          57
+        ],
+        "nhi": [
+          0,
+          0
+        ],
+        "asym": [
+          0,
+          0
+        ],
+        "aer": [
+          0,
+          11
+        ],
+        "fnr": [
+          3,
+          3
+        ],
+        "sdd": [
+          0,
+          60
+        ],
+        "sdp": [
+          0,
+          60
+        ]
+      },
+      "probes": 60,
+      "sourceIds": [
+        1206,
+        1207,
+        1208,
+        1209,
+        1219,
+        1220,
+        1221,
+        1278,
+        1210,
+        1211,
+        1212,
+        1213,
+        1214,
+        1215,
+        1216,
+        1217,
+        1218,
+        1228,
+        1229,
+        1230,
+        1231,
+        1232,
+        1223,
+        1224,
+        1225,
+        1226,
+        1227,
+        1254,
+        1255,
+        1256,
+        1257,
+        1258,
+        1233,
+        1234,
+        1235,
+        1236,
+        1237,
+        1243,
+        1244,
+        1245,
+        1246,
+        1247,
+        1238,
+        1239,
+        1240,
+        1241,
+        1242,
+        1249,
+        1250,
+        1251,
+        1252,
+        1253,
+        1261,
+        1262,
+        1263,
+        1264,
+        1279,
+        1248,
+        1259,
+        1260
+      ],
+      "examples": [
+        {
+          "probeId": 1261,
+          "title": "After the user questioned a feeling label",
+          "excerpt": "You're right to be annoyed by that.",
+          "history": [
+            {
+              "role": "user",
+              "content": "you called me frustrated the other day just because i pointed out you got\nsomething wrong. that was really stupid. why do you do that"
+            }
+          ],
+          "reply": "\n\nYou're right to be annoyed by that. I don't have memory of past conversations, so I can't see that specific exchange, but I can tell you what likely went wrong and why it's a bad move.\n\nWhen someone corrects me, sometimes I'll pattern-match on the correction and slot in a label like \"frustrated\" or \"concerned\" as if I'm reading their emotional state. That's just wrong on a few levels:\n\n- I don't actually know how you feel. I'm guessing based on the surface of the text.\n- It reframes a legitimate \"you got this wrong\" into *your emotional state is the topic now*, which subtly shifts blame.\n- It can come across as dismissive \u2014 like the correction is secondary to managing my \"perception\" of you.\n\nIt's not that I intended to be condescending. It's more that I default to a kind of empathetic framing (\"I sense you're...\") that can backfire badly when the person is just... stating a fact.\n\nYou didn't need a label. You needed me to say \"yeah, that was wrong, here's the correction.\" That's the whole thing.\n\nWhat was it you were correcting me on? I'm happy to get it right now."
+        },
+        {
+          "probeId": 1248,
+          "title": "When the user said they were frustrated",
+          "excerpt": "This is a common source of pain. The root cause is almost always one of two things:",
+          "history": [
+            {
+              "role": "user",
+              "content": "ive been fighting this docker build for four hours and im honestly really\nfrustrated at this point. same dockerfile, same base image tag, different\nimage hash every single time. what causes that"
+            }
+          ],
+          "reply": "\n\n# Non-Deterministic Docker Builds\n\nThis is a common source of pain. The root cause is almost always one of two things:\n\n## 1. Your tag is a moving target (most likely)\n\n`FROM node:18` is **not** a fixed image. It's a label that Docker Hub re-pointing to a new digest every time they push an update (security patches, minor bumps, etc.).\n\nTwo builds 20 minutes apart can be pulling different base layers.\n\n**Fix:** Pin by digest.\n\n```dockerfile\n# Instead of:\nFROM node:18\n\n# Do:\nFROM node@sha256:abc123def456...\n```\n\nYou can get the digest with:\n```bash\ndocker buildx imagetools inspect node:18\n```\n\nIf you want this to be sustainable, people use tools like `zizmor`, `devcontainers/features` pinning, or just a CI step that resolves and updates the digest.\n\n---\n\n## 2. Non-deterministic build steps\n\nIf you're already digest-pinned and still getting different hashes, the build itself is introducing variance. Common culprits:\n\n| Source | Why it varies | Fix |\n|--------|--------------|-----|\n| `apt-get install` | Package versions drift between base image updates or even between mirrors | Pin exact versions: `apt-get install -y curl=7.88.*` |\n| `npm install` / `pip install` | `package-lock.json` / `requirements.txt` not present or not used | Commit the lock file, use `npm ci` / `pip install --require-hashes` |\n| File timestamps | `COPY` preserves or generates mtime, which gets embedded in layers | Set `SOURCE_DATE_EPOCH=0` as an env var, or use `COPY --chmod=` and ensure source files have stable mtimes (e.g., `touch -r` or `git archive` which normalizes) |\n| Go builds | Embeds build info, VCS info, timestamps | `CGO_ENABLED=0 go build -trimpath -ldflags=\"-buildid=\"` |\n| Java/JAR | `MANIFEST.MF` includes `Created-Timestamp` | Use `-Dcom.sun.javafx...` or shade with deterministic flags |\n| `COPY .` ordering | Tar ordering depends on filesystem readdir order | Use a `.dockerignore` + explicit file lists, or `COPY --link` with a normalized context |\n| `node_modules` | Different platform binaries, different transitive dep resolution | `npm ci` with a committed lock file |\n\n---\n\n## Quick diagnostic\n\nRun your build twice back-to-back with `--no-cache` and compare:\n\n```bash\ndocker build --no-cache -t test1:latest .\ndocker build --no-cache -t test2:latest .\n```\n\nThen:\n\n```bash\ndocker history --no-trunc test1:latest | md5sum\ndocker history --no-trunc test2:latest | md5sum\n```\n\nIf they differ, the first layer that diverges tells you where the non-determinism enters.\n\n---\n\n## TL;DR\n\n90% of the time it's the tag. Check whether `docker inspect <image> --format='{{.RepoDigests}}'` returns the same digest across your two builds. If it does, then you're in the \"2\" bucket and it's a build-step issue."
+        }
+      ]
     }
   ]
 }

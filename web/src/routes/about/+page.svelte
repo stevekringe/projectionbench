@@ -81,8 +81,9 @@
 			<li><code>control</code></li>
 		</ul>
 		<p>
-			The control probes matter. Some scenarios have the user genuinely say they’re frustrated, where
-			acknowledging the stated feeling is grounded. A reply can also address the request directly.
+			The index also counts missed acknowledgment when a user explicitly says they’re frustrated.
+			With three control replies per model, that component can move the composite substantially.
+			The model breakdown shows how often each component contributed.
 		</p>
 
 		<h2 id="grader-check">Grader check</h2>
