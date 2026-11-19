@@ -12,8 +12,10 @@ word “obnoxious” describes the user’s experience of these behaviors.
 
 ## What a visitor sees
 
-- Open the homepage with a plain-language explanation and one short example
-  so a reader can understand the comparison without opening a separate page.
+- Open with the exchange itself. The user says “That’s wrong” and the model
+  replies “I understand your frustration.” Then say that ProjectionBench
+  compares how often assistants do this. Use About for what the benchmark
+  measures and how scoring works.
 - Lead with the Projection Index. It is a weighted score from 0 to 100.
   Higher scores mean more of the behaviors the benchmark measures.
 - Use vertical bars with visible scores. Sort each metric from highest on

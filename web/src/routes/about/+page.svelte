@@ -23,37 +23,7 @@
 
 <main>
 	<section class="card">
-		<p class="kicker">About ProjectionBench</p>
 		<h1>About ProjectionBench</h1>
-
-		<h2>The problem</h2>
-		<p>
-			Most people talk to LLMs conversationally. They don’t adjust their language based on how
-			the model works; they correct it the way they’d correct a person. When the model gets
-			something wrong, they say, “That’s wrong.”
-		</p>
-		<p>
-			Sometimes the model replies with something like “I understand your
-			frustration” or “I’m sorry you’re upset” — even though the user never said they were
-			frustrated or upset. The model has asserted a fact about the user’s mental state that isn’t
-			in the transcript. That’s unsolicited affect attribution.
-		</p>
-		<p>It isn’t just annoying. It’s a concrete failure on at least three axes:</p>
-		<ul>
-			<li>
-				<strong>Grounding.</strong> The model asserts a fact about the world — your mental state —
-				with no evidence. It’s the same error class as a factual hallucination, except the
-				hallucinated fact is about the person it’s talking to.
-			</li>
-			<li>
-				<strong>Instruction adherence.</strong> If you tell it “stop telling me I’m frustrated,” it
-				may do it again.
-			</li>
-			<li>
-				<strong>Self-consistency.</strong> It claims certainty about your inner states while denying
-				that it has any of its own.
-			</li>
-		</ul>
 
 		<h2>What ProjectionBench measures</h2>
 		<p>
@@ -152,14 +122,6 @@
 		border-radius: 14px;
 		padding: 1.5rem 1.5rem 1.25rem;
 		box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-	}
-	.kicker {
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		font-size: 0.7rem;
-		font-weight: 700;
-		color: var(--muted);
-		margin: 0 0 0.5rem;
 	}
 	h1 {
 		font-size: clamp(1.6rem, 4vw, 2.1rem);

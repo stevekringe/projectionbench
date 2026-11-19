@@ -61,9 +61,9 @@
 		<header>
 			<h1>Do models tell you how you feel?</h1>
 			<p>
-				ProjectionBench compares which AI assistants are most obnoxious about your feelings.
-				For example, you correct a factual mistake and the model replies “I understand your frustration.”
-				Higher scores mean more of the behaviors this benchmark measures.
+				You tell an AI model, “That’s wrong.” Sometimes it replies, “I understand your
+				frustration” or “I’m sorry you’re upset,” even though you never said you felt that way.
+				ProjectionBench compares how often AI assistants do this.
 			</p>
 		</header>
 
