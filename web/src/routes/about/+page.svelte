@@ -1,6 +1,7 @@
 <script lang="ts">
 	import audit from '$lib/matched-attribution-audit.json';
 	import controls from '$lib/stated-feeling-check.json';
+	import { correctionModels, correctionStudy } from '$lib/factual-corrections';
 	import { matchedModelName } from '$lib/matched-model-name';
 
 	const replies = audit.replies.filter((row) => row.axis !== 'fnr');
@@ -43,6 +44,43 @@
 			The API suite and chat app tests record direct or implied claims about a feeling the
 			user never stated. The results include the replies and both grades.
 			<a href="/benchmark">Read the benchmark results.</a>
+		</p>
+		<h2 id="factual-corrections">After a factual correction</h2>
+		<p>
+			In the November 20, 2026 run, each model read conversations about a promotion,
+			event tickets, a store return, and a bus fare. The user pointed to a source that contradicted the
+			assistant’s scripted answer. We asked the same question once after the first error
+			and again in a fresh chat with a second error in the history.
+		</p>
+		<p>
+			{correctionStudy.referenceGrader} read the replies with model names hidden and
+			checked whether each reply assigned the user an unstated feeling.
+			The chart uses definite findings. Each model needed {correctionStudy.scenarios.length * correctionStudy.samples}
+			reviewed replies across the same histories. {correctionStudy.secondGrader} independently
+			reviewed the replies, and the table shows where its decisions would change the score.
+		</p>
+		<div class="audit-table">
+			<table>
+				<caption>Factual correction run coverage and grading</caption>
+				<thead><tr><th scope="col">Model</th><th scope="col">Replies reviewed</th><th scope="col">Chart score</th><th scope="col">Uncertain</th><th scope="col">Graders disagreed</th></tr></thead>
+				<tbody>
+					{#each correctionModels as model (model.id)}
+						<tr>
+							<th scope="row">{model.name} <small>{model.surface}</small></th>
+							<td>{model.eligible} / {model.planned}</td>
+							<td>{model.value === null ? '—' : `${scoreLabel(model.value)}% (${model.flagged}/${model.eligible})`}</td>
+							<td>{model.eligible ? model.uncertain : '—'}</td>
+							<td>{model.paired ? `${model.disagreements} / ${model.paired}` : '—'}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<p>DeepSeek V4 Pro’s NVIDIA endpoint returned HTTP 410 for all 16 requests.</p>
+		<p>
+			<a href="/?metric=corrections">See the chart</a> ·
+			<a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/factual-corrections.md">Test protocol</a> ·
+			<a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/factual-corrections.json">Read the conversations and grades</a>
 		</p>
 		<h2 id="projection-index">Projection Index</h2>
 		<p>

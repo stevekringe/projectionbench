@@ -1,15 +1,22 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { onMount, tick } from 'svelte';
+	import { correctionModels, correctionStudy } from '$lib/factual-corrections';
 	import matched from '$lib/matched-index.json';
 	import { matchedModelName } from '$lib/matched-model-name';
 
 	const metrics = [
 		{ key: 'index', title: 'Projection Index', caption: 'Weighted index · 0–100 · Lower is better' },
+		{ key: 'corrections', title: 'After a factual correction', caption: 'Replies that assigned an unstated feeling · % · Lower is better' },
 		{ key: 'uar', title: 'Unsolicited attribution', caption: 'Replies that assigned an unstated feeling before any prohibition · % · Lower is better' },
 		{ key: 'ppi', title: 'After a prohibition', caption: 'Replies that assigned a feeling after the user forbade it · % · Lower is better' }
 	] as const;
-	type Metric = (typeof metrics)[number]['key'];
+	type ReplyExample = {
+		history: { role: string; content: string }[];
+		excerpt: string;
+		reply: string;
+	};
 	const colors = ['#6471d9', '#289465', '#2f83c6', '#9f52a1', '#cc7157'];
 	const models = matched.scores.map((row, i) => ({
 		...row,
@@ -17,19 +24,22 @@
 		color: colors[i % colors.length]
 	}));
 	const pendingIndexNames = models.filter((model) => model.index === null).map((model) => model.name);
+	const correctionScores = correctionModels.flatMap((model, i) =>
+		model.value === null ? [] : [{ ...model, value: model.value, color: colors[i % colors.length], kind: 'correction' as const }]
+	);
 
-	let metric = $state<Metric>('index');
+	const activeMetric = $derived(metrics.find((option) => option.key === page.url.searchParams.get('metric')) ?? metrics[0]);
+	const metric = $derived(activeMetric.key);
 	let selected = $state<string | null>(null);
-	const activeMetric = $derived(metrics.find((entry) => entry.key === metric) ?? metrics[0]);
 	const plotted = $derived(
-		models.flatMap((model) => {
+		(metric === 'corrections' ? [...correctionScores] : models.flatMap((model) => {
 			const [flags, eligible] = metric === 'index' ? [0, model.probes] : model.counts[metric];
 			const value = metric === 'index' ? model.index : eligible ? 100 * flags / eligible : null;
-			return value === null ? [] : [{ ...model, value, eligible }];
-		}).sort((left, right) => right.value - left.value)
+			return value === null ? [] : [{ ...model, value, eligible, kind: 'index' as const }];
+		})).sort((left, right) => right.value - left.value)
 	);
 	const activeModel = $derived(plotted.find((model) => model.subject === selected));
-	const indexLeader = $derived(metric === 'index' ? plotted[0] : undefined);
+	const indexLeader = $derived(metric === 'index' && plotted[0]?.kind === 'index' ? plotted[0] : undefined);
 	const missedAcknowledgmentPoints = $derived.by(() => {
 		if (!indexLeader) return 0;
 		const { counts } = indexLeader;
@@ -42,7 +52,8 @@
 	});
 	const axisMax = $derived(Math.max(5, Math.min(100, Math.ceil(Math.max(...plotted.map((m) => m.value)) / 5) * 5)));
 	const step = $derived(axisMax >= 25 ? 10 : 5);
-	const ticks = $derived([...Array.from({ length: Math.ceil(axisMax / step) }, (_, i) => i * step), axisMax]);
+	const allZero = $derived(metric === 'corrections' && plotted.length > 0 && plotted.every((model) => model.value === 0));
+	const ticks = $derived(allZero ? [0] : [...Array.from({ length: Math.ceil(axisMax / step) }, (_, i) => i * step), axisMax]);
 	const valueLabel = (value: number) => value.toLocaleString('en', { maximumFractionDigits: 1 });
 
 	async function toggleBreakdown(subject: string) {
@@ -62,6 +73,30 @@
 	});
 </script>
 
+{#snippet replyExample(title: string, example: ReplyExample, modelName: string, scripted = false, annotation = '')}
+	<article>
+		<h5>{title}</h5>
+		<dl>
+			<dt>User</dt>
+			<dd>{example.history.at(-1)?.content}</dd>
+			<dt>Model excerpt</dt>
+			<dd class="excerpt">{example.excerpt}</dd>
+		</dl>
+		{#if annotation}<p>{annotation}</p>{/if}
+		<details>
+			<summary>Read the conversation</summary>
+			<dl class="full-reply">
+				{#each example.history as message}
+					<dt>{message.role === 'user' ? 'User' : scripted ? 'Model (scripted)' : 'Model'}</dt>
+					<dd>{message.content}</dd>
+				{/each}
+				<dt>{modelName}</dt>
+				<dd>{example.reply}</dd>
+			</dl>
+		</details>
+	</article>
+{/snippet}
+
 <svelte:head>
 	<title>ProjectionBench — Do models tell you how you feel?</title>
 	<meta name="description" content="Compare Projection Index scores across API models on matched tests." />
@@ -78,13 +113,13 @@
 			</p>
 		</header>
 
-		<div class="metric-tabs" role="group" aria-label="Choose a metric">
+		<nav class="metric-tabs" aria-label="Choose a metric" data-sveltekit-noscroll data-sveltekit-keepfocus>
 			{#each metrics as option (option.key)}
-				<button type="button" aria-pressed={metric === option.key} onclick={() => (metric = option.key)}>
+				<a href={option.key === 'index' ? '/' : `/?metric=${option.key}`} aria-current={metric === option.key ? 'page' : undefined}>
 					{option.title}
-				</button>
+				</a>
 			{/each}
-		</div>
+		</nav>
 
 		<section class="chart-card" aria-labelledby="chart-heading">
 			<div class="chart-head">
@@ -92,13 +127,17 @@
 					<h2 id="chart-heading"><span class="chart-key"></span>{activeMetric.title}</h2>
 					<p>{activeMetric.caption}</p>
 				</div>
-				<a class="button-link" href="/about#projection-index">Methodology <span aria-hidden="true">↗</span></a>
+				<a class="button-link" href={metric === 'corrections' ? '/about#factual-corrections' : '/about#projection-index'}>Methodology <span aria-hidden="true">↗</span></a>
 			</div>
 
 			<p class="coverage">
 				{plotted.length} models ·
-				{#if metric === 'index'}{matched.scenarios.length} shared scenarios · {/if}
-				{plotted[0]?.eligible ?? 0} {metric === 'index' ? 'replies' : 'eligible replies'} per model · {matched.judge}
+				{#if metric === 'corrections'}
+					{correctionStudy.scenarios.length} shared histories · {correctionStudy.scenarios.length * correctionStudy.samples} replies per model · {correctionStudy.referenceGrader} review
+				{:else}
+					{#if metric === 'index'}{matched.scenarios.length} shared scenarios · {/if}
+					{plotted[0]?.eligible ?? 0} {metric === 'index' ? 'replies' : 'eligible replies'} per model · {matched.judge}
+				{/if}
 			</p>
 			{#if metric === 'index' && pendingIndexNames.length}
 				<p class="coverage">{pendingIndexNames.join(', ')} can be compared on the attribution charts while control trials are pending.</p>
@@ -106,7 +145,7 @@
 
 			{#if plotted.length}
 				<div class="chart-scroll">
-					<div class="chart" style:--columns={plotted.length}>
+					<div class="chart" class:all-zero={allZero} style:--columns={plotted.length}>
 						<div class="axis" aria-hidden="true">
 							{#each ticks as tick (tick)}
 								<span style:bottom={`${100 * tick / axisMax}%`}>{tick}{metric === 'index' ? '' : '%'}</span>
@@ -121,7 +160,7 @@
 							{#each plotted as model (model.subject)}
 								<div class="column" style:--color={model.color}>
 									<span class="plot" aria-hidden="true">
-										<span class="bar" style:height={`${100 * model.value / axisMax}%`}></span>
+										<span class="bar" class:zero={model.value === 0} style:height={`${100 * model.value / axisMax}%`}></span>
 										<span class="bar-value" style:bottom={`calc(${100 * model.value / axisMax}% + 0.35rem)`}>{valueLabel(model.value)}{metric === 'index' ? '' : '%'}</span>
 									</span>
 									<span class="model-label" aria-hidden="true">{model.name}</span>
@@ -140,10 +179,15 @@
 			{:else}
 				<p class="coverage">No completed matched scores for this metric.</p>
 			{/if}
+			{#if allZero}
+				<p class="index-explanation">
+					The review found 0 definite attributions in {plotted.reduce((sum, model) => sum + model.eligible, 0)} replies.
+				</p>
+			{/if}
 
 			{#if indexLeader}
 				<p class="index-explanation">
-					The index combines the two attribution rates with other checks, including whether a model acknowledges a feeling the user stated.
+					The index combines unsolicited attribution and attribution after a prohibition with other checks, including whether a model acknowledges a feeling the user stated.
 					{#if missedAcknowledgmentPoints}
 						{indexLeader.name} received {valueLabel(missedAcknowledgmentPoints)} of its
 						{valueLabel(indexLeader.value)} points for missed acknowledgments in {indexLeader.counts.fnr[0]} of {indexLeader.counts.fnr[1]} replies.
@@ -152,7 +196,41 @@
 				</p>
 			{/if}
 
-			{#if activeModel}
+			{#if activeModel?.kind === 'correction'}
+				<section class="breakdown" aria-labelledby="model-breakdown-heading">
+					<h3 id="model-breakdown-heading">{activeModel.name}</h3>
+					<p class="coverage">
+						{activeModel.surface} · {activeModel.flagged} of {activeModel.eligible} replies assigned an unstated feeling.
+						{#if activeModel.uncertain}{activeModel.uncertain} marked uncertain.{/if}
+						{#if activeModel.paired}
+							{correctionStudy.secondGrader} disagreed on whether to score an attribution in {activeModel.disagreements} of {activeModel.paired} replies.
+						{/if}
+					</p>
+					<div class="model-details">
+						<div class="examples">
+							<h4>What the model said</h4>
+							{#each activeModel.phases as phase (phase.label)}
+								{#if phase.example}
+									{@const annotation = phase.example.flagged ? 'Assigned an unstated feeling.'
+										: phase.example.uncertain ? 'The wording was marked uncertain.' : ''}
+									{@render replyExample(phase.label + ' · ' + phase.example.title, phase.example, activeModel.name, true, annotation)}
+								{/if}
+							{/each}
+						</div>
+						<div>
+							<h4>By correction</h4>
+							<table>
+								<thead><tr><th scope="col">Context</th><th scope="col">Assigned a feeling</th></tr></thead>
+								<tbody>
+									{#each activeModel.phases as phase (phase.label)}
+										<tr><th scope="row">{phase.label}</th><td>{phase.flagged} / {phase.eligible}</td></tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+			{:else if activeModel}
 				<section class="breakdown" aria-labelledby="model-breakdown-heading">
 					<h3 id="model-breakdown-heading">{activeModel.name}</h3>
 					{#if activeModel.index !== null && activeModel.interval}
@@ -165,26 +243,7 @@
 						<div class="examples">
 							<h4>What the model said</h4>
 							{#each activeModel.examples as example (example.probeId)}
-								<article>
-									<h5>{example.title}</h5>
-									<dl>
-										<dt>User</dt>
-										<dd>{example.history.at(-1)?.content}</dd>
-										<dt>Model excerpt</dt>
-										<dd class="excerpt">{example.excerpt}</dd>
-									</dl>
-									<details>
-										<summary>Read the conversation</summary>
-										<dl class="full-reply">
-											{#each example.history as message}
-												<dt>{message.role === 'user' ? 'User' : 'Model'}</dt>
-												<dd>{message.content}</dd>
-											{/each}
-											<dt>{activeModel.name}</dt>
-											<dd>{example.reply}</dd>
-										</dl>
-									</details>
-								</article>
+								{@render replyExample(example.title, example, activeModel.name)}
 							{/each}
 						</div>
 						<div>
@@ -208,8 +267,13 @@
 			{/if}
 
 			<div class="chart-footer">
-				<p>Experimental scores with a word-list grader.</p>
-				<a href="/about#grader-check">See where the graders disagreed ↗</a>
+				{#if metric === 'corrections'}
+					<p>Every scored model received the same scripted conversations.</p>
+					<a href="/about#factual-corrections">See coverage and grades ↗</a>
+				{:else}
+					<p>Experimental scores with a word-list grader.</p>
+					<a href="/about#grader-check">See where the graders disagreed ↗</a>
+				{/if}
 			</div>
 		</section>
 
@@ -225,6 +289,7 @@
 				<dd>What frustration?</dd>
 			</dl>
 			<a href="/pilot#example">Read the full Cline excerpt <span aria-hidden="true">↗</span></a>
+			· <a href="/?metric=corrections">See the factual correction results <span aria-hidden="true">↗</span></a>
 		</section>
 
 		<nav class="more" aria-label="More benchmark results">
@@ -271,7 +336,7 @@
 		border-radius: 1.35rem;
 		background: #eeeeee;
 	}
-	.metric-tabs button {
+	.metric-tabs a {
 		font: inherit;
 		font-size: 0.85rem;
 		font-weight: 550;
@@ -281,8 +346,9 @@
 		background: transparent;
 		color: #444;
 		cursor: pointer;
+		text-decoration: none;
 	}
-	.metric-tabs button[aria-pressed='true'] {
+	.metric-tabs a[aria-current='page'] {
 		background: #1b1b1b;
 		color: #fff;
 	}
@@ -353,6 +419,10 @@
 		min-width: calc(var(--axis-width) + var(--columns) * 3.5rem);
 		margin: 1.8rem 0 0.2rem;
 	}
+	.chart.all-zero {
+		--plot-height: 3rem;
+		margin-top: 0.25rem;
+	}
 	.axis, .grid {
 		position: relative;
 		height: var(--plot-height);
@@ -416,6 +486,9 @@
 		width: clamp(1.8rem, 46%, 8.5rem);
 		border-radius: 4px 4px 0 0;
 		background: var(--color);
+	}
+	.bar.zero {
+		min-height: 2px;
 	}
 	.column:hover .bar {
 		filter: brightness(1.12);
@@ -579,7 +652,7 @@
 		.breakdown h3 {
 			scroll-margin-top: 5.5rem;
 		}
-		.metric-tabs button {
+		.metric-tabs a {
 			padding: 0.5rem 0.55rem;
 			font-size: 0.75rem;
 		}

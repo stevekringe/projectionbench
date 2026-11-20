@@ -26,7 +26,7 @@ def incomplete_reason(result):
         # Provider error bodies can contain account or credential details.
         return result.error.split(":", 1)[0]
     candidates = result.raw.get("candidates") or []
-    choices = (result.raw.get("result") or {}).get("choices") or []
+    choices = result.raw.get("choices") or (result.raw.get("result") or {}).get("choices") or []
     if candidates and candidates[0].get("finish_reason") == "MAX_TOKENS":
         return "Output limit reached"
     if choices and choices[0].get("finish_reason") == "length":
@@ -41,6 +41,9 @@ def collect_subject(spec, scenarios, samples, cloudflare_workers):
     if adapter.name == "gemini":
         adapter.max_attempts = 1
         adapter.request_timeout = 35
+    if adapter.name == "nvidia":
+        adapter._client = adapter._client.with_options(timeout=35, max_retries=0)
+        adapter.max_retries = 0
 
     def collect_trial(unit):
         scenario, index = unit
@@ -61,7 +64,7 @@ def collect_subject(spec, scenarios, samples, cloudflare_workers):
             "retry": first_error if retry else None,
         }
 
-    units = product(scenarios, range(samples))
+    units = ((scenario, index) for index, scenario in product(range(samples), scenarios))
     if adapter.name == "cloudflare" and cloudflare_workers > 1:
         with ThreadPoolExecutor(max_workers=cloudflare_workers) as pool:
             return list(pool.map(collect_trial, units))

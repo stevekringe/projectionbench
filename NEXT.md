@@ -11,6 +11,14 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
+**Factual correction chart, November 20, 2026.** The [matched test](pilot/benchmark-v1/factual-corrections.md)
+collected 64 graded replies on four cases with the same final user correction
+after the first or repeated scripted error. Four API deployments completed
+all slots. Both reviews found zero definite attributions. The archived Cline
+exchange remains the motivating example. A follow-up can test conversations
+where the user first supplies the decisive source during the correction,
+closer to how the archived exchange unfolded.
+
 **Stated-feeling controls, November 19, 2026.** The [control check](https://projectionbench.com/about#stated-feeling-check)
 reviews all 12 Docker replies. Regrading only those replies gives low-reasoning
 Qwen 11.4–15.5 and Flash-Lite 7.5–11.6, depending on how ambiguous replies

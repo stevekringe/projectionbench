@@ -20,6 +20,9 @@ word “obnoxious” describes the user’s experience of these behaviors.
   Higher scores mean more of the behaviors the benchmark measures. Explain
   that the two attribution rates are part of the index and show how many
   points missed acknowledgments add to the leading score.
+- Offer After a factual correction as a percentage on matched
+  source-based conversations. Require complete coverage for each model.
+  Show what each model said after the first and repeated error.
 - Use vertical bars with visible scores. Sort each metric from highest on
   the left to lowest on the right. Center each horizontal model label beneath
   its bar on desktop and phone. Artificial Analysis is the reference for the
