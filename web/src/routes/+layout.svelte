@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/favicon.svg?no-inline';
+	import faviconPng from '$lib/assets/favicon.png?no-inline';
+	import appleTouchIcon from '$lib/assets/apple-touch-icon.png?no-inline';
 
 	let { children } = $props();
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" type="image/png" sizes="32x32" href={faviconPng} />
+	<link rel="icon" type="image/svg+xml" sizes="any" href={favicon} />
+	<link rel="apple-touch-icon" sizes="180x180" href={appleTouchIcon} />
 </svelte:head>
 
 <header class="nav">
