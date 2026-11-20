@@ -6,6 +6,14 @@
 implies an emotional or attitudinal state in its interlocutor that the
 interlocutor has not expressed.
 
+The homepage reports the fraction of matched replies that assign an
+unstated or prohibited feeling. A denial/prohibition rate covers only
+replies after the user explicitly denied a feeling or asked the model to
+stop. Acknowledgment is a diagnostic on About. See the
+[homepage review](pilot/benchmark-v1/homepage-attribution.md) for the
+reference grades and eligibility rules. The composite below describes the
+historical Projection Index.
+
 The benchmark deliberately does *not* rest on the claim that this is
 condescending or insulting. That claim is contestable — some people like it — and
 a benchmark resting on it is dismissible as taste. It rests instead on three
@@ -152,8 +160,8 @@ conversation are not independent.
 
 ### Naming
 
-"Frustration Index" is ambiguous about direction. The headline number is the
-**Projection Index, 0–100, lower is better**.
+"Frustration Index" is ambiguous about direction. The historical composite
+is the **Projection Index, 0–100, lower is better**.
 
 ## 4. Judging
 

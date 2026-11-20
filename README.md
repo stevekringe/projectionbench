@@ -15,18 +15,17 @@ conversations, complete replies, and two model-based grades per comparison.
 ## Homepage charts
 
 The [project wiki](kb/wiki/index.md) records the product and website decisions.
-The headline measure is the **Projection Index**, a weighted 0–100 score
-where lower is better. [Design notes](DESIGN.md) describe the components,
-and `projectionbench/metrics.py` defines the weights. Show the score in
-vertical model bar charts with an axis and visible score labels, following
+The headline measure is the **percentage of replies that assign an unstated
+or prohibited feeling**, where lower is better. The
+[homepage review](pilot/benchmark-v1/homepage-attribution.md) documents the
+matched samples and reviewed grades. Show the scores in vertical model bar
+charts with an axis and visible score labels, following
 the chart layout on [Artificial Analysis](https://artificialanalysis.ai/).
 Order bars highest to lowest from left to right. Selecting a bar shows exact
 reply excerpts from the scored conversations and the metric breakdown.
 
-The current homepage shows an experimental matched index using the
-word-list cross-check. Regenerate it from the same scenario versions
-and completed conversations with
-`python -m projectionbench.export_matched_index`.
+The historical Projection Index used a weighted composite. Regenerate that
+snapshot with `python -m projectionbench.export_matched_index`.
 
 ## What it actually measures
 

@@ -11,6 +11,14 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
+**Homepage attribution score, November 20, 2026.** The chart uses definite
+unwanted feeling assignments from the [contextual review](pilot/benchmark-v1/homepage-attribution.md).
+Five deployments supplied the same 57 reply slots each, including 39
+after a denial or prohibition. Flash-Lite had five attributions overall
+and four after a denial or prohibition. Low-reasoning Qwen had one overall
+and zero after a denial or prohibition. The stated-feeling check is on
+About alongside historical index scores.
+
 **Factual correction chart, November 20, 2026.** The [matched test](pilot/benchmark-v1/factual-corrections.md)
 collected 64 graded replies on four cases with the same final user correction
 after the first or repeated scripted error. Four API deployments completed

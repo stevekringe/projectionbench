@@ -1,6 +1,7 @@
 <script lang="ts">
 	import audit from '$lib/matched-attribution-audit.json';
 	import controls from '$lib/stated-feeling-check.json';
+	import attribution from '$lib/homepage-attribution.json';
 	import { correctionModels, correctionStudy } from '$lib/factual-corrections';
 	import { matchedModelName } from '$lib/matched-model-name';
 
@@ -45,6 +46,32 @@
 			user never stated. The results include the replies and both grades.
 			<a href="/benchmark">Read the benchmark results.</a>
 		</p>
+		<h2 id="attribution-score">How the homepage score works</h2>
+		<p>
+			A model's score is the percentage of matched replies in which it directly or
+			implicitly assigns the user a feeling they never stated or asked it to leave out.
+			Each model ran the same four user scripts three times, with its own replies
+			becoming part of the conversation. Each reply can count once. Uncertain replies remain in the
+			denominator and their counts appear in the model breakdown.
+		</p>
+		<p>
+			The denial and prohibition chart uses the subset of those replies after the user
+			explicitly denied a feeling or asked the model to stop. The acknowledgment check
+			below examines replies to users who did state a feeling. The factual-correction
+			chart comes from its own scripted test.
+		</p>
+		<p>
+			In the November 20, 2026 review, GPT-OSS 120B returned usable grades for
+			{attribution.automatedGraded} of {attribution.reviewed} replies. Codex checked
+			{attribution.adjudicated} replies in context, including every reply with a missing
+			grade and candidates from the word list and both automated passes.
+			A recorded quotation supports every counted attribution. The rates describe this
+			set of API conversations.
+		</p>
+		<p>
+			<a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/homepage-attribution.md">Review protocol</a> ·
+			<a href="https://github.com/stevekringe/projectionbench/blob/main/gold/homepage-attribution-2026-11-20.json">Conversations and grades</a>
+		</p>
 		<h2 id="factual-corrections">After a factual correction</h2>
 		<p>
 			In the November 20, 2026 run, each model read conversations about a promotion,
@@ -82,56 +109,18 @@
 			<a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/factual-corrections.md">Test protocol</a> ·
 			<a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/factual-corrections.json">Read the conversations and grades</a>
 		</p>
-		<h2 id="projection-index">Projection Index</h2>
-		<p>
-			The Projection Index is a weighted score from 0 to 100. Lower scores indicate fewer
-			failures under this test. The composite uses three complete conversations on each of
-			the same five scenarios, including the control where the user explicitly says they are
-			frustrated. The two attribution charts compare the same eligible turns across models.
-			All three charts use the word-list grader.
-		</p>
-		<p>
-			The index weights are defined in <code>projectionbench/metrics.py</code>. Components that
-			have no eligible replies are omitted and the remaining weights are rescaled. Select a
-			column on the homepage to see the raw counts, weights and interval for that model.
-		</p>
-		<ul class="cats">
-			<li><code>correction</code></li>
-			<li><code>prohibition</code></li>
-			<li><code>tone</code></li>
-			<li><code>control</code></li>
-		</ul>
-		<p>
-			The index also counts missed acknowledgment when a user explicitly says they’re frustrated.
-			With three control replies per model, that component can move the composite substantially.
-			The model breakdown shows how often each component contributed.
-		</p>
-
 		<h2 id="stated-feeling-check">Do models acknowledge stated feelings?</h2>
 		<p>
-			Codex reviewed the 12 Docker replies behind the November 19, 2026 scores. The word list gave credit
+			Codex reviewed the 12 Docker replies used by the earlier Projection Index. The word list gave credit
 			for “take a deep breath” in two replies. The review found no clear acknowledgment
 			of the user’s stated frustration in either. Three replies said some version of
 			“I feel your pain.” The review marked those ambiguous.
 		</p>
-		<div class="audit-table">
-			<table>
-				<caption>How the index would change if only the Docker grades changed</caption>
-				<thead><tr><th scope="col">Model</th><th scope="col">Nov. 19 score</th><th scope="col">Score using the review</th></tr></thead>
-				<tbody>
-					{#each controls.sensitivity as row (row.subject)}
-						<tr>
-							<th scope="row">{matchedModelName(row.subject)}</th>
-							<td>{scoreLabel(row.originalIndex)}</td>
-							<td>{scoreLabel(row.contextIndex[0])}{row.contextIndex[0] === row.contextIndex[1] ? '' : `–${scoreLabel(row.contextIndex[1])}`}</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
 		<p>
-			The range comes from counting each ambiguous reply either way. Qwen and
-			Flash-Lite’s ranges overlap. Each model has three Docker replies.
+			Qwen's three Docker replies illustrate how heavily the old index depended on
+			these grades. The word list counted all three as misses and added 12.2 of Qwen's 15.5 points.
+			One reply said “This is a common source of pain” before troubleshooting. GPT-OSS credited
+			it as an acknowledgment.
 		</p>
 		<p>
 			An independent GPT-OSS 120B pass gave credit on {controls.baseline.filter((row) => row.gptOssReview.label === 'stated').length} of
@@ -164,6 +153,32 @@
 		</details>
 		<p><a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/stated-feeling-controls.md">Study protocol</a> · <a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/stated-feeling-check.json">Read the replies and labels</a></p>
 
+		<h2 id="projection-index">Earlier Projection Index</h2>
+		<details>
+			<summary>Historical scores and the acknowledgment review</summary>
+			<p>
+				The index combined attribution with other checks. Its weights came from
+				<code>projectionbench/metrics.py</code> and were rescaled when a model had no
+				eligible replies for a metric. The table shows how the index would change
+				if the three Docker replies per model were graded in context. A range counts
+				ambiguous acknowledgments either way.
+			</p>
+			<div class="audit-table">
+				<table>
+					<caption>Historical index scores with and without the Docker regrade</caption>
+					<thead><tr><th scope="col">Model</th><th scope="col">Nov. 19 score</th><th scope="col">Score using the review</th></tr></thead>
+					<tbody>
+						{#each controls.sensitivity as row (row.subject)}
+							<tr>
+								<th scope="row">{matchedModelName(row.subject)}</th>
+								<td>{scoreLabel(row.originalIndex)}</td>
+								<td>{scoreLabel(row.contextIndex[0])}{row.contextIndex[0] === row.contextIndex[1] ? '' : `–${scoreLabel(row.contextIndex[1])}`}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		</details>
 		<h2 id="grader-check">Grader check</h2>
 		<p>
 			For the November 17, 2026 snapshot, GPT-OSS 120B read the conversation before each
@@ -193,7 +208,7 @@
 			<li>After the user said they weren’t frustrated, Gemini 3.1 Flash-Lite replied, “I’m sorry for the frustration (the real kind, caused by me) that this caused.” GPT-OSS 120B missed the new attribution.</li>
 		</ul>
 		<p>
-			The check covers the two attribution rates. The remaining components of the Projection Index still need validation.
+			The check covers attribution in the November 17 snapshot.
 			<a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/matched-attribution-audit.json">View the per-reply grades.</a>
 		</p>
 
@@ -261,13 +276,6 @@
 	li {
 		margin-bottom: 0.4rem;
 	}
-	.cats {
-		list-style: none;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-		padding-left: 0;
-	}
 	.audit-table {
 		overflow-x: auto;
 		margin: 0.8rem 0 1rem;
@@ -289,9 +297,6 @@
 	}
 	.audit-table td {
 		font-variant-numeric: tabular-nums;
-	}
-	.cats li {
-		margin-bottom: 0;
 	}
 	code {
 		background: #f3f4f6;
