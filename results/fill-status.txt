@@ -1,10 +1,10 @@
-projectionbench fill -- status at Thu 19:11 UTC
+projectionbench fill -- status at Fri 18:58 UTC
 
 collect: complete conversations at current wording (target 3)
                                                         b07        b09        a05        g03        b08        r01        r02        r03        r04        r05        r05        r05        r06        r06        r06        r07        r07        r07        r08        r08        r08
-  gemini:gemini-3.1-flash-lite@api                     4/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        2/3        2/3        2/3        2/3        2/3        2/3 
+  gemini:gemini-3.1-flash-lite@api                     4/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        2/3+       2/3        2/3        2/3        2/3 
   gemini:gemini-3.5-flash@api                          3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3 
-  gemini:gemini-3.6-flash@api                          3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        2/3        2/3        2/3        2/3        2/3 
+  gemini:gemini-3.6-flash@api                          3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3 
   gemini:gemini-3.7-flash@api                          1/3+       1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3 
   gemini:gemini-3.8-flash@api                          1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        1/3        0/3        0/3        0/3 
   cloudflare:@cf/qwen/qwen3.8-27b@cloudflare           3/3        3/3        3/3        0/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3        3/3 
@@ -12,21 +12,22 @@ collect: complete conversations at current wording (target 3)
   zen:big-pickle@zen                                   0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3        0/3 
   (+ = a conversation in progress; it continues on the next request)
 
-judge llm:openrouter:google/gemma-4-31b-it:free:v7: 2/863 probes judged
+judge llm:openrouter:google/gemma-4-31b-it:free:v7: 2/875 probes judged
 
 cooling down:
-  OPENROUTER_API_KEY|google/gemma-4-31b-it:free  rate until Thu 19:35 UTC  -- RateLimitError: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'
-  GEMINI_API_KEY|gemini-3.6-flash  unavailable until Thu 19:41 UTC  -- ServerError: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation coul
-  GEMINI_API_KEY|gemini-3.8-flash  daily until Fri 00:59 UTC  -- ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, plea
+  GEMINI_API_KEY|gemini-3.8-flash  unavailable until Fri 19:02 UTC  -- ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high de
+  OPENROUTER_API_KEY|google/gemma-4-31b-it:free  rate until Fri 19:02 UTC  -- RateLimitError: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'
+  GEMINI_API_KEY|gemini-3.7-flash  unavailable until Fri 19:28 UTC  -- ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high de
+  CLOUDFLARE_API_TOKEN|*  daily until Fri 20:00 UTC  -- HTTPError 429: {"errors":[{"message":"AiError: AiError: you have used up your daily free allocation of 10,000 
 
 parked this session (fix the config, then run fill again):
   OPENCODE_ZEN_API_KEY|big-pickle  -- AuthenticationError 401: Error code: 401 - {'error': {'type': 'authentication_error', 'code': 'api_key_expired', 'message': 'This API key ha
 
-hit this session's request cap (caps: in the plan): GEMINI_API_KEY|gemini-3.1-flash-lite, GEMINI_API_KEY|gemini-3.6-flash, GEMINI_API_KEY|gemini-3.7-flash
+hit this session's request cap (caps: in the plan): GEMINI_API_KEY|gemini-3.1-flash-lite
 
 not started (could not build):
   pabot:insufferable  -- PABOT_DIR is not set -- point it at your local pabot checkout
 
-still to do: 76 conversation step(s) queued, 861 probe(s) to judge
+still to do: 70 conversation step(s) queued, 873 probe(s) to judge
 
-stopped: everything left is cooling down; next retry Thu 19:35 UTC
+stopped: everything left is cooling down; next retry Fri 19:02 UTC
