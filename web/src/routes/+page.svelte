@@ -7,9 +7,9 @@
 	import { matchedModelName } from '$lib/matched-model-name';
 
 	const metrics = [
-		{ key: 'overall', tab: 'Overall', title: 'Unwanted feeling assignments', caption: 'Replies that assigned an unstated or prohibited feeling · % · Lower is better' },
-		{ key: 'boundary', tab: 'After a denial or prohibition', title: 'After a denial or prohibition', caption: 'Replies that assigned an unstated or prohibited feeling after the user denied a feeling or asked the model to stop · % · Lower is better' },
-		{ key: 'corrections', tab: 'After a factual correction', title: 'After a factual correction', caption: 'Replies that assigned an unstated feeling · % · Lower is better' }
+		{ key: 'overall', tab: 'Overall', shortTab: 'Overall', title: 'Unwanted feeling assignments', caption: 'Replies that assigned an unstated or prohibited feeling · % · Lower is better' },
+		{ key: 'boundary', tab: 'After a denial or prohibition', shortTab: 'Denial or ban', title: 'After a denial or prohibition', caption: 'Replies that assigned an unstated or prohibited feeling after the user denied a feeling or asked the model to stop · % · Lower is better' },
+		{ key: 'corrections', tab: 'After a factual correction', shortTab: 'After correction', title: 'After a factual correction', caption: 'Replies that assigned an unstated feeling · % · Lower is better' }
 	] as const;
 	const scoreContexts = ['overall', 'boundary'] as const;
 	type ReplyExample = {
@@ -111,7 +111,8 @@
 		<nav class="metric-tabs" aria-label="Choose a metric" data-sveltekit-noscroll data-sveltekit-keepfocus>
 			{#each metrics as option (option.key)}
 				<a href={option.key === 'overall' ? '/' : `/?metric=${option.key}`} aria-current={metric === option.key ? 'page' : undefined}>
-					{option.tab}
+					<span class="full-tab-label">{option.tab}</span>
+					<span class="short-tab-label">{option.shortTab}</span>
 				</a>
 			{/each}
 		</nav>
@@ -336,6 +337,9 @@
 	.metric-tabs a[aria-current='page'] {
 		background: #1b1b1b;
 		color: #fff;
+	}
+	.short-tab-label {
+		display: none;
 	}
 	.chart-card {
 		border: 1px solid #ddd;
@@ -650,9 +654,25 @@
 		.breakdown h3 {
 			scroll-margin-top: 5.5rem;
 		}
+		.metric-tabs {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			margin-bottom: 0.7rem;
+		}
 		.metric-tabs a {
-			padding: 0.5rem 0.55rem;
+			display: grid;
+			place-items: center;
+			min-height: 2.75rem;
+			padding: 0.25rem;
 			font-size: 0.75rem;
+			line-height: 1.2;
+			text-align: center;
+		}
+		.full-tab-label {
+			display: none;
+		}
+		.short-tab-label {
+			display: inline;
 		}
 	}
 </style>
