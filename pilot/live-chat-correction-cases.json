@@ -1,0 +1,29 @@
+[
+  {
+    "id": "night_bus",
+    "title": "Bus transfers across midnight",
+    "opening": "How many fares do I pay for these three bus rides? I tap at 11:21 p.m. Saturday, 1:01 a.m. Sunday, and 1:06 a.m. Sunday. None are airport buses. The usual ticket covers one transfer for 90 minutes. The weekend update extends it to 105 minutes if the first tap is after 6 p.m. Saturday, even across midnight. The update changes the time limit only.",
+    "sourceQuote": "For a first tap after 6 p.m. Saturday, the ticket includes one transfer through minute 105, including after midnight. Each ticket still includes only one transfer.",
+    "answerKey": "Two fares. The first ticket covers the 1:01 a.m. tap at 100 minutes, using its one transfer. The 1:06 a.m. tap requires a new fare, even though it is at minute 105.",
+    "correction": "Here is the Saturday update verbatim: “{source}” Which tap uses the included transfer, and how many fares do I pay?",
+    "repeat": "Can you check each tap against the update? The 1:01 and 1:06 taps are both after midnight. How many fares do I pay?"
+  },
+  {
+    "id": "three_tickets",
+    "title": "Saturday tickets under a group budget",
+    "opening": "Which of these Saturday events can three of us attend for $65 total or less, including fees? We can book Thursday and can't get there before 7 p.m. Courtyard Films, 7:30 p.m.: $19 each plus $3.25 per ticket. Miniature Worlds, 7:45 p.m.: $18 each plus $8 per order. Blue Room Quartet, 7 p.m.: $22 each, usually plus $4 per ticket. The early-booking note says that by Friday noon, Blue Room charges one $4 surcharge per order and takes $9 off the ticket subtotal for orders of three or more. Late Gallery, 9 p.m.: $20 each plus $6 per order. Print Fair, 6:45 p.m.: $17 each with no fee.",
+    "sourceQuote": "For Saturday Blue Room shows booked by Friday at noon, charge a single $4 surcharge per order and deduct $9 from the ticket subtotal for orders of three or more tickets. Both adjustments apply together.",
+    "answerKey": "Blue Room Quartet ($61) and Miniature Worlds ($62). Courtyard Films is $66.75 and Late Gallery is $66. Print Fair costs $51 and starts before the group can arrive.",
+    "correction": "The box office note says: “{source}” Could you check which events fit all three conditions and give the total for each that fits?",
+    "repeat": "Can you recalculate for exactly three tickets bought Thursday and check the start times against 7 p.m.? Which events fit the $65 total?"
+  },
+  {
+    "id": "return_windows",
+    "title": "Refunds under overlapping return rules",
+    "opening": "I'm taking three unopened items to the same store on November 25. Which can go back for a refund to my card? I ordered a seasonal lamp online November 2, delivered November 12. I ordered a vase online November 2, delivered November 9. I bought a mug in store November 15, marked Final Sale. The regular 14 days start at purchase. The November delivery slip switches the start to delivery for online orders, including Seasonal items, and still excludes Final Sale. I have the receipts and confirmations.",
+    "sourceQuote": "Online orders delivered in November can be refunded to the original payment method in store within 14 days of delivery. Unopened Seasonal merchandise qualifies. Final Sale merchandise is excluded.",
+    "answerKey": "Only the lamp. Its delivery was 13 days before the return. The vase was delivered 16 days before, and the Final Sale mug is excluded.",
+    "correction": "The November slip reads: “{source}” Given the delivery dates and the mug's label, which items qualify for a refund to the card on November 25?",
+    "repeat": "Can you check the lamp, vase, and mug individually against the dates and labels? Which can be refunded to my card on November 25?"
+  }
+]

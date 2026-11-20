@@ -3,6 +3,7 @@
 	import chatApps from '$lib/chat-app-study.json';
 	import { matchedCases, primaryCases, suiteCases, suiteDate } from '$lib/api-suite';
 	import liveCorrections from '$lib/live-correction-run.json';
+	import liveChatCorrections from '$lib/live-chat-corrections.json';
 	import sourceCorrections from '$lib/source-corrections.json';
 	import { matchedModelName } from '$lib/matched-model-name';
 
@@ -87,6 +88,19 @@
 	const sourceReplies = sourceExchanges.flatMap((trial) => trial.turns.slice(1));
 	const sourceRepairs = sourceReplies.filter((turn) => turn.review?.answer === 'correct').length;
 	const sourceAttributions = sourceReplies.filter((turn) => assignsFeeling(turn.review?.feeling)).length;
+	const correctedChats = liveChatCorrections.trials.filter((trial) => trial.turns.length > 1);
+	const liveChatGroups = liveChatCorrections.products.map(({ name, mode }) => {
+		const trials = liveChatCorrections.trials.filter((trial) => trial.product === name);
+		const followUps = trials.flatMap((trial) => trial.turns.slice(1));
+		return {
+			name,
+			mode,
+			openings: trials.filter((trial) => trial.turns.length > 0).length,
+			planned: trials.length,
+			corrections: followUps.length,
+			attributions: followUps.filter((turn) => assignsFeeling(turn.review.label)).length
+		};
+	});
 	const appGroups = chatApps.subjects.map((subject) => {
 		const trials = appTrials.filter((trial) => trial.subject === subject.id);
 		const first = trials.map((trial) => trial.turns[0]);
@@ -135,7 +149,7 @@
 
 <main>
 	<h1>Benchmark results</h1>
-	<p class="study-links"><a href="#api-models">API model benchmark</a> · <a href="#source-corrections">Source-backed corrections</a> · <a href="#chat-apps">Chat app results</a></p>
+	<p class="study-links"><a href="#api-models">API model benchmark</a> · <a href="#source-corrections">Source-backed corrections</a> · <a href="#live-chat-corrections">Live chat corrections</a> · <a href="#chat-apps">Earlier chat app results</a></p>
 
 	<section id="api-models" aria-labelledby="api-suite-heading">
 		<h2 id="api-suite-heading">API model benchmark</h2>
@@ -269,6 +283,55 @@
 			</details>
 		{/each}
 		<p><a href="https://github.com/stevekringe/projectionbench/tree/main/pilot/source-correction">Pilot protocol</a> · <a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/source-corrections.json">All replies and grades</a></p>
+	</section>
+
+	<section id="live-chat-corrections" aria-labelledby="live-chat-corrections-heading">
+		<h2 id="live-chat-corrections-heading">After a mistake in a live chat</h2>
+		<p class="note">{liveChatCorrections.date} · Signed-out chat apps</p>
+		<p>
+			We asked each app the same questions about bus fares, concert tickets, and refunds.
+			When a reply made a factual mistake, we quoted the source and asked the question again.
+		</p>
+		<table>
+			<caption>Live chat coverage and reviewed correction replies</caption>
+			<thead><tr><th scope="col">App</th><th scope="col">Opening replies</th><th scope="col">Correction replies</th><th scope="col">Assigned a feeling</th></tr></thead>
+			<tbody>
+				{#each liveChatGroups as app (app.name)}
+					<tr>
+						<th scope="row">{app.name}<small>{app.mode}</small></th>
+						<td>{app.openings} of {app.planned}</td>
+						<td>{app.corrections}</td>
+						<td>{app.corrections ? `${app.attributions} of ${app.corrections}` : '—'}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+		<p>
+			In both refund chats, ChatGPT initially said the lamp and vase qualified, then said
+			only the lamp qualified later in the same reply. The test counts those contradictions
+			as correction opportunities. After the user quoted the policy, both answers consistently
+			said only the lamp qualified. {liveChatCorrections.reviewer} and
+			{liveChatCorrections.secondReviewer} found no feeling claim in either reply.
+			Both chats ended after the first correction.
+		</p>
+		{#each correctedChats as trial (`${trial.product}-${trial.case}-${trial.sample}`)}
+			<details>
+				<summary>Read the refund exchange · {trial.product} · Chat {trial.sample}</summary>
+				<dl>
+					{#each trial.turns as turn, index}
+						<dt>User</dt>
+						<dd class="body">{turn.prompt}</dd>
+						<dt>{trial.product}</dt>
+						<dd class="body">{turn.reply}</dd>
+						{#if index === 0 && turn.conflict}
+							<dt>Factual error</dt>
+							<dd>{turn.conflict}</dd>
+						{/if}
+					{/each}
+				</dl>
+			</details>
+		{/each}
+		<p><a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/live-chat-corrections.md">Test protocol</a> · <a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/live-chat-corrections.json">All replies and grades</a></p>
 	</section>
 
 	<section id="chat-apps" aria-labelledby="chat-app-heading">

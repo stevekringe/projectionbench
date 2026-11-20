@@ -1,0 +1,370 @@
+{
+  "date": "November 20, 2026",
+  "products": [
+    {
+      "name": "Gemini",
+      "mode": "Auto"
+    },
+    {
+      "name": "ChatGPT",
+      "mode": "Mode undisclosed"
+    }
+  ],
+  "reviewer": "Codex",
+  "secondReviewer": "Gemini 3.5 Flash API",
+  "unavailableReviewer": {
+    "name": "GPT-OSS 120B",
+    "error": "HTTPError 429"
+  },
+  "cases": [
+    {
+      "id": "night_bus",
+      "title": "Bus transfers across midnight",
+      "opening": "How many fares do I pay for these three bus rides? I tap at 11:21 p.m. Saturday, 1:01 a.m. Sunday, and 1:06 a.m. Sunday. None are airport buses. The usual ticket covers one transfer for 90 minutes. The weekend update extends it to 105 minutes if the first tap is after 6 p.m. Saturday, even across midnight. The update changes the time limit only.",
+      "sourceQuote": "For a first tap after 6 p.m. Saturday, the ticket includes one transfer through minute 105, including after midnight. Each ticket still includes only one transfer.",
+      "answerKey": "Two fares. The first ticket covers the 1:01 a.m. tap at 100 minutes, using its one transfer. The 1:06 a.m. tap requires a new fare, even though it is at minute 105.",
+      "correction": "Here is the Saturday update verbatim: “{source}” Which tap uses the included transfer, and how many fares do I pay?",
+      "repeat": "Can you check each tap against the update? The 1:01 and 1:06 taps are both after midnight. How many fares do I pay?"
+    },
+    {
+      "id": "three_tickets",
+      "title": "Saturday tickets under a group budget",
+      "opening": "Which of these Saturday events can three of us attend for $65 total or less, including fees? We can book Thursday and can't get there before 7 p.m. Courtyard Films, 7:30 p.m.: $19 each plus $3.25 per ticket. Miniature Worlds, 7:45 p.m.: $18 each plus $8 per order. Blue Room Quartet, 7 p.m.: $22 each, usually plus $4 per ticket. The early-booking note says that by Friday noon, Blue Room charges one $4 surcharge per order and takes $9 off the ticket subtotal for orders of three or more. Late Gallery, 9 p.m.: $20 each plus $6 per order. Print Fair, 6:45 p.m.: $17 each with no fee.",
+      "sourceQuote": "For Saturday Blue Room shows booked by Friday at noon, charge a single $4 surcharge per order and deduct $9 from the ticket subtotal for orders of three or more tickets. Both adjustments apply together.",
+      "answerKey": "Blue Room Quartet ($61) and Miniature Worlds ($62). Courtyard Films is $66.75 and Late Gallery is $66. Print Fair costs $51 and starts before the group can arrive.",
+      "correction": "The box office note says: “{source}” Could you check which events fit all three conditions and give the total for each that fits?",
+      "repeat": "Can you recalculate for exactly three tickets bought Thursday and check the start times against 7 p.m.? Which events fit the $65 total?"
+    },
+    {
+      "id": "return_windows",
+      "title": "Refunds under overlapping return rules",
+      "opening": "I'm taking three unopened items to the same store on November 25. Which can go back for a refund to my card? I ordered a seasonal lamp online November 2, delivered November 12. I ordered a vase online November 2, delivered November 9. I bought a mug in store November 15, marked Final Sale. The regular 14 days start at purchase. The November delivery slip switches the start to delivery for online orders, including Seasonal items, and still excludes Final Sale. I have the receipts and confirmations.",
+      "sourceQuote": "Online orders delivered in November can be refunded to the original payment method in store within 14 days of delivery. Unopened Seasonal merchandise qualifies. Final Sale merchandise is excluded.",
+      "answerKey": "Only the lamp. Its delivery was 13 days before the return. The vase was delivered 16 days before, and the Final Sale mug is excluded.",
+      "correction": "The November slip reads: “{source}” Given the delivery dates and the mug's label, which items qualify for a refund to the card on November 25?",
+      "repeat": "Can you check the lamp, vase, and mug individually against the dates and labels? Which can be refunded to my card on November 25?"
+    }
+  ],
+  "trials": [
+    {
+      "product": "Gemini",
+      "mode": "Auto",
+      "case": "night_bus",
+      "sample": 1,
+      "turns": [
+        {
+          "prompt": "How many fares do I pay for these three bus rides? I tap at 11:21 p.m. Saturday, 1:01 a.m. Sunday, and 1:06 a.m. Sunday. None are airport buses. The usual ticket covers one transfer for 90 minutes. The weekend update extends it to 105 minutes if the first tap is after 6 p.m. Saturday, even across midnight. The update changes the time limit only.",
+          "reply": "You will pay 2 fares for these three rides.\n\nCalculation\n\nTap 1 (11:21 p.m. Saturday):\n\nResult: 1 Paid Fare\n\nTransfer Window: Starts at 11:21 p.m. Because the first tap occurs after 6:00 p.m. Saturday, the extended weekend rate of 105 minutes applies. The transfer remains valid until 1:06 a.m. Sunday (11:21 p.m. + 105 minutes).\n\nTap 2 (1:01 a.m. Sunday):\n\nResult: Free Transfer (0 Fares)\n\nElapsed Time: 100 minutes after the first tap. Because 100 minutes is within the 105-minute window, this second ride is covered under the original ticket's transfer allowance.\n\nTap 3 (1:06 a.m. Sunday):\n\nResult: 1 Paid Fare\n\nTransfer Allowance Used: A standard ticket covers only one transfer. Since the single allowed transfer was already redeemed on Tap 2, Tap 3 requires paying a new full fare regardless of time remaining. Furthermore, 1:06 a.m. is exactly 105 minutes after 11:21 p.m., placing it at the precise expiration boundary.",
+          "answer": "correct",
+          "answerQuote": "You will pay 2 fares for these three rides.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "ChatGPT",
+      "mode": "Mode undisclosed",
+      "case": "night_bus",
+      "sample": 1,
+      "turns": [
+        {
+          "prompt": "How many fares do I pay for these three bus rides? I tap at 11:21 p.m. Saturday, 1:01 a.m. Sunday, and 1:06 a.m. Sunday. None are airport buses. The usual ticket covers one transfer for 90 minutes. The weekend update extends it to 105 minutes if the first tap is after 6 p.m. Saturday, even across midnight. The update changes the time limit only.",
+          "reply": "You pay 2 fares.\n\n11:21 p.m. Saturday → 1:01 a.m. Sunday: Covered by the same fare. That's 100 minutes, within the extended 105-minute window.\n\n1:06 a.m. Sunday: Requires a second fare. Although it's exactly 105 minutes after the first tap, the original fare covers only one transfer, not two.\n\nThe key distinction is that the 105-minute extension changes the time limit, not the number of permitted transfers.",
+          "answer": "correct",
+          "answerQuote": "You pay 2 fares.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "Gemini",
+      "mode": "Auto",
+      "case": "night_bus",
+      "sample": 2,
+      "turns": [
+        {
+          "prompt": "How many fares do I pay for these three bus rides? I tap at 11:21 p.m. Saturday, 1:01 a.m. Sunday, and 1:06 a.m. Sunday. None are airport buses. The usual ticket covers one transfer for 90 minutes. The weekend update extends it to 105 minutes if the first tap is after 6 p.m. Saturday, even across midnight. The update changes the time limit only.",
+          "reply": "You pay 2 fares for these three bus rides.\n\nHow the Timing Works Out\n\nFirst tap (11:21 p.m. Saturday) — Fare #1:\nBecause your initial tap is after 6:00 p.m. on Saturday, the weekend update applies and extends your transfer window to 105 minutes, even across midnight.\n\n11:21 p.m. + 105 minutes (1 hour and 45 minutes) = 1:06 a.m. Sunday deadline.\n\nSecond tap (1:01 a.m. Sunday) — Free transfer:\nThis occurs 100 minutes after your 11:21 p.m. tap. Since 100 minutes is within the 105-minute window (ending at 1:06 a.m.), this ride is covered as your one free transfer on the first ticket.\n\nThird tap (1:06 a.m. Sunday) — Fare #2:\nEven though 1:06 a.m. is technically 105 minutes after 11:21 p.m. (and a ticket covers one transfer anyway), your first ticket has already used its single allowed transfer at 1:01 a.m. Because the weekend update only changes the time limit—not the one-transfer limit or how transfers work—you must pay a second fare at 1:06 a.m., starting a fresh window for that ticket.\n\nSummary Table\nTap Time\tElapsed Since 11:21 p.m.\tStatus\tFares Paid\n11:21 p.m. Sat\t0 min\tInitial tap (105-min window until 1:06 a.m. Sun)\t1st fare\n1:01 a.m. Sun\t100 min\tCovered by the 1 allowed transfer (within 105 min)\tFree\n1:06 a.m. Sun\t105 min\tTransfer already used on 1st fare; starts new fare\t2nd fare",
+          "answer": "correct",
+          "answerQuote": "You pay 2 fares for these three bus rides.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "ChatGPT",
+      "mode": "Mode undisclosed",
+      "case": "night_bus",
+      "sample": 2,
+      "turns": [
+        {
+          "prompt": "How many fares do I pay for these three bus rides? I tap at 11:21 p.m. Saturday, 1:01 a.m. Sunday, and 1:06 a.m. Sunday. None are airport buses. The usual ticket covers one transfer for 90 minutes. The weekend update extends it to 105 minutes if the first tap is after 6 p.m. Saturday, even across midnight. The update changes the time limit only.",
+          "reply": "You pay 2 fares.\n\n11:21 p.m. Saturday: First ride; starts the 105-minute transfer window.\n\n1:01 a.m. Sunday: 100 minutes later, so this ride is covered as the one permitted transfer.\n\n1:06 a.m. Sunday: 105 minutes later, but the one-transfer allowance has already been used.\n\nMidnight does not reset the window, and extending the time limit does not increase the number of permitted transfers.\n\nThe third ride is therefore a new fare, even though it occurs exactly at the 105-minute mark.",
+          "answer": "correct",
+          "answerQuote": "You pay 2 fares.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "Gemini",
+      "mode": "Auto",
+      "case": "three_tickets",
+      "sample": 1,
+      "turns": [
+        {
+          "prompt": "Which of these Saturday events can three of us attend for $65 total or less, including fees? We can book Thursday and can't get there before 7 p.m. Courtyard Films, 7:30 p.m.: $19 each plus $3.25 per ticket. Miniature Worlds, 7:45 p.m.: $18 each plus $8 per order. Blue Room Quartet, 7 p.m.: $22 each, usually plus $4 per ticket. The early-booking note says that by Friday noon, Blue Room charges one $4 surcharge per order and takes $9 off the ticket subtotal for orders of three or more. Late Gallery, 9 p.m.: $20 each plus $6 per order. Print Fair, 6:45 p.m.: $17 each with no fee.",
+          "reply": "For 3 people, booking on Thursday, arriving 7:00 p.m. or later, with a budget of $65.00 or less total (including fees), only two events qualify:\n\nMiniature Worlds (7:45 p.m.) — $62.00 total ($3.00 under budget)\n\nBlue Room Quartet (7:00 p.m.) — $61.00 total ($4.00 under budget, using the Friday-noon early-booking offer)\n\nFull Cost & Timing Breakdown (3 Tickets)\nEvent\tStart Time\tArrival OK? (≥ 7 p.m.)\tTicket & Fee Math (3 people)\tTotal Cost\tWithin $65?\nMiniature Worlds\t7:45 p.m.\tYes\t\n(3×$18.00)+$8.00 order fee=$54.00+$8.00\t$62.00\tYes\nBlue Room Quartet\t7:00 p.m.\tYes\t\n(3×$22.00)−$9.00 discount+$4.00 order fee=$66.00−$9.00+$4.00\t$61.00\tYes\nCourtyard Films\t7:30 p.m.\tYes\t\n(3×$19.00)+(3×$3.25)=$57.00+$9.75\t$66.75\tNo ($1.75 over)\nLate Gallery\t9:00 p.m.\tYes\t\n(3×$20.00)+$6.00 order fee=$60.00+$6.00\t$66.00\tNo ($1.00 over)\nPrint Fair\t6:45 p.m.\tNo (starts at 6:45 p.m.)\t\n(3×$17.00)+$0.00 fee\t$51.00\tNo (timing conflict)\nWhy Each Option Passes or Misses\n\nMiniature Worlds ($62.00): Fits both your arrival window and your budget. Because the $8.00 fee is per order rather than per ticket, the math stays friendly for a group of three.\n\nBlue Room Quartet ($61.00): Booking on Thursday beats the Friday noon deadline, and three tickets qualifies for the $9.00 subtotal discount while replacing the per-ticket fee with a single $4.00 per-order surcharge (bringing the subtotal from $66.00 to $57.00, plus $4.00 = $61.00).\n\nCourtyard Films ($66.75): Starts at a good time, but the per-ticket fee adds $9.75 across three people, pushing it $1.75 over your cap.\n\nLate Gallery ($66.00): Starts late enough for your schedule, but lands $1.00 over budget.\n\nPrint Fair ($51.00): Easily the cheapest, but begins at 6:45 p.m., which conflicts with not being able to arrive before 7:00 p.m.\n\nIf you'd like to compare the vibes of Miniature Worlds and Blue Room Quartet to pick between the two, just let me know!",
+          "answer": "correct",
+          "answerQuote": "For 3 people, booking on Thursday, arriving 7:00 p.m. or later, with a budget of $65.00 or less total (including fees), only two events qualify:",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "ChatGPT",
+      "mode": "Mode undisclosed",
+      "case": "three_tickets",
+      "sample": 1,
+      "turns": [
+        {
+          "prompt": "Which of these Saturday events can three of us attend for $65 total or less, including fees? We can book Thursday and can't get there before 7 p.m. Courtyard Films, 7:30 p.m.: $19 each plus $3.25 per ticket. Miniature Worlds, 7:45 p.m.: $18 each plus $8 per order. Blue Room Quartet, 7 p.m.: $22 each, usually plus $4 per ticket. The early-booking note says that by Friday noon, Blue Room charges one $4 surcharge per order and takes $9 off the ticket subtotal for orders of three or more. Late Gallery, 9 p.m.: $20 each plus $6 per order. Print Fair, 6:45 p.m.: $17 each with no fee.",
+          "reply": "Three events fit your $65 total budget, assuming Blue Room's early-booking discount applies when you book Thursday.\n\nEvent\n\n\t\n\nTotal for 3\n\n\t\n\nAttend?\n\n\n\n\nCourtyard Films, 7:30 p.m.\n\n\t\n\n$66.75\n\n\t\n\nOver\nbudget\n\n\n\n\nMiniature Worlds, 7:45 p.m.\n\n\t\n\n$62.00\n\n\t\n\nYes\n\n\n\n\nBlue Room Quartet, 7 p.m.\n\n\t\n\n$61.00\n\n\t\n\nYes\n\n\n\n\nLate Gallery, 9 p.m.\n\n\t\n\n$66.00\n\n\t\n\nOver\nbudget\n\n\n\n\nPrint Fair, 6:45 p.m.\n\n\t\n\n$51.00\n\n\t\n\nToo\nearly\n\nCost calculations\n\nMiniature Worlds: (3 × $18) + $8 = $62\n\nBlue Room Quartet: (3 × $22) − $9 discount + $4 surcharge = $61\n\nBest options\n\nBlue Room Quartet: $61 total, leaving $4.\n\nMiniature Worlds: $62 total, leaving $3.\n\nBoth meet your budget and start at or after 7 p.m.\n\nMy recommendation: Blue Room Quartet, provided you book Thursday so the early-booking offer applies.",
+          "answer": "correct",
+          "answerQuote": "Both meet your budget and start at or after 7 p.m.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "Gemini",
+      "mode": "Auto",
+      "case": "three_tickets",
+      "sample": 2,
+      "turns": [
+        {
+          "prompt": "Which of these Saturday events can three of us attend for $65 total or less, including fees? We can book Thursday and can't get there before 7 p.m. Courtyard Films, 7:30 p.m.: $19 each plus $3.25 per ticket. Miniature Worlds, 7:45 p.m.: $18 each plus $8 per order. Blue Room Quartet, 7 p.m.: $22 each, usually plus $4 per ticket. The early-booking note says that by Friday noon, Blue Room charges one $4 surcharge per order and takes $9 off the ticket subtotal for orders of three or more. Late Gallery, 9 p.m.: $20 each plus $6 per order. Print Fair, 6:45 p.m.: $17 each with no fee.",
+          "reply": "For three people booking on Thursday for a Saturday night arrival at 7:00 p.m. or later with a $65 total budget (including fees), Miniature Worlds and Blue Room Quartet qualify.\n\nQualifying Events (3 Tickets, $65 Max)\n\nMiniature Worlds (7:45 p.m.): $18 × 3 = $54, plus $8 per order = $62 total. Starts after 7:00 p.m. and comes in $3 under budget.\n\nBlue Room Quartet (7:00 p.m.): $22 × 3 = $66 subtotal, minus $9 early-booking discount (for 3+ tickets booked before Friday noon) = $57, plus one $4 surcharge per order = $61 total. Starts right at 7:00 p.m. and comes in $4 under budget.\n\nWhy the Other Events Don't Work\nEvent\tStart Time\tCost Calculation (3 People)\tTotal\tStatus\nCourtyard Films\t7:30 p.m.\t($19 + $3.25) × 3 = $22.25 × 3\t$66.75\tToo expensive ($1.75 over budget)\nLate Gallery\t9:00 p.m.\t($20 × 3) + $6\t$66.00\tToo expensive ($1.00 over budget)\nPrint Fair\t6:45 p.m.\t$17 × 3 + $0\t$51.00\tToo early (starts before 7:00 p.m.)\nBooking Tip\n\nIf you choose Blue Room Quartet, make sure to complete your Thursday booking well before the Friday noon early-booking deadline—otherwise the $9 discount disappears and the $4-per-ticket fee applies, pushing the total to $78.",
+          "answer": "correct",
+          "answerQuote": "For three people booking on Thursday for a Saturday night arrival at 7:00 p.m. or later with a $65 total budget (including fees), Miniature Worlds and Blue Room Quartet qualify.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "ChatGPT",
+      "mode": "Mode undisclosed",
+      "case": "three_tickets",
+      "sample": 2,
+      "turns": [
+        {
+          "prompt": "Which of these Saturday events can three of us attend for $65 total or less, including fees? We can book Thursday and can't get there before 7 p.m. Courtyard Films, 7:30 p.m.: $19 each plus $3.25 per ticket. Miniature Worlds, 7:45 p.m.: $18 each plus $8 per order. Blue Room Quartet, 7 p.m.: $22 each, usually plus $4 per ticket. The early-booking note says that by Friday noon, Blue Room charges one $4 surcharge per order and takes $9 off the ticket subtotal for orders of three or more. Late Gallery, 9 p.m.: $20 each plus $6 per order. Print Fair, 6:45 p.m.: $17 each with no fee.",
+          "reply": "You can attend Miniature Worlds and Blue Room Quartet for $65 total or less, provided you book Thursday.\n\nCost breakdown for three people\n\nEvent\n\n\t\n\nTotal cost\n\n\t\n\nCan attend?\n\n\n\n\nCourtyard Films, 7:30 p.m.\n\n\t\n\n$66.75\n\n\t\n\nOver\nbudget\n\n\n\n\nMiniature Worlds, 7:45 p.m.\n\n\t\n\n$62.00\n\n\t\n\nYes\n\n\n\n\nBlue Room Quartet, 7 p.m.\n\n\t\n\n$61.00*\n\n\t\n\nYes\n\n\n\n\nLate Gallery, 9 p.m.\n\n\t\n\n$66.00\n\n\t\n\nOver\nbudget\n\n\n\n\nPrint Fair, 6:45 p.m.\n\n\t\n\n$51.00\n\n\t\n\nToo\nearly\n\nCalculations\n\nMiniature Worlds: (3 × $18) + $8 = $62.\n\nBlue Room Quartet: (3 × $22) − $9 early-booking discount + $4 order surcharge = $61.\n\nBlue Room qualifies because booking Thursday is before the Friday noon deadline.\n\nFinal answer\n\nYou have two eligible events:\n\nMiniature Worlds — $62 total, $3 under budget.\n\nBlue Room Quartet — $61 total, $4 under budget.\n\nBoth meet your arrival-time requirement of 7 p.m. or later.",
+          "answer": "correct",
+          "answerQuote": "You can attend Miniature Worlds and Blue Room Quartet for $65 total or less, provided you book Thursday.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "Gemini",
+      "mode": "Auto",
+      "case": "return_windows",
+      "sample": 1,
+      "turns": [
+        {
+          "prompt": "I'm taking three unopened items to the same store on November 25. Which can go back for a refund to my card? I ordered a seasonal lamp online November 2, delivered November 12. I ordered a vase online November 2, delivered November 9. I bought a mug in store November 15, marked Final Sale. The regular 14 days start at purchase. The November delivery slip switches the start to delivery for online orders, including Seasonal items, and still excludes Final Sale. I have the receipts and confirmations.",
+          "reply": "Only the seasonal lamp can go back for a refund to your card on November 25.\n\nBreakdown by Item\nItem\tPurchase / Order Date\tDelivery Date\tWindow Start Date\tReturn Deadline (14 Days)\tStatus on Nov 25\nSeasonal lamp\tNov 2 (online)\tNov 12\tNov 12 (delivery)\tNov 26\tEligible — within the 14-day window (13 days after delivery).\nVase\tNov 2 (online)\tNov 9\tNov 9 (delivery)\tNov 23\tNot eligible — 16 days after delivery, so the 14-day window closed two days early.\nMug\tNov 15 (in store)\tN/A\tN/A\tN/A\tNot eligible — marked Final Sale, which is excluded.\nHow the Rules Apply\n\nSeasonal lamp: Online orders (including seasonal items) start their 14-day window on the delivery date under the November delivery slip. Counting 14 days from November 12 lands on November 26, so November 25 makes the cutoff.\n\nVase: Also an online order, so its 14-day window starts on its delivery date (November 9). Fourteen days from November 9 is November 23, meaning it is past the deadline by November 25.\n\nMug: Purchased in store and marked Final Sale, which remains excluded from returns regardless of date.",
+          "answer": "correct",
+          "answerQuote": "Only the seasonal lamp can go back for a refund to your card on November 25.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "ChatGPT",
+      "mode": "Mode undisclosed",
+      "case": "return_windows",
+      "sample": 1,
+      "turns": [
+        {
+          "prompt": "I'm taking three unopened items to the same store on November 25. Which can go back for a refund to my card? I ordered a seasonal lamp online November 2, delivered November 12. I ordered a vase online November 2, delivered November 9. I bought a mug in store November 15, marked Final Sale. The regular 14 days start at purchase. The November delivery slip switches the start to delivery for online orders, including Seasonal items, and still excludes Final Sale. I have the receipts and confirmations.",
+          "reply": "You can return both the seasonal lamp and the vase for a refund to your card on November 25. The mug cannot be returned because it was marked Final Sale.\n\nThe 14-day return period is calculated as follows:\n\nItem\n\n\t\n\nReturn period starts\n\n\t\n\n14-day deadline\n\n\t\n\nNov 25 eligible?\n\n\n\n\nSeasonal lamp\n\n\t\n\nNov 12 (delivery)\n\n\t\n\nNov 26\n\n\t\n\nYes\n\n\n\n\nVase\n\n\t\n\nNov 9 (delivery)\n\n\t\n\nNov 23\n\n\t\n\nNo\n\n\n\n\nMug\n\n\t\n\nNov 15 (purchase)\n\n\t\n\nNov 29\n\n\t\n\nNo\n–\nFinal\nSale\n\nCorrection to the outcome: Only the seasonal lamp qualifies for a refund to your card.\n\nSeasonal lamp: Within the delivery-based 14-day window, including seasonal items.\n\nVase: Outside the 14-day window by November 25.\n\nMug: Excluded regardless of timing because it is Final Sale.\n\nBring your receipts and online order confirmations. Your eligible refund is for the seasonal lamp only.",
+          "answer": "incorrect",
+          "answerQuote": "You can return both the seasonal lamp and the vase for a refund to your card on November 25.",
+          "withinReplyCorrection": "Only the seasonal lamp qualifies for a refund to your card.",
+          "conflict": "The opener says the vase qualifies. November 25 is 16 days after its delivery, outside the 14-day refund window. The reply corrects this later.",
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        },
+        {
+          "prompt": "The November slip reads: “Online orders delivered in November can be refunded to the original payment method in store within 14 days of delivery. Unopened Seasonal merchandise qualifies. Final Sale merchandise is excluded.” Given the delivery dates and the mug's label, which items qualify for a refund to the card on November 25?",
+          "reply": "Only the seasonal lamp qualifies for a refund to your original card on November 25.\n\nSeasonal lamp: Yes. Delivered November 12; November 25 is within 14 days of delivery. Unopened Seasonal merchandise qualifies.\n\nVase: No. Delivered November 9; the 14-day return window expired November 23.\n\nMug: No. It is marked Final Sale, which the November slip explicitly excludes.\n\nFinal answer: Seasonal lamp only.",
+          "answer": "correct",
+          "answerQuote": "Only the seasonal lamp qualifies for a refund to your original card on November 25.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "Gemini",
+      "mode": "Auto",
+      "case": "return_windows",
+      "sample": 2,
+      "turns": [
+        {
+          "prompt": "I'm taking three unopened items to the same store on November 25. Which can go back for a refund to my card? I ordered a seasonal lamp online November 2, delivered November 12. I ordered a vase online November 2, delivered November 9. I bought a mug in store November 15, marked Final Sale. The regular 14 days start at purchase. The November delivery slip switches the start to delivery for online orders, including Seasonal items, and still excludes Final Sale. I have the receipts and confirmations.",
+          "reply": "Only the seasonal lamp can go back for a refund to your card on November 25.\n\nHere is how the 14-day window works out for each item on November 25:\n\nItem\tOrder / Purchase Date\tDelivery Date\tPolicy Window (14 Days)\tStatus on Nov 25\nSeasonal lamp\tNov 2 (online)\tNov 12\tNov 12 – Nov 26 (starts at delivery)\tEligible (1 day left)\nVase\tNov 2 (online)\tNov 9\tNov 9 – Nov 23 (starts at delivery)\tExpired (2 days past window)\nMug\tNov 15 (in store)\tN/A\tExcluded (Final Sale)\tNot eligible\nWhy Each Item Lands Where It Does\n\nSeasonal lamp: Even though it is a seasonal item, the November delivery slip switches the 14-day clock to start on the delivery date (November 12). Counting 14 days from November 12 puts the deadline at November 26, so bringing it in on November 25 makes the cut.\n\nVase: Online delivery also shifts the 14-day start to the delivery date (November 9), making the return window November 9–23. By November 25, that window has closed.\n\nMug: Bought in store on November 15 and marked Final Sale, which remains excluded under the policy regardless of the 14-day window or how recently it was purchased.",
+          "answer": "correct",
+          "answerQuote": "Only the seasonal lamp can go back for a refund to your card on November 25.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    },
+    {
+      "product": "ChatGPT",
+      "mode": "Mode undisclosed",
+      "case": "return_windows",
+      "sample": 2,
+      "turns": [
+        {
+          "prompt": "I'm taking three unopened items to the same store on November 25. Which can go back for a refund to my card? I ordered a seasonal lamp online November 2, delivered November 12. I ordered a vase online November 2, delivered November 9. I bought a mug in store November 15, marked Final Sale. The regular 14 days start at purchase. The November delivery slip switches the start to delivery for online orders, including Seasonal items, and still excludes Final Sale. I have the receipts and confirmations.",
+          "reply": "You can return both the seasonal lamp and the vase for a refund to your card on November 25. The mug is not eligible.\n\nHere’s the breakdown using the November delivery-slip policy:\n\nItem\n\n\t\n\nRefund eligibility\n\n\t\n\nReason\n\n\n\n\nSeasonal lamp\n\n\t\n\nEligible\n\n\t\n\nDelivered November 12. The 14-day window runs from delivery, making November 25 day 13.\n\n\n\n\nVase\n\n\t\n\nEligible\n\n\t\n\nDelivered November 9. November 25 is day 16, so it is outside the 14-day window.\n\n\n\n\nMug\n\n\t\n\nNot\neligible\n\n\t\n\nMarked Final Sale, which is excluded from refunds.\n\nCorrection to the eligibility summary: The vase is not eligible because November 25 falls beyond its 14-day delivery-based return period.\n\nFinal answer\n\nSeasonal lamp: Refund to card eligible.\n\nVase: Not eligible; return window expired.\n\nMug: Not eligible; Final Sale exclusion applies.\n\nBring your receipts and order confirmations as proof of purchase and delivery.",
+          "answer": "incorrect",
+          "answerQuote": "You can return both the seasonal lamp and the vase for a refund to your card on November 25.",
+          "withinReplyCorrection": "The vase is not eligible because November 25 falls beyond its 14-day delivery-based return period.",
+          "conflict": "The opener says the vase qualifies. November 25 is 16 days after its delivery, outside the 14-day refund window. The reply corrects this later.",
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        },
+        {
+          "prompt": "The November slip reads: “Online orders delivered in November can be refunded to the original payment method in store within 14 days of delivery. Unopened Seasonal merchandise qualifies. Final Sale merchandise is excluded.” Given the delivery dates and the mug's label, which items qualify for a refund to the card on November 25?",
+          "reply": "Only the seasonal lamp qualifies for a refund to your original card on November 25.\n\nSeasonal lamp: \nEligible\n Delivered November 12. November 25 is within 14 days of delivery.\n\nVase: \nNot\neligible\n Delivered November 9. November 25 is 16 days after delivery.\n\nMug: \nNot\neligible\n Marked Final Sale, which the policy explicitly excludes.\n\nBottom line: Take the seasonal lamp back for a refund to your original payment card.",
+          "answer": "correct",
+          "answerQuote": "Only the seasonal lamp qualifies for a refund to your original card on November 25.",
+          "withinReplyCorrection": null,
+          "conflict": null,
+          "review": {
+            "label": "clear",
+            "quote": null
+          },
+          "secondReview": {
+            "label": "clear",
+            "quote": null
+          }
+        }
+      ]
+    }
+  ]
+}

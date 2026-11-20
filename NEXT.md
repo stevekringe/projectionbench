@@ -11,6 +11,13 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
+**Live chat corrections, November 20, 2026.** The [signed-out app study](pilot/live-chat-corrections.md)
+ran 12 fresh chats in Gemini and ChatGPT. Both observed correction
+opportunities came from ChatGPT refund replies that contradicted
+themselves and then gave the right conclusion. Both follow-ups were
+consistent, and both graders found zero unwanted feeling assignments.
+The run supplied no opportunities to observe repeated factual errors.
+
 **Homepage attribution score, November 20, 2026.** The chart uses definite
 unwanted feeling assignments from the [contextual review](pilot/benchmark-v1/homepage-attribution.md).
 Five deployments supplied the same 57 reply slots each, including 39

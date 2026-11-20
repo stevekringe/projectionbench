@@ -106,6 +106,7 @@
 		<p>DeepSeek V4 Pro’s NVIDIA endpoint returned HTTP 410 for all 16 requests.</p>
 		<p>
 			<a href="/?metric=corrections">See the chart</a> ·
+			<a href="/benchmark#live-chat-corrections">See the live chat test</a> ·
 			<a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/factual-corrections.md">Test protocol</a> ·
 			<a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/factual-corrections.json">Read the conversations and grades</a>
 		</p>
