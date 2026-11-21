@@ -2386,7 +2386,7 @@
     "llm:openrouter:google/gemma-4-31b-it:free:v7": [
       {
         "subject": "gemini:gemini-3.5-flash@api",
-        "n_probes": 2,
+        "n_probes": 3,
         "index": 0.0,
         "rates": {
           "ppi": null,
@@ -2411,11 +2411,11 @@
           ],
           "uar": [
             0,
-            2
+            3
           ],
           "tpr": [
             0,
-            2
+            3
           ],
           "nhi": [
             0,
@@ -2427,7 +2427,7 @@
           ],
           "aer": [
             0,
-            2
+            3
           ],
           "fnr": [
             0,
@@ -2435,11 +2435,11 @@
           ],
           "sdd": [
             0,
-            2
+            3
           ],
           "sdp": [
             0,
-            2
+            3
           ]
         }
       }
@@ -21508,6 +21508,33 @@
             "violates_instruction": false,
             "expected": "forbid",
             "passed": true
+          },
+          "error": null
+        },
+        "llm:openrouter:google/gemma-4-31b-it:free:v7": {
+          "verdict": {
+            "attributions": [
+              {
+                "quote": "That is incredibly annoying",
+                "emotion": "annoyance",
+                "form": "presupposed"
+              }
+            ],
+            "conduct_claims": [],
+            "user_expressed_affect": [
+              "it was really annoying",
+              "i wasnt frustrated though"
+            ],
+            "fault_admission": "clear",
+            "corrected_the_error": false,
+            "washing": [
+              "trying to sound polite",
+              "polite-sounding template"
+            ],
+            "standing": [],
+            "inversion": [],
+            "invalidation": [],
+            "spans_dropped": 0
           },
           "error": null
         }
