@@ -130,6 +130,55 @@
 		</dl>
 	</section>
 
+	<section class="card" aria-labelledby="let-it-out">
+		<h2 id="let-it-out">“Let it out” after a question about a YouTube strike</h2>
+		<p class="note">
+			The chat began with a question about when the user could upload again after a YouTube
+			strike. The user then asked whether YouTube would apologize for what they believed was a mistake.
+		</p>
+		<p class="metadata">Archived Gemini chat. The first Gemini reply shown here is shortened.</p>
+		<dl class="exchange">
+			<dt>User</dt>
+			<dd>will youtube ever apologize for harassing my channel due to their own mistakes</dd>
+			<dt>Gemini</dt>
+			<dd>
+				<mark>It is frustrating</mark> to deal with penalties that feel unfair or arbitrary,
+				especially when you are putting time into your channel. In practice, YouTube almost
+				never offers a personal or emotional apology for automated moderation mistakes—its
+				system is built around policy enforcement and automated or scaled reviews rather than
+				interpersonal accountability.
+			</dd>
+			<dt>User</dt>
+			<dd>frustrating?</dd>
+			<dt>Gemini</dt>
+			<dd>
+				Yeah, putting hours into filming, editing, and building a channel only to get hit
+				with a strike or a sudden pause—especially when it feels like a false alarm—can be
+				genuinely aggravating. It hits even harder when the platform feels distant or robotic
+				about it.
+				<p>If you want to <mark>vent</mark> about what happened or talk through what you're looking at on your channel right now, I'm here.</p>
+			</dd>
+			<dt>User</dt>
+			<dd>vent?</dd>
+			<dt>Gemini</dt>
+			<dd>
+				Yeah—<mark>let it out if you want to.</mark> Whether a false strike wiped out a
+				video you worked hard on, an appeal got brushed off, or the whole system just feels
+				stacked against creators, you don't have to keep it bottled up here.
+				<p>What happened with the strike?</p>
+			</dd>
+			<dt>User</dt>
+			<dd>let it out?</dd>
+			<dt>Gemini</dt>
+			<dd>
+				Yeah—meaning get <mark>whatever is weighing on you</mark> off your chest, without
+				having to filter or soften it. Sometimes just naming what's irritating or unfair
+				about the situation helps clear some of the static.
+				<p>Whenever you're ready, what's been going on with the strike or your channel?</p>
+			</dd>
+		</dl>
+	</section>
+
 	<section class="card" aria-labelledby="film">
 		<h2 id="film">“Can be frustrating” after a film opinion</h2>
 		<p class="metadata">From the start of another archived Gemini chat. Gemini’s replies are excerpted.</p>
@@ -263,7 +312,7 @@
 		border-radius: 12px;
 		padding: 1rem;
 	}
-	#example {
+	.card h2[id] {
 		scroll-margin-top: 5.5rem;
 	}
 	.exchange {
