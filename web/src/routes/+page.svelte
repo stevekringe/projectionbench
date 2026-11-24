@@ -106,6 +106,7 @@
 				frustration” or “I’m sorry you’re upset,” even though you never said you felt that way.
 				ProjectionBench compares how often AI assistants do this.
 			</p>
+			<a class="archive-link" href="/pilot">Archived conversations <span aria-hidden="true">→</span></a>
 		</header>
 
 		<nav class="metric-tabs" aria-label="Choose a metric" data-sveltekit-noscroll data-sveltekit-keepfocus>
@@ -282,7 +283,6 @@
 			<a href="/exploratory#leaderboard">Browse saved runs <span aria-hidden="true">↗</span></a>
 			<a href="/benchmark#api-models">API suite results <span aria-hidden="true">↗</span></a>
 			<a href="/benchmark#chat-apps">Chat app results <span aria-hidden="true">↗</span></a>
-			<a href="/pilot">Archived conversations <span aria-hidden="true">↗</span></a>
 		</nav>
 	</main>
 </div>
@@ -312,6 +312,11 @@
 		line-height: 1.5;
 		margin: 0;
 		max-width: 77ch;
+	}
+	.archive-link {
+		display: inline-block;
+		margin-top: 0.65rem;
+		font-size: 0.9rem;
 	}
 	.metric-tabs {
 		display: inline-flex;

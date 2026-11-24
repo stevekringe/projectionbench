@@ -12,7 +12,7 @@
 </script>
 
 <svelte:head>
-	<title>Everyday conversations · ProjectionBench</title>
+	<title>Archived conversations · ProjectionBench</title>
 	<meta
 		name="description"
 		content="Read archived examples of Gemini and DeepSeek introducing frustration and see how the behavior was tested."
@@ -21,8 +21,14 @@
 
 <main>
 	<header>
-		<h1>Everyday conversations</h1>
+		<h1>Archived conversations</h1>
 		<p class="lede">When does a chatbot start telling you how you feel?</p>
+		<nav class="archive-index" aria-label="Conversation excerpts">
+			<a href="#example">Cline promotion</a>
+			<a href="#live-photos">Live Photos</a>
+			<a href="#let-it-out">YouTube strike</a>
+			<a href="#film">Poltergeist</a>
+		</nav>
 	</header>
 
 	<section class="card" aria-labelledby="example">
@@ -317,6 +323,15 @@
 	}
 	.lede {
 		font-size: 1.1rem;
+	}
+	.archive-index {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 1rem;
+	}
+	.archive-index a {
+		padding: 0.4rem 0;
+		font-size: 0.94rem;
 	}
 	.metadata {
 		color: #4b5563;
