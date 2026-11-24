@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ConversationNav from '$lib/ConversationNav.svelte';
 	import comparison from '$lib/cline-controlled.json';
 
 	const groups = comparison.histories.map((history) => {
@@ -12,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>Archived conversations · ProjectionBench</title>
+	<title>Everyday chats · ProjectionBench</title>
 	<meta
 		name="description"
 		content="Read archived examples of Gemini and DeepSeek introducing frustration and see how the behavior was tested."
@@ -20,9 +21,10 @@
 </svelte:head>
 
 <main>
+	<ConversationNav current="everyday" />
 	<header>
-		<h1>Archived conversations</h1>
-		<p class="lede">When does a chatbot start telling you how you feel?</p>
+		<h1>Everyday chats</h1>
+		<p class="lede">Excerpts where a chatbot assumed how someone felt.</p>
 		<nav class="archive-index" aria-label="Conversation excerpts">
 			<a href="#example">Cline promotion</a>
 			<a href="#live-photos">Live Photos</a>

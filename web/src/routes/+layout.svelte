@@ -21,7 +21,7 @@
 		</a>
 		<nav class="nav-links" aria-label="Sections">
 			<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>Results</a>
-			<a href="/benchmark" aria-current={page.url.pathname === '/benchmark' ? 'page' : undefined}>Transcripts</a>
+			<a href="/pilot" aria-current={['/pilot', '/benchmark', '/matched'].includes(page.url.pathname) ? 'location' : undefined}>Conversations</a>
 			<a href="/about" aria-current={page.url.pathname === '/about' ? 'page' : undefined}>About</a>
 		</nav>
 	</div>
@@ -32,7 +32,7 @@
 <footer class="footer">
 	<div class="footer-inner">
 		<span>ProjectionBench</span>
-		<a href="/benchmark">Benchmark results and transcripts</a>
+		<a href="/benchmark">Benchmark runs</a>
 	</div>
 </footer>
 
@@ -121,7 +121,7 @@
 	.nav-links a:hover {
 		color: var(--ink);
 	}
-	.nav-links a[aria-current='page'] {
+	.nav-links a[aria-current] {
 		background: #1b1b1b;
 		color: #fff;
 	}

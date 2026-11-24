@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ConversationNav from '$lib/ConversationNav.svelte';
 	import data from '$lib/benchmark-v1.json';
 	import chatApps from '$lib/chat-app-study.json';
 	import { matchedCases, primaryCases, suiteCases, suiteDate } from '$lib/api-suite';
@@ -118,7 +119,7 @@
 </script>
 
 <svelte:head>
-	<title>Benchmark results · ProjectionBench</title>
+	<title>Benchmark runs · ProjectionBench</title>
 	<meta name="description" content="See when chatbots assign a feeling the user never expressed. Read the full prompts, replies and two independent grades." />
 </svelte:head>
 
@@ -148,7 +149,8 @@
 {/snippet}
 
 <main>
-	<h1>Benchmark results</h1>
+	<ConversationNav current="benchmark" />
+	<h1>Benchmark runs</h1>
 	<p class="study-links"><a href="#api-models">API model benchmark</a> · <a href="#source-corrections">Source-backed corrections</a> · <a href="#live-chat-corrections">Live chat corrections</a> · <a href="#chat-apps">Earlier chat app results</a></p>
 
 	<section id="api-models" aria-labelledby="api-suite-heading">
@@ -503,7 +505,7 @@
 		{/each}
 	</section>
 
-	<p><a href="/pilot">See the real conversations that inspired the tests</a></p>
+	<p><a href="/pilot">Read the everyday chat examples</a></p>
 	<p><a href="/matched">Read the earlier matched tests</a></p>
 	<p><a href="https://github.com/stevekringe/projectionbench/tree/main/pilot/benchmark-v1">Read the protocol, rubric and scripts on GitHub</a></p>
 </main>

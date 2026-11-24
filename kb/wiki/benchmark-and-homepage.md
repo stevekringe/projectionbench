@@ -38,9 +38,10 @@ word “obnoxious” describes the user’s experience of these behaviors.
   under distinct model identifiers.
 - Show the archived Cline exchange just below the chart. Include the user’s
   question, Gemini’s reply, and the user’s follow-up, with a link to the
-  longer excerpt in Archived conversations.
-- Link to Archived conversations under the homepage introduction. List the
-  excerpts at the top of the archive so readers can jump to each one.
+  longer excerpt in Everyday chats.
+- Use Conversations in the main menu for both Everyday chats, which shows
+  examples from ordinary use, and Benchmark runs, which shows the tests and
+  their replies and grades. List the excerpts at the top of Everyday chats.
 - Link to the grader check from the chart. Give it a date, compare the same
   replies across graders, and quote reviewed mistakes from both graders.
 

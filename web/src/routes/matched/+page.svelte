@@ -140,7 +140,7 @@
 		{/each}
 	</section>
 
-	<p><a href="/pilot">Read the archived conversations →</a></p>
+	<p><a href="/pilot">Read the everyday chat examples →</a></p>
 </main>
 
 <style>
