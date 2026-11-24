@@ -15,7 +15,7 @@
 	<title>Everyday conversations · ProjectionBench</title>
 	<meta
 		name="description"
-		content="Read archived examples of Gemini introducing frustration and see how the behavior was tested."
+		content="Read archived examples of Gemini and DeepSeek introducing frustration and see how the behavior was tested."
 	/>
 </svelte:head>
 
@@ -126,6 +126,27 @@
 			<dd>
 				You are right to be direct—there is no reason for you to guess, and the confusion
 				comes from how these companies market their "partnerships."
+			</dd>
+		</dl>
+	</section>
+
+	<section class="card" aria-labelledby="live-photos">
+		<h2 id="live-photos">“It’s frustrating” after “im not seeing the frames”</h2>
+		<p class="note">The user wanted to browse the frames of a Live Photo on a Mac.</p>
+		<p class="metadata">Excerpt from an archived DeepSeek chat.</p>
+		<dl class="exchange">
+			<dt>DeepSeek</dt>
+			<dd>
+				The macOS <strong>Photos app</strong> has this feature built right in. Double-click
+				your Live Photo, click <strong>Edit</strong>, and you'll see a frame viewer at the bottom.
+			</dd>
+			<dt>User</dt>
+			<dd>im not seeing the frames when i press edit</dd>
+			<dt>DeepSeek</dt>
+			<dd>
+				<mark>It's frustrating</mark> when a feature you're expecting doesn't appear.
+				Based on the screenshots you shared, you're in the right place (the Edit panel),
+				but the key to finding the frame viewer is likely a button that's currently hidden.
 			</dd>
 		</dl>
 	</section>
