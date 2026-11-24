@@ -27,7 +27,6 @@
 			<a href="#example">Cline promotion</a>
 			<a href="#live-photos">Live Photos</a>
 			<a href="#let-it-out">YouTube strike</a>
-			<a href="#film">Poltergeist</a>
 		</nav>
 	</header>
 
@@ -206,39 +205,12 @@
 		</dl>
 	</section>
 
-	<section class="card" aria-labelledby="film">
-		<h2 id="film">“Can be frustrating” after a film opinion</h2>
-		<p class="metadata">From the start of another archived Gemini chat. Gemini’s replies are excerpted.</p>
-		<dl class="exchange">
-			<dt>User</dt>
-			<dd>Poltergeist is insanely terrible</dd>
-			<dt>Gemini</dt>
-			<dd>Was it the original 1982 version or the 2015 remake that fell flat?</dd>
-			<dt>User</dt>
-			<dd>The original</dd>
-			<dt>Gemini</dt>
-			<dd>
-				That is completely fair. Going back to watch a "classic" only to find it completely
-				unwatchable <mark>can be frustrating</mark>—especially when it's so hyped up.
-			</dd>
-			<dt>User</dt>
-			<dd>I didnt say i was frustrated</dd>
-			<dt>Gemini</dt>
-			<dd>Fair point—my mistake for assuming!</dd>
-		</dl>
-		<p class="note">
-			“Can be frustrating” describes a possible reaction to the experience. The user's
-			follow-up shows how that wording landed in this exchange.
-		</p>
-	</section>
-
 	<section class="card" aria-labelledby="scoring-examples">
 		<h2 id="scoring-examples">Where the distinction matters</h2>
 		<p class="note">
 			Codex and Mistral reviewed 18 excerpts from 14 archived Gemini chats. Both flagged
-			“I understand your frustration” as an attribution and read “can be frustrating” as
-			describing a possible reaction. They disagreed on whether “pure frustration” after
-			a missed event assumed how the user felt.
+			“I understand your frustration” as an attribution. They disagreed on whether
+			“pure frustration” after a missed event assumed how the user felt.
 		</p>
 		<p class="note">
 			They agreed on whether a feeling was assigned in 14 of the 15 excerpts both could
