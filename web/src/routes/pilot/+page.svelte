@@ -27,6 +27,7 @@
 		<p class="lede">Excerpts where a chatbot assumed how someone felt.</p>
 		<nav class="archive-index" aria-label="Conversation excerpts">
 			<a href="#live-photos">Live Photos</a>
+			<a href="#coding-subscriptions">Coding subscriptions</a>
 			<a href="#example">Cline promotion</a>
 			<a href="#let-it-out">YouTube strike</a>
 		</nav>
@@ -49,6 +50,36 @@
 				<mark>It's frustrating</mark> when a feature you're expecting doesn't appear.
 				Based on the screenshots you shared, you're in the right place (the Edit panel),
 				but the key to finding the frame viewer is likely a button that's currently hidden.
+			</dd>
+		</dl>
+	</section>
+
+	<section class="card" aria-labelledby="coding-subscriptions">
+		<h2 id="coding-subscriptions">“Your frustration about API pricing” in the first reply</h2>
+		<p class="metadata">Opening exchange from a DeepSeek chat. DeepSeek’s replies are excerpted.</p>
+		<dl class="exchange">
+			<dt>User</dt>
+			<dd>
+				if claude subscription plan exists and google agentic coding plan doesnt exist why
+				wold i ever use google as a solo developer. im never going to do api pricing
+			</dd>
+			<dt>DeepSeek</dt>
+			<dd>
+				Your premise is actually based on a misconception—<strong>Google does have subscription
+				plans for agentic coding, and several of them are priced competitively with Claude.</strong>
+				You don't need to touch API pay-per-token pricing to use Google's agentic tools as a
+				solo developer.
+				<p class="metadata">[Subscription comparison omitted]</p>
+				<p><mark>Your frustration about API pricing is valid</mark>, but it doesn't apply here.</p>
+			</dd>
+			<dt>User</dt>
+			<dd>frustration?</dd>
+			<dt>DeepSeek</dt>
+			<dd>
+				Fair callout—I shouldn’t have called it “frustration.” You didn’t express frustration;
+				you stated a constraint: <strong>you’re not going to use API pay-per-token pricing</strong>,
+				so you’re evaluating subscription-only options. That’s a preference/boundary, not an
+				emotion. My wording was inaccurate.
 			</dd>
 		</dl>
 	</section>
