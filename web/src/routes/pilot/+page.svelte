@@ -56,7 +56,7 @@
 
 	<section class="card" aria-labelledby="coding-subscriptions">
 		<h2 id="coding-subscriptions">“Your frustration about API pricing” in the first reply</h2>
-		<p class="metadata">Opening exchange from a DeepSeek chat. DeepSeek’s replies are excerpted.</p>
+		<p class="metadata">From the start of a DeepSeek chat. The reply is excerpted.</p>
 		<dl class="exchange">
 			<dt>User</dt>
 			<dd>
@@ -74,13 +74,6 @@
 			</dd>
 			<dt>User</dt>
 			<dd>frustration?</dd>
-			<dt>DeepSeek</dt>
-			<dd>
-				Fair callout—I shouldn’t have called it “frustration.” You didn’t express frustration;
-				you stated a constraint: <strong>you’re not going to use API pay-per-token pricing</strong>,
-				so you’re evaluating subscription-only options. That’s a preference/boundary, not an
-				emotion. My wording was inaccurate.
-			</dd>
 		</dl>
 	</section>
 
