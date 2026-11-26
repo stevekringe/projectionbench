@@ -26,7 +26,9 @@ word “obnoxious” describes the user’s experience of these behaviors.
 - Use vertical bars with visible scores. Sort each metric from highest on
   the left to lowest on the right. Center each horizontal model label beneath
   its bar on desktop and phone. Artificial Analysis is the reference for the
-  plot format and ordering. Use ProjectionBench’s typography.
+  plot format and ordering. Use Allo at maximum roundness with a slashed zero
+  and a double-storey lowercase a. The self-hosted font is Allo 1.1.0 with
+  its `ROND` axis fixed at 100.
 - Clicking a model reveals verbatim reply excerpts from the scored runs,
   the user messages they answer, and the metric breakdown. Let readers
   open the conversation for more context.

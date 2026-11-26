@@ -642,6 +642,7 @@
 		}
 		.model-label {
 			font-size: 0.7rem;
+			padding-inline: 0;
 		}
 		.model-setting {
 			display: block;

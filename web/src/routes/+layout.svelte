@@ -37,6 +37,13 @@
 </footer>
 
 <style>
+	@font-face {
+		font-family: Allo;
+		src: url('../lib/assets/allo/AlloRound.woff2') format('woff2');
+		font-weight: 100 900;
+		font-style: normal;
+		font-display: swap;
+	}
 	:global(:root) {
 		color-scheme: light;
 		--bg: #f6f7f9;
@@ -56,8 +63,13 @@
 		margin: 0;
 		background: var(--bg);
 		color: var(--ink);
-		font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+		font-family: Allo, system-ui, sans-serif;
+		font-feature-settings: 'zero' 1, 'ss01' 0;
 		-webkit-font-smoothing: antialiased;
+	}
+	:global(button), :global(input), :global(select), :global(textarea) {
+		font-family: inherit;
+		font-feature-settings: inherit;
 	}
 	.nav {
 		position: sticky;
