@@ -15,7 +15,7 @@
 		margin-bottom: 1rem;
 	}
 	a {
-		color: #4b5563;
+		color: var(--secondary);
 		font-size: 0.9rem;
 		text-decoration: none;
 		padding: 0.55rem 0;

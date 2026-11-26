@@ -288,8 +288,8 @@
 
 <style>
 	.dashboard {
-		background: #fff;
-		color: #181818;
+		background: var(--dashboard);
+		color: var(--ink);
 	}
 	main {
 		max-width: 1250px;
@@ -306,7 +306,7 @@
 		margin: 0 0 0.75rem;
 	}
 	header p {
-		color: #333;
+		color: var(--body-text);
 		font-size: 1.05rem;
 		line-height: 1.5;
 		margin: 0;
@@ -319,7 +319,7 @@
 		padding: 0.22rem;
 		margin-bottom: 0.9rem;
 		border-radius: 1.35rem;
-		background: #eeeeee;
+		background: var(--control);
 	}
 	.metric-tabs a {
 		font: inherit;
@@ -329,19 +329,20 @@
 		border-radius: 1.1rem;
 		padding: 0.55rem 0.84rem;
 		background: transparent;
-		color: #444;
+		color: var(--secondary);
 		cursor: pointer;
 		text-decoration: none;
 	}
 	.metric-tabs a[aria-current='page'] {
-		background: #1b1b1b;
-		color: #fff;
+		background: var(--active);
+		color: var(--on-active);
 	}
 	.short-tab-label {
 		display: none;
 	}
 	.chart-card {
-		border: 1px solid #ddd;
+		background: var(--card);
+		border: 1px solid var(--border);
 		border-radius: 9px;
 		padding: 1.1rem 1.4rem 0.85rem;
 	}
@@ -363,11 +364,11 @@
 	.chart-key {
 		width: 0.68rem;
 		height: 0.68rem;
-		background: #7052ce;
+		background: var(--violet);
 	}
 	.chart-head p, .coverage, .chart-footer p {
 		margin: 0.45rem 0 0;
-		color: #555;
+		color: var(--secondary);
 		font-size: 0.82rem;
 		line-height: 1.5;
 	}
@@ -377,24 +378,24 @@
 	.index-explanation {
 		max-width: 80ch;
 		margin: 0.4rem 0 0.75rem;
-		color: #444;
+		color: var(--secondary);
 		font-size: 0.85rem;
 		line-height: 1.5;
 	}
 	a {
-		color: #292929;
+		color: var(--ink);
 		text-underline-offset: 0.15em;
 	}
 	.button-link {
 		padding: 0.45rem 0.62rem;
-		border: 1px solid #ddd;
+		border: 1px solid var(--border);
 		border-radius: 5px;
 		font-size: 0.79rem;
 		text-decoration: none;
 		white-space: nowrap;
 	}
 	.button-link:hover {
-		background: #f1f1f1;
+		background: var(--surface);
 	}
 	.chart-scroll {
 		overflow-x: auto;
@@ -421,7 +422,7 @@
 		position: absolute;
 		right: 0.55rem;
 		transform: translateY(50%);
-		color: #595959;
+		color: var(--secondary);
 		font-size: 0.74rem;
 	}
 	.grid, .columns {
@@ -431,10 +432,10 @@
 	.grid span {
 		position: absolute;
 		width: 100%;
-		border-top: 1px dashed #ddd;
+		border-top: 1px dashed var(--border);
 	}
 	.grid .baseline {
-		border-top: 1px solid #bdbdbd;
+		border-top: 1px solid var(--border-strong);
 	}
 	.columns {
 		display: grid;
@@ -507,7 +508,7 @@
 		align-items: baseline;
 		justify-content: space-between;
 		gap: 0.45rem 1rem;
-		border-top: 1px solid #e6e6e6;
+		border-top: 1px solid var(--border);
 		padding-top: 0.65rem;
 		font-size: 0.82rem;
 	}
@@ -515,9 +516,10 @@
 		margin: 0;
 	}
 	.archive-example {
+		background: var(--card);
 		margin-top: 1.2rem;
 		padding: 1rem 1.4rem;
-		border: 1px solid #ddd;
+		border: 1px solid var(--border);
 		border-radius: 9px;
 		line-height: 1.5;
 	}
@@ -544,8 +546,8 @@
 		margin: 0;
 	}
 	.archive-example mark {
-		background: #f6edc6;
-		color: inherit;
+		background: var(--highlight);
+		color: var(--highlight-ink);
 	}
 	.more {
 		margin-top: 1.3rem;
@@ -553,7 +555,7 @@
 		justify-content: flex-start;
 	}
 	.breakdown {
-		border-top: 1px solid #e5e5e5;
+		border-top: 1px solid var(--border);
 		padding: 1rem 0;
 	}
 	.breakdown h3 {
@@ -572,7 +574,7 @@
 		font-size: 0.95rem;
 	}
 	.examples article {
-		border: 1px solid #e4e4e4;
+		border: 1px solid var(--border);
 		border-radius: 8px;
 		margin-bottom: 0.55rem;
 		padding: 0.75rem;
@@ -587,7 +589,7 @@
 		margin: 0.4rem 0 0.6rem;
 	}
 	.examples dt {
-		color: #555;
+		color: var(--secondary);
 		font-size: 0.75rem;
 		margin-top: 0.35rem;
 		font-weight: 600;
@@ -597,8 +599,8 @@
 		overflow-wrap: anywhere;
 	}
 	.excerpt {
-		background: #f3f1fa;
-		border-left: 3px solid #7052ce;
+		background: var(--violet-surface);
+		border-left: 3px solid var(--violet);
 		padding: 0.35rem 0.55rem;
 	}
 	.examples summary {
@@ -615,7 +617,7 @@
 	}
 	th, td {
 		padding: 0.42rem;
-		border-bottom: 1px solid #e5e5e5;
+		border-bottom: 1px solid var(--border);
 		text-align: left;
 		font-variant-numeric: tabular-nums;
 	}

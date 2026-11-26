@@ -170,7 +170,7 @@
 		font-size: 0.9rem;
 	}
 	small, .note {
-		color: #4b5563;
+		color: var(--secondary);
 	}
 	small {
 		display: block;
@@ -202,7 +202,7 @@
 	}
 	dt {
 		margin-top: 0.7rem;
-		color: #4b5563;
+		color: var(--secondary);
 		font-weight: 650;
 	}
 	dd {

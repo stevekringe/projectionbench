@@ -29,6 +29,8 @@ word “obnoxious” describes the user’s experience of these behaviors.
   plot format and ordering. Use Allo at maximum roundness with a slashed zero
   and a double-storey lowercase a. The self-hosted font is Allo 1.1.0 with
   its `ROND` axis fixed at 100.
+- Default to dark mode. The theme switch in the header remembers the visitor’s
+  choice in their browser.
 - Clicking a model reveals verbatim reply excerpts from the scored runs,
   the user messages they answer, and the metric breakdown. Let readers
   open the conversation for more context.

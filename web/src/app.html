@@ -3,16 +3,33 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="theme-color" content="#f6f7f9" />
+		<meta name="color-scheme" content="dark" />
+		<meta name="theme-color" content="#101216" />
 		<meta
 			name="description"
 			content="projectionbench — leaderboard for unsolicited affect attribution in LLM assistants. Lower is better."
 		/>
 		<style>
 			html {
-				background: #f6f7f9;
+				color-scheme: dark;
+				--bg: #101216;
+				background: var(--bg);
+			}
+			html[data-theme='light'] {
+				color-scheme: light;
+				--bg: #f6f7f9;
 			}
 		</style>
+		<script>
+			try {
+				if (localStorage.getItem('projectionbench-theme') === 'light') {
+					document.documentElement.dataset.theme = 'light';
+					document.querySelector('meta[name="theme-color"]').content = '#f6f7f9';
+				}
+			} catch {
+				// Dark is the default when storage is unavailable.
+			}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

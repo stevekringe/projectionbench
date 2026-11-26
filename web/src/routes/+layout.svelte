@@ -1,10 +1,38 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg?no-inline';
 	import faviconPng from '$lib/assets/favicon.png?no-inline';
 	import appleTouchIcon from '$lib/assets/apple-touch-icon.png?no-inline';
 
 	let { children } = $props();
+	let lightMode = $state(false);
+	const themeKey = 'projectionbench-theme';
+
+	function applyTheme(useLight: boolean) {
+		lightMode = useLight;
+		const root = document.documentElement;
+		root.dataset.theme = useLight ? 'light' : 'dark';
+		document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(root).backgroundColor);
+	}
+
+	function toggleTheme() {
+		applyTheme(!lightMode);
+		try {
+			localStorage.setItem(themeKey, lightMode ? 'light' : 'dark');
+		} catch {
+			// The switch still works in this tab when storage is unavailable.
+		}
+	}
+
+	onMount(() => {
+		lightMode = document.documentElement.dataset.theme === 'light';
+		function syncTheme(event: StorageEvent) {
+			if (event.key === themeKey) applyTheme(event.newValue === 'light');
+		}
+		window.addEventListener('storage', syncTheme);
+		return () => window.removeEventListener('storage', syncTheme);
+	});
 </script>
 
 <svelte:head>
@@ -15,15 +43,27 @@
 
 <header class="nav">
 	<div class="nav-inner">
-		<a class="brand" href="/">
+		<a class="brand" href="/" aria-label="ProjectionBench">
 			<span class="brand-mark" aria-hidden="true">P</span>
 			<span class="brand-name">ProjectionBench</span>
 		</a>
-		<nav class="nav-links" aria-label="Sections">
-			<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>Results</a>
-			<a href="/pilot" aria-current={['/pilot', '/benchmark', '/matched'].includes(page.url.pathname) ? 'location' : undefined}>Conversations</a>
-			<a href="/about" aria-current={page.url.pathname === '/about' ? 'page' : undefined}>About</a>
-		</nav>
+		<div class="nav-actions">
+			<nav class="nav-links" aria-label="Sections">
+				<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>Results</a>
+				<a href="/pilot" aria-current={['/pilot', '/benchmark', '/matched'].includes(page.url.pathname) ? 'location' : undefined}>Conversations</a>
+				<a href="/about" aria-current={page.url.pathname === '/about' ? 'page' : undefined}>About</a>
+			</nav>
+			<button
+				type="button"
+				class="theme-toggle"
+				aria-label={lightMode ? 'Switch to dark mode' : 'Switch to light mode'}
+				title={lightMode ? 'Switch to dark mode' : 'Switch to light mode'}
+				onclick={toggleTheme}
+			>
+				<span class="theme-sun" aria-hidden="true">☀︎</span>
+				<span class="theme-moon" aria-hidden="true">☾</span>
+			</button>
+		</div>
 	</div>
 </header>
 
@@ -45,16 +85,48 @@
 		font-display: swap;
 	}
 	:global(:root) {
-		color-scheme: light;
-		--bg: #f6f7f9;
+		--dashboard: var(--bg);
+		--card: #191c22;
+		--surface: #22262e;
+		--control: #272b34;
+		--nav-bg: rgb(16 18 22 / 0.92);
+		--border: #343943;
+		--border-strong: #586170;
+		--ink: #f0f2f5;
+		--body-text: #d9dde5;
+		--secondary: #c2c8d1;
+		--muted: #aab2bf;
+		--accent: #a8c9ff;
+		--accent-surface: #1b2c46;
+		--active: #e3e7ed;
+		--on-active: #16191f;
+		--violet: #b39cff;
+		--violet-surface: #27213a;
+		--highlight: #493718;
+		--highlight-ink: #ffe7a7;
+		--good: #6fdba0;
+	}
+	:global(:root[data-theme='light']) {
+		--dashboard: #fff;
 		--card: #ffffff;
+		--surface: #f3f4f6;
+		--control: #eee;
+		--nav-bg: rgb(255 255 255 / 0.88);
 		--border: #e5e7eb;
+		--border-strong: #c7cdd6;
 		--ink: #111827;
+		--body-text: #374151;
+		--secondary: #4b5563;
 		--muted: #6b7280;
-		--faint: #9ca3af;
-		--accent: #3f6fb5;
-		--good: #16a34a;
-		--bad: #dc2626;
+		--accent: #315f9c;
+		--accent-surface: #eff6ff;
+		--active: #1b1b1b;
+		--on-active: #fff;
+		--violet: #7052ce;
+		--violet-surface: #f3f1fa;
+		--highlight: #fef3c7;
+		--highlight-ink: #78350f;
+		--good: #166534;
 	}
 	:global(*) {
 		box-sizing: border-box;
@@ -71,11 +143,18 @@
 		font-family: inherit;
 		font-feature-settings: inherit;
 	}
+	:global(a) {
+		color: var(--accent);
+	}
+	:global(:focus-visible) {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+	}
 	.nav {
 		position: sticky;
 		top: 0;
 		z-index: 50;
-		background: rgba(255, 255, 255, 0.88);
+		background: var(--nav-bg);
 		backdrop-filter: blur(10px);
 		border-bottom: 1px solid var(--border);
 	}
@@ -93,17 +172,17 @@
 		align-items: center;
 		gap: 0.5rem;
 		text-decoration: none;
-		background: #1b1b1b;
+		background: var(--active);
 		border-radius: 999px;
-		color: #fff;
+		color: var(--on-active);
 		padding: 0.18rem 0.72rem 0.18rem 0.28rem;
 	}
 	.brand-mark {
 		width: 22px;
 		height: 22px;
 		border-radius: 50%;
-		background: #fff;
-		color: #1b1b1b;
+		background: var(--on-active);
+		color: var(--active);
 		font-weight: 800;
 		font-size: 0.85rem;
 		display: inline-flex;
@@ -115,15 +194,20 @@
 		font-size: 0.95rem;
 		letter-spacing: -0.01em;
 	}
+	.nav-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.45rem;
+	}
 	.nav-links {
 		display: flex;
 		gap: 0.16rem;
 		padding: 0.19rem;
 		border-radius: 999px;
-		background: #eee;
+		background: var(--control);
 	}
 	.nav-links a {
-		color: #444;
+		color: var(--secondary);
 		text-decoration: none;
 		font-size: 0.85rem;
 		font-weight: 500;
@@ -134,13 +218,35 @@
 		color: var(--ink);
 	}
 	.nav-links a[aria-current] {
-		background: #1b1b1b;
-		color: #fff;
+		background: var(--active);
+		color: var(--on-active);
+	}
+	.theme-toggle {
+		display: grid;
+		place-items: center;
+		padding: 0;
+		width: 2.15rem;
+		height: 2.15rem;
+		border: 1px solid var(--border-strong);
+		border-radius: 50%;
+		background: var(--surface);
+		color: var(--ink);
+		font: 1.12rem/1 system-ui, sans-serif;
+		cursor: pointer;
+	}
+	.theme-toggle:hover {
+		background: var(--control);
+	}
+	.theme-moon, :global(html[data-theme='light']) .theme-sun {
+		display: none;
+	}
+	:global(html[data-theme='light']) .theme-moon {
+		display: block;
 	}
 	.footer {
 		border-top: 1px solid var(--border);
 		margin-top: 3rem;
-		background: #fff;
+		background: var(--card);
 	}
 	.footer-inner {
 		max-width: 1120px;
@@ -164,6 +270,35 @@
 		}
 		.nav-links a {
 			padding: 0.38rem 0.41rem;
+		}
+		.theme-toggle {
+			width: 1.9rem;
+			height: 1.9rem;
+		}
+	}
+	@media (max-width: 430px) {
+		.brand {
+			padding: 0.35rem 0.4rem;
+		}
+		.brand-mark {
+			display: none;
+		}
+		.nav-actions {
+			gap: 0.3rem;
+		}
+		.nav-links a {
+			padding-inline: 0.34rem;
+		}
+	}
+	@media (max-width: 374px) {
+		.brand {
+			padding: 0.24rem;
+		}
+		.brand-mark {
+			display: inline-flex;
+		}
+		.brand-name {
+			display: none;
 		}
 	}
 </style>

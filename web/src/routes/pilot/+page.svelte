@@ -332,11 +332,11 @@
 		font-size: 0.94rem;
 	}
 	.metadata {
-		color: #4b5563;
+		color: var(--secondary);
 		font-size: 0.85rem;
 	}
 	.note {
-		color: #374151;
+		color: var(--body-text);
 		font-size: 0.94rem;
 		max-width: 69ch;
 	}
@@ -357,7 +357,7 @@
 		font-size: 0.95rem;
 	}
 	dt {
-		color: #4b5563;
+		color: var(--secondary);
 		font-weight: 650;
 		line-height: 1.6;
 	}
@@ -400,8 +400,8 @@
 		white-space: pre-wrap;
 	}
 	mark {
-		background: #fef3c7;
-		color: #78350f;
+		background: var(--highlight);
+		color: var(--highlight-ink);
 		border-radius: 3px;
 		padding: 0.1rem 0.2rem;
 		box-decoration-break: clone;

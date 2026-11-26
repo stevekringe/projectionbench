@@ -260,14 +260,14 @@
 		scroll-margin-top: 4rem;
 	}
 	p {
-		color: #374151;
+		color: var(--body-text);
 		font-size: 0.93rem;
 		line-height: 1.6;
 		margin: 0 0 0.75rem;
 		max-width: 72ch;
 	}
 	ul {
-		color: #374151;
+		color: var(--body-text);
 		font-size: 0.93rem;
 		line-height: 1.6;
 		margin: 0 0 0.75rem;
@@ -300,7 +300,7 @@
 		font-variant-numeric: tabular-nums;
 	}
 	code {
-		background: #f3f4f6;
+		background: var(--surface);
 		border: 1px solid var(--border);
 		border-radius: 6px;
 		padding: 0.1rem 0.45rem;
