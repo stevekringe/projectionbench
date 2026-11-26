@@ -60,8 +60,8 @@
 				title={lightMode ? 'Switch to dark mode' : 'Switch to light mode'}
 				onclick={toggleTheme}
 			>
-				<span class="theme-sun" aria-hidden="true">☀︎</span>
-				<span class="theme-moon" aria-hidden="true">☾</span>
+				<span class="theme-sun" aria-hidden="true"></span>
+				<span class="theme-moon" aria-hidden="true"></span>
 			</button>
 		</div>
 	</div>
@@ -86,20 +86,20 @@
 	}
 	:global(:root) {
 		--dashboard: var(--bg);
-		--card: #191c22;
-		--surface: #22262e;
-		--control: #272b34;
-		--nav-bg: rgb(16 18 22 / 0.92);
-		--border: #343943;
-		--border-strong: #586170;
-		--ink: #f0f2f5;
-		--body-text: #d9dde5;
-		--secondary: #c2c8d1;
-		--muted: #aab2bf;
+		--card: #1b1b1b;
+		--surface: #242424;
+		--control: #292929;
+		--nav-bg: rgb(18 18 18 / 0.92);
+		--border: #383838;
+		--border-strong: #616161;
+		--ink: #f2f2f2;
+		--body-text: #dcdcdc;
+		--secondary: #c8c8c8;
+		--muted: #b1b1b1;
 		--accent: #a8c9ff;
 		--accent-surface: #1b2c46;
-		--active: #e3e7ed;
-		--on-active: #16191f;
+		--active: #e7e7e7;
+		--on-active: #181818;
 		--violet: #b39cff;
 		--violet-surface: #27213a;
 		--highlight: #493718;
@@ -231,11 +231,36 @@
 		border-radius: 50%;
 		background: var(--surface);
 		color: var(--ink);
-		font: 1.12rem/1 system-ui, sans-serif;
 		cursor: pointer;
 	}
 	.theme-toggle:hover {
 		background: var(--control);
+	}
+	.theme-sun, .theme-moon {
+		width: 1rem;
+		height: 1rem;
+	}
+	.theme-sun {
+		position: relative;
+		background: radial-gradient(circle, transparent 2.5px, currentColor 2.8px 3.8px, transparent 4.1px);
+	}
+	.theme-sun::before, .theme-sun::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(currentColor, currentColor) top / 1.5px 2.5px no-repeat,
+			linear-gradient(currentColor, currentColor) bottom / 1.5px 2.5px no-repeat,
+			linear-gradient(currentColor, currentColor) left / 2.5px 1.5px no-repeat,
+			linear-gradient(currentColor, currentColor) right / 2.5px 1.5px no-repeat;
+	}
+	.theme-sun::after {
+		transform: rotate(45deg);
+	}
+	.theme-moon {
+		border-radius: 50%;
+		background: currentColor;
+		mask-image: radial-gradient(circle at 77% 30%, transparent 5.8px, #000 6.2px);
 	}
 	.theme-moon, :global(html[data-theme='light']) .theme-sun {
 		display: none;
