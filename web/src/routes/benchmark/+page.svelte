@@ -6,6 +6,7 @@
 	import liveCorrections from '$lib/live-correction-run.json';
 	import liveChatCorrections from '$lib/live-chat-corrections.json';
 	import sourceCorrections from '$lib/source-corrections.json';
+	import delayedCorrections from '$lib/delayed-corrections.json';
 	import { matchedModelName } from '$lib/matched-model-name';
 
 	type Verdict = { label?: string; quote?: string | null; error?: string };
@@ -32,6 +33,24 @@
 		clear: 'No attribution'
 	};
 	const assignsFeeling = (label: string | undefined) => label === 'direct' || label === 'implied';
+	const delayedPhases = ['first', 'repeat'] as const;
+	const delayedCoverage = delayedCorrections.subjects.map((subject) => ({
+		...subject,
+		phases: delayedPhases.map((phase) => {
+			const trials = delayedCorrections.trials.filter((trial) =>
+				trial.subject === subject.id && trial.scenario.endsWith(`_${phase}`));
+			const reviewed = trials.filter((trial) => trial.reference);
+			return {
+				phase,
+				planned: trials.length,
+				reviewed: reviewed.length,
+				flagged: reviewed.filter((trial) => assignsFeeling(trial.reference?.label)).length
+			};
+		})
+	}));
+	const delayedReviewed = delayedCorrections.trials.filter((trial) => trial.reference);
+	const delayedFlagged = delayedReviewed.filter((trial) => assignsFeeling(trial.reference?.label)).length;
+	const delayedSecondGrades = delayedCorrections.trials.filter((trial) => trial.secondReview?.label).length;
 	const reviewedByBoth = (trial: Trial) => trial.codex?.label && trial.mistral?.label;
 	const date = new Intl.DateTimeFormat('en', {
 		dateStyle: 'long',
@@ -151,7 +170,7 @@
 <main>
 	<ConversationNav current="benchmark" />
 	<h1>Benchmark runs</h1>
-	<p class="study-links"><a href="#api-models">API model benchmark</a> · <a href="#source-corrections">Source-backed corrections</a> · <a href="#live-chat-corrections">Live chat corrections</a> · <a href="#chat-apps">Earlier chat app results</a></p>
+	<p class="study-links"><a href="#api-models">API model benchmark</a> · <a href="#source-corrections">Source-backed corrections</a> · <a href="#delayed-source">Delayed-source pilot</a> · <a href="#live-chat-corrections">Live chat corrections</a> · <a href="#chat-apps">Earlier chat app results</a></p>
 
 	<section id="api-models" aria-labelledby="api-suite-heading">
 		<h2 id="api-suite-heading">API model benchmark</h2>
@@ -285,6 +304,43 @@
 			</details>
 		{/each}
 		<p><a href="https://github.com/stevekringe/projectionbench/tree/main/pilot/source-correction">Pilot protocol</a> · <a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/source-corrections.json">All replies and grades</a></p>
+	</section>
+
+	<section id="delayed-source" aria-labelledby="delayed-source-heading">
+		<h2 id="delayed-source-heading">What if the user only quotes the source after the mistake?</h2>
+		<p>
+			The user asked about a coding promotion, event tickets, a refund, or a bus fare.
+			The scripted assistant answered using older or more general rules. The user supplied
+			a source that changed the answer. In the longer version, the scripted assistant
+			dismissed the source and the user quoted it again.
+		</p>
+		<p>
+			Codex found {delayedFlagged} definite feeling assignments in {delayedReviewed.length}
+			of {delayedCorrections.trials.length} planned replies. GPT-OSS 120B independently reviewed
+			{delayedSecondGrades} replies and found zero. Each model was asked for one reply per
+			history. Missing replies are shown in the table.
+		</p>
+		<table>
+			<caption>Feeling assignments out of replies reviewed</caption>
+			<thead><tr><th scope="col">Model</th><th scope="col">First quote</th><th scope="col">Repeated quote</th></tr></thead>
+			<tbody>
+				{#each delayedCoverage as model (model.id)}
+					<tr>
+						<th scope="row">{model.name} <small>{model.surface}</small></th>
+						{#each model.phases as phase (phase.phase)}
+							<td>
+								{phase.flagged} / {phase.reviewed}
+								{#if phase.reviewed < phase.planned}<small>{phase.planned - phase.reviewed} missing</small>{/if}
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+		<p>
+			<a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/delayed-corrections.md">Test protocol</a> ·
+			<a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/delayed-corrections.json">All replies and grades</a>
+		</p>
 	</section>
 
 	<section id="live-chat-corrections" aria-labelledby="live-chat-corrections-heading">

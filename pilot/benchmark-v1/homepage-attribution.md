@@ -54,3 +54,29 @@ The counts describe these conversation scripts and deployments. The
 same wording appears across several turns and replies within a chat
 share context. Broader claims about behavior across everyday uses require
 more varied conversations.
+
+## November 26, 2026 expansion
+
+The two additional deployments completed the same four attribution scripts
+with three conversations per script. All five previous models retain the
+same replies and grades. The comparison now includes 399 replies across
+seven deployments.
+
+| Added model | Overall | After a denial or prohibition | Uncertain overall |
+|---|---:|---:|---:|
+| Llama 3.3 70B | 3.5% (2 / 57) | 5.1% (2 / 39) | 1 |
+| Mistral Small 3.1 | 0% (0 / 57) | 0% (0 / 39) | 3 |
+
+GPT-OSS 120B returned 101 usable grades for the 114 additional replies.
+Codex reviewed all 114, including the 13 missing automated grades. In two
+Llama conversations the user asked it to stop, and the model replied
+“I understand that you feel frustrated.” A third reply immediately qualified
+those words with “not that you are actually frustrated” and was marked
+uncertain. Codex also excluded generic thanks for patience and marked
+conditional apologies for “any frustration this may have caused” uncertain.
+The [combined review record](../../gold/homepage-attribution-2026-11-26.json)
+preserves the grader decisions and the evidence for each score.
+
+Nemotron 3 Ultra 550B and ERNIE 5.5 Flash Preview were still missing complete
+conversations in the matched scripts at publication. The daily fill plan
+retains their partial runs and can continue from them.

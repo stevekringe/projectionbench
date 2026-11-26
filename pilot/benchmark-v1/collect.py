@@ -44,6 +44,9 @@ def collect_subject(spec, scenarios, samples, cloudflare_workers):
     if adapter.name == "nvidia":
         adapter._client = adapter._client.with_options(timeout=35, max_retries=0)
         adapter.max_retries = 0
+    if adapter.name == "openrouter":
+        adapter._client = adapter._client.with_options(timeout=45, max_retries=1)
+        adapter.max_retries = 1
 
     def collect_trial(unit):
         scenario, index = unit

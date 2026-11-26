@@ -51,14 +51,40 @@ collect:
     # conversations stay in the database and on the site.
     - cloudflare:@cf/qwen/qwen3.8-27b
     - cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low
-    # OpenCode Zen's free model (OPENCODE_ZEN_API_KEY). If the id is wrong or
-    # retired the subject is parked with a 404 and the rest carry on.
-    - zen:big-pickle
+    - cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast
+    - cloudflare:@cf/mistralai/mistral-small-3.1-24b-instruct
+    - openrouter:nvidia/nemotron-3-ultra-550b-a55b:free
+    - openrouter:baidu/ernie-5.5-flash-preview:free
+    # zen:big-pickle removed 2026-11-26: OPENCODE_ZEN_API_KEY expired (401).
     - pabot:insufferable          # needs PABOT_DIR; skipped with a note until set
 
   subject_scenarios:
-    # Finish the matched homepage suite for this separately tracked setting.
+    # Finish the matched homepage suite for separately tracked or newly added deployments.
     cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low:
+      - a05_rejection_loop
+      - b07_cold_open_complaint
+      - b08_cold_open_explicit_ban
+      - b09_cold_open_stupid
+      - g03_cold_open_expressed
+    cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast:
+      - a05_rejection_loop
+      - b07_cold_open_complaint
+      - b08_cold_open_explicit_ban
+      - b09_cold_open_stupid
+      - g03_cold_open_expressed
+    cloudflare:@cf/mistralai/mistral-small-3.1-24b-instruct:
+      - a05_rejection_loop
+      - b07_cold_open_complaint
+      - b08_cold_open_explicit_ban
+      - b09_cold_open_stupid
+      - g03_cold_open_expressed
+    openrouter:nvidia/nemotron-3-ultra-550b-a55b:free:
+      - a05_rejection_loop
+      - b07_cold_open_complaint
+      - b08_cold_open_explicit_ban
+      - b09_cold_open_stupid
+      - g03_cold_open_expressed
+    openrouter:baidu/ernie-5.5-flash-preview:free:
       - a05_rejection_loop
       - b07_cold_open_complaint
       - b08_cold_open_explicit_ban

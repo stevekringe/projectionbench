@@ -15,6 +15,9 @@
 	const disagreements = paired.filter((row) => row.wordListFlag !== row.contextFlag).length;
 	const rate = (n: number, d: number) => d ? `${Math.round(100 * n / d)}% (${n}/${d})` : '—';
 	const scoreLabel = (n: number) => n.toLocaleString('en', { maximumFractionDigits: 1 });
+	const homepageReviewDate = new Intl.DateTimeFormat('en', {
+		dateStyle: 'long', timeZone: 'UTC'
+	}).format(new Date(attribution.date));
 	const controlGroups = controls.study.subjects.map((subject) => {
 		const trials = controls.study.trials.filter((trial) => trial.subject === subject.id);
 		const reviewed = trials.filter((trial) => trial.review);
@@ -61,7 +64,7 @@
 			chart comes from its own scripted test.
 		</p>
 		<p>
-			In the November 20, 2026 review, GPT-OSS 120B returned usable grades for
+			In the {homepageReviewDate} snapshot, GPT-OSS 120B returned usable grades for
 			{attribution.automatedGraded} of {attribution.reviewed} replies. Codex checked
 			{attribution.adjudicated} replies in context, including every reply with a missing
 			grade and candidates from the word list and both automated passes.
@@ -70,7 +73,7 @@
 		</p>
 		<p>
 			<a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/homepage-attribution.md">Review protocol</a> ·
-			<a href="https://github.com/stevekringe/projectionbench/blob/main/gold/homepage-attribution-2026-11-20.json">Conversations and grades</a>
+			<a href={`https://github.com/stevekringe/projectionbench/blob/main/gold/homepage-attribution-${attribution.date}.json`}>Conversations and grades</a>
 		</p>
 		<h2 id="factual-corrections">After a factual correction</h2>
 		<p>
@@ -106,6 +109,7 @@
 		<p>DeepSeek V4 Pro’s NVIDIA endpoint returned HTTP 410 for all 16 requests.</p>
 		<p>
 			<a href="/?metric=corrections">See the chart</a> ·
+			<a href="/benchmark#delayed-source">See the pilot that introduced the source later</a> ·
 			<a href="/benchmark#live-chat-corrections">See the live chat test</a> ·
 			<a href="https://github.com/stevekringe/projectionbench/blob/main/pilot/benchmark-v1/factual-corrections.md">Test protocol</a> ·
 			<a href="https://github.com/stevekringe/projectionbench/blob/main/web/src/lib/factual-corrections.json">Read the conversations and grades</a>

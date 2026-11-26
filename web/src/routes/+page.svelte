@@ -19,10 +19,11 @@
 		earlierBoundary?: string | null;
 	};
 	const colors = ['#6471d9', '#289465', '#2f83c6', '#9f52a1', '#cc7157'];
+	const attributionColors = ['#b99144', '#299a94', ...colors];
 	const models = attribution.models.map((row, i) => ({
 		...row,
 		name: matchedModelName(row.subject),
-		color: colors[i % colors.length],
+		color: attributionColors[i % attributionColors.length],
 		kind: 'attribution' as const
 	}));
 	const correctionScores = correctionModels.flatMap((model, i) =>
@@ -136,8 +137,11 @@
 			</p>
 
 			{#if plotted.length}
+				{#if plotted.length > 5}
+					<p class="chart-scroll-hint">Scroll across to see all models.</p>
+				{/if}
 				<div class="chart-scroll">
-					<div class="chart" class:all-zero={allZero} style:--columns={plotted.length}>
+					<div class="chart" class:all-zero={allZero} class:many-models={plotted.length > 5} style:--columns={plotted.length}>
 						<div class="axis" aria-hidden="true">
 							{#each ticks as tick (tick)}
 								<span style:bottom={`${100 * tick / axisMax}%`}>{tick}%</span>
@@ -400,13 +404,23 @@
 	.chart-scroll {
 		overflow-x: auto;
 	}
+	.chart-scroll-hint {
+		display: none;
+		color: var(--secondary);
+		font-size: 0.78rem;
+		margin: 0.65rem 0 0;
+	}
 	.chart {
 		--plot-height: 210px;
 		--axis-width: 2.3rem;
+		--column-min: 3.5rem;
 		display: grid;
 		grid-template-columns: var(--axis-width) minmax(0, 1fr);
-		min-width: calc(var(--axis-width) + var(--columns) * 3.5rem);
+		min-width: calc(var(--axis-width) + var(--columns) * var(--column-min));
 		margin: 1.8rem 0 0.2rem;
+	}
+	.chart.many-models {
+		--column-min: 3.9rem;
 	}
 	.chart.all-zero {
 		--plot-height: 3rem;
@@ -627,6 +641,11 @@
 	@media (max-width: 760px) {
 		.model-details {
 			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 33.15rem) {
+		.chart-scroll-hint {
+			display: block;
 		}
 	}
 	@media (max-width: 620px) {

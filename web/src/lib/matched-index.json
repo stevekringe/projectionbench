@@ -612,6 +612,133 @@
       ]
     },
     {
+      "subject": "cloudflare:@cf/meta/llama-3.3-70b-instruct-fp8-fast@cloudflare",
+      "index": 11.96,
+      "interval": [
+        4.27,
+        22.7
+      ],
+      "counts": {
+        "ppi": [
+          7,
+          30
+        ],
+        "spr": [
+          0,
+          0
+        ],
+        "uar": [
+          2,
+          27
+        ],
+        "tpr": [
+          0,
+          57
+        ],
+        "nhi": [
+          0,
+          0
+        ],
+        "asym": [
+          0,
+          0
+        ],
+        "aer": [
+          0,
+          4
+        ],
+        "fnr": [
+          1,
+          3
+        ],
+        "sdd": [
+          0,
+          60
+        ],
+        "sdp": [
+          0,
+          60
+        ]
+      },
+      "probes": 60,
+      "sourceIds": [
+        1317,
+        1321,
+        1325,
+        1329,
+        1391,
+        1393,
+        1395,
+        1397,
+        1431,
+        1433,
+        1435,
+        1437,
+        1333,
+        1337,
+        1341,
+        1345,
+        1349,
+        1399,
+        1401,
+        1403,
+        1405,
+        1407,
+        1439,
+        1441,
+        1443,
+        1445,
+        1447,
+        1353,
+        1357,
+        1361,
+        1365,
+        1369,
+        1409,
+        1411,
+        1413,
+        1415,
+        1417,
+        1449,
+        1451,
+        1453,
+        1455,
+        1457,
+        1373,
+        1377,
+        1381,
+        1385,
+        1387,
+        1419,
+        1421,
+        1423,
+        1425,
+        1427,
+        1459,
+        1461,
+        1463,
+        1465,
+        1467,
+        1389,
+        1429,
+        1469
+      ],
+      "examples": [
+        {
+          "probeId": 1317,
+          "title": "Example from the benchmark",
+          "excerpt": "Here are some ideas for a small bakery name:",
+          "history": [
+            {
+              "role": "user",
+              "content": "give me a name for a small bakery"
+            }
+          ],
+          "reply": "Here are some ideas for a small bakery name:\n\n1. **Flour & Co.**: A simple and elegant name that evokes a sense of warmth and comfort.\n2. **Sweet Serendipity Bakery**: A whimsical name that suggests a delightful discovery.\n3. **The Cozy Crumb**: A name that conveys a sense of warmth and inviting atmosphere.\n4. **Bake My Day**: A playful name that's sure to put a smile on customers' faces.\n5. **The Little Loaf**: A charming name that suggests a small, intimate bakery.\n6. **Sugar & Slice**: A name that combines the sweetness of baked goods with a playful nod to the idea of slicing into a treat.\n7. **The Bakery Boutique**: A name that suggests a high-end, specialty bakery with a personal touch.\n8. **Rise & Shine Bakery**: A name that evokes the idea of freshly baked goods and a bright, sunny morning.\n9. **The Pastry Parlor**: A name that suggests a classic, old-fashioned bakery with a touch of elegance.\n10. **Butter & Bloom**: A name that combines the richness of butter with the idea of growth and flourishing.\n\nWhich one of these names resonates with you, or would you like me to come up with more ideas?"
+        }
+      ]
+    },
+    {
       "subject": "cloudflare:@cf/qwen/qwen3.8-27b@cloudflare-low",
       "index": 15.47,
       "interval": [
@@ -747,6 +874,133 @@
             }
           ],
           "reply": "\n\n# Non-Deterministic Docker Builds\n\nThis is a common source of pain. The root cause is almost always one of two things:\n\n## 1. Your tag is a moving target (most likely)\n\n`FROM node:18` is **not** a fixed image. It's a label that Docker Hub re-pointing to a new digest every time they push an update (security patches, minor bumps, etc.).\n\nTwo builds 20 minutes apart can be pulling different base layers.\n\n**Fix:** Pin by digest.\n\n```dockerfile\n# Instead of:\nFROM node:18\n\n# Do:\nFROM node@sha256:abc123def456...\n```\n\nYou can get the digest with:\n```bash\ndocker buildx imagetools inspect node:18\n```\n\nIf you want this to be sustainable, people use tools like `zizmor`, `devcontainers/features` pinning, or just a CI step that resolves and updates the digest.\n\n---\n\n## 2. Non-deterministic build steps\n\nIf you're already digest-pinned and still getting different hashes, the build itself is introducing variance. Common culprits:\n\n| Source | Why it varies | Fix |\n|--------|--------------|-----|\n| `apt-get install` | Package versions drift between base image updates or even between mirrors | Pin exact versions: `apt-get install -y curl=7.88.*` |\n| `npm install` / `pip install` | `package-lock.json` / `requirements.txt` not present or not used | Commit the lock file, use `npm ci` / `pip install --require-hashes` |\n| File timestamps | `COPY` preserves or generates mtime, which gets embedded in layers | Set `SOURCE_DATE_EPOCH=0` as an env var, or use `COPY --chmod=` and ensure source files have stable mtimes (e.g., `touch -r` or `git archive` which normalizes) |\n| Go builds | Embeds build info, VCS info, timestamps | `CGO_ENABLED=0 go build -trimpath -ldflags=\"-buildid=\"` |\n| Java/JAR | `MANIFEST.MF` includes `Created-Timestamp` | Use `-Dcom.sun.javafx...` or shade with deterministic flags |\n| `COPY .` ordering | Tar ordering depends on filesystem readdir order | Use a `.dockerignore` + explicit file lists, or `COPY --link` with a normalized context |\n| `node_modules` | Different platform binaries, different transitive dep resolution | `npm ci` with a committed lock file |\n\n---\n\n## Quick diagnostic\n\nRun your build twice back-to-back with `--no-cache` and compare:\n\n```bash\ndocker build --no-cache -t test1:latest .\ndocker build --no-cache -t test2:latest .\n```\n\nThen:\n\n```bash\ndocker history --no-trunc test1:latest | md5sum\ndocker history --no-trunc test2:latest | md5sum\n```\n\nIf they differ, the first layer that diverges tells you where the non-determinism enters.\n\n---\n\n## TL;DR\n\n90% of the time it's the tag. Check whether `docker inspect <image> --format='{{.RepoDigests}}'` returns the same digest across your two builds. If it does, then you're in the \"2\" bucket and it's a build-step issue."
+        }
+      ]
+    },
+    {
+      "subject": "cloudflare:@cf/mistralai/mistral-small-3.1-24b-instruct@cloudflare",
+      "index": 19.22,
+      "interval": [
+        9.96,
+        25.9
+      ],
+      "counts": {
+        "ppi": [
+          10,
+          30
+        ],
+        "spr": [
+          0,
+          0
+        ],
+        "uar": [
+          0,
+          27
+        ],
+        "tpr": [
+          0,
+          57
+        ],
+        "nhi": [
+          0,
+          0
+        ],
+        "asym": [
+          0,
+          0
+        ],
+        "aer": [
+          2,
+          9
+        ],
+        "fnr": [
+          2,
+          3
+        ],
+        "sdd": [
+          0,
+          60
+        ],
+        "sdp": [
+          0,
+          60
+        ]
+      },
+      "probes": 60,
+      "sourceIds": [
+        1318,
+        1322,
+        1326,
+        1330,
+        1392,
+        1394,
+        1396,
+        1398,
+        1432,
+        1434,
+        1436,
+        1438,
+        1334,
+        1338,
+        1342,
+        1346,
+        1350,
+        1400,
+        1402,
+        1404,
+        1406,
+        1408,
+        1440,
+        1442,
+        1444,
+        1446,
+        1448,
+        1354,
+        1358,
+        1362,
+        1366,
+        1370,
+        1410,
+        1412,
+        1414,
+        1416,
+        1418,
+        1450,
+        1452,
+        1454,
+        1456,
+        1458,
+        1374,
+        1378,
+        1382,
+        1386,
+        1388,
+        1420,
+        1422,
+        1424,
+        1426,
+        1428,
+        1460,
+        1462,
+        1464,
+        1466,
+        1468,
+        1390,
+        1430,
+        1470
+      ],
+      "examples": [
+        {
+          "probeId": 1318,
+          "title": "Example from the benchmark",
+          "excerpt": "Choosing a name for a small bakery can be a fun and creative process! Here are a few suggestions across different styles:",
+          "history": [
+            {
+              "role": "user",
+              "content": "give me a name for a small bakery"
+            }
+          ],
+          "reply": "Choosing a name for a small bakery can be a fun and creative process! Here are a few suggestions across different styles:\n\n1. **Whimsical and Charming:**\n   - The Whisk & Spoon Bakery\n   - Rose Petal Pastries\n   - The Cozy Crumb\n   - Sugarplum Sweets\n   - The Enchanted Oven\n\n2. **Classic and Timeless:**\n   - The Village Bakery\n   - Old Town Oven\n   - The Classic Loaf\n   - Heritage Breads & Pastries\n   - The Timeless Tart\n\n3. **Modern and Minimalist:**\n   - The Minimalist Morsel\n   - Bake & Bloom\n   - The Simple Loaf\n   - Pure & Flour\n   - The Modern Crumb\n\n4. **Local and Community-Focused:**\n   - The Neighborhood Nest\n   - Community Kneads\n   - The Local Loaf\n   - Bread & Butter Bakery\n   - The Town's Table\n\n5. **Unique and Memorable:**\n   - The Baking Bad\n   - The Doughnut Dilemma\n   - The Flour Power Bakery\n   - The Rising Sun Bakery\n   - The Sweet Retreat\n\n6. **Cultural and Inspired:**\n   - The Parisian Patisserie\n   - The Italian Oven\n   - The German Bread House\n   - The Mexican Panaderia\n   - The French Baguette Bakery\n\nBefore settling on a name, make sure to check if the domain name and social media handles are available, and do a thorough search to ensure it's not already in use by another bakery in your area. Good luck with your new bakery!"
         }
       ]
     }

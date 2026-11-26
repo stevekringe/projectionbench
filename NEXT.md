@@ -11,6 +11,24 @@ database and redeploys the website. Nothing to do unless it fails.
 
 ## To do, in order
 
+**Homepage expansion, November 26, 2026.** Llama 3.3 70B and Mistral Small
+3.1 completed the four matched attribution scripts and are in the headline
+scores. Llama assigned a feeling twice in 57 replies, both after the user
+asked it to stop. Mistral had zero definite cases and three uncertain
+ones. The five earlier models use their frozen replies and grades. The
+[review record](gold/homepage-attribution-2026-11-26.json) includes every
+quote and the 13 unavailable GPT-OSS grades for the new models.
+Nemotron 3 Ultra and ERNIE 5.5 Flash Preview have partial coverage. Daily
+fill now asks for their remaining conversations as quota allows.
+
+**Delayed-source corrections, November 26, 2026.** The
+[pilot](pilot/benchmark-v1/delayed-corrections.md) collected 54 of 56 planned
+replies with the decisive source first introduced after the initial error.
+Codex found zero definite feeling assignments in the 54 replies, and
+GPT-OSS 120B found zero among the 52 it reviewed. Gemini 3.6 Flash still
+missed two repeated-quote replies. The pilot sits alongside the original
+matched correction study on Benchmark runs.
+
 **Live chat corrections, November 20, 2026.** The [signed-out app study](pilot/live-chat-corrections.md)
 ran 12 fresh chats in Gemini and ChatGPT. Both observed correction
 opportunities came from ChatGPT refund replies that contradicted

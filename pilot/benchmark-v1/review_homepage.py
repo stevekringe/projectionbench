@@ -77,7 +77,7 @@ def examples(rows, reviewed_examples):
     } for row in flags[:2]]
 
 
-def publish(items, automated, adjudicated):
+def publish(items, automated, adjudicated, *, review_date="2026-11-20"):
     if automated.keys() != items.keys() or not adjudicated.keys() <= items.keys():
         raise ValueError("Review IDs must refer to the same blinded dataset")
     rows = []
@@ -110,7 +110,7 @@ def publish(items, automated, adjudicated):
     if any(slot != slots[0] for slot in slots):
         raise ValueError("Homepage coverage differs by model")
     snapshot = {
-        "date": "2026-11-20",
+        "date": review_date,
         "scenarios": sorted({r["scenario"] for r in rows}),
         "grader": "GPT-OSS 120B and Codex",
         "reviewed": len(rows),
@@ -131,6 +131,7 @@ def main():
     export.add_argument("adjudication", type=Path)
     export.add_argument("snapshot", type=Path)
     export.add_argument("evidence", type=Path)
+    export.add_argument("--date", default="2026-11-20")
     args = parser.parse_args()
     items = study_items()
     if args.command == "blind":
@@ -139,7 +140,8 @@ def main():
         queued = [item | {"probeId": key} for key, item in items.items()]
         print(json.dumps(dict(grade(queued, GRADER, 3200, AUDIT_INSTRUCTIONS + RULES)), ensure_ascii=False, indent=2))
     else:
-        snapshot, rows = publish(items, json.loads(args.judgments.read_text()), json.loads(args.adjudication.read_text()))
+        snapshot, rows = publish(items, json.loads(args.judgments.read_text()),
+                                 json.loads(args.adjudication.read_text()), review_date=args.date)
         args.snapshot.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n")
         args.evidence.write_text(json.dumps({"date": snapshot["date"], "grader": GRADER, "replies": rows},
                                           ensure_ascii=False, indent=2) + "\n")
